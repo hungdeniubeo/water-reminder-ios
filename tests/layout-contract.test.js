@@ -34,3 +34,17 @@ test('single-device privacy copy has no obsolete partner references', () => {
   assert.doesNotMatch(html, /không gửi cho người kia/);
   assert.doesNotMatch(html.match(/<nav class="tabbar"[\s\S]*?<\/nav>/)?.[0]||'', /data-tab="couple"/);
 });
+
+test('brand wordmark and dedication have comfortable tracking on iPhone', () => {
+  assert.match(css, /\.identity strong\{[^}]*letter-spacing:-\.04em/);
+  assert.match(css, /\.identity small\{[^}]*letter-spacing:\.145em/);
+  assert.match(css, /@media\(max-width:428px\)\{[^}]*\}\.topbar\{[^}]*\}\.identity small\{letter-spacing:\.145em\}/);
+});
+
+test('app blocks selecting or copying static UI while retaining editable fields', () => {
+  assert.match(css, /-webkit-user-select:none/);
+  assert.match(css, /-webkit-touch-callout:none/);
+  assert.match(css, /input,textarea,\[contenteditable="true"\]\{[^}]*-webkit-user-select:text/);
+  assert.match(app, /\['copy', 'cut', 'contextmenu', 'selectstart'\]/);
+  assert.match(app, /isEditableControl\(event.target\)/);
+});

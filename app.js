@@ -387,3 +387,11 @@ for(const eventName of ['gesturestart','gesturechange','gestureend']){
 document.addEventListener('touchmove',event=>{
   if(event.touches.length>1)event.preventDefault();
 },{passive:false});
+// Prevent copying or selecting UI copy, without breaking text fields and pasting.
+const isEditableControl = target => target instanceof Element &&
+  !!target.closest('input, textarea, [contenteditable="true"]');
+for (const eventName of ['copy', 'cut', 'contextmenu', 'selectstart']) {
+  document.addEventListener(eventName, event => {
+    if (!isEditableControl(event.target)) event.preventDefault();
+  }, { capture: true });
+}
