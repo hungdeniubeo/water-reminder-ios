@@ -6,5 +6,5 @@
   "workers_dev": true,
   "triggers": {"crons": ["* * * * *"]},
   "vars": {"VAPID_SUBJECT": "https://hungdeniubeo.github.io/water-reminder-ios/", "VAPID_PUBLIC_KEY": "REPLACE_WITH_PUBLIC_VAPID_KEY"},
-  "d1_databases": [{"binding":"DB", "database_name":"water-couple", "database_id":"REPLACE_WITH_D1_DATABASE_ID"}]
+  "d1_databases": [{"binding":"DB", "database_name":"water-couple", "database_id":"18bd620f-30f8-4a8d-b4cd-8b150c3f7e53"}]
 }
