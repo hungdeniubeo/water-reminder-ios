@@ -8,11 +8,16 @@ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 const sw=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
 
-test('background ambience is decorative and does not intercept iPhone swipes',()=>{
+test('only the original pink gradient has a gentle water sway behind the app',()=>{
   assert.match(html,/class="ambient-motion" aria-hidden="true"/);
+  assert.match(html,/class="ambient-wave"/);
+  assert.doesNotMatch(html,/class="ambient-(?:orb|heart)/);
   assert.match(css,/\.ambient-motion\{[^}]*pointer-events:none/);
-  assert.match(css,/\.app-shell>.topbar,\.app-shell>main\{position:relative;z-index:1\}/);
-  assert.match(css,/@keyframes beo-orb-drift/);
+  assert.match(css,/\.app-shell>\.topbar,\.app-shell>main\{position:relative;z-index:1\}/);
+  assert.match(css,/\.ambient-wave\{[^}]*animation:beo-water-sway 23s/);
+  assert.match(css,/@keyframes beo-water-sway/);
+  assert.match(css,/background:radial-gradient\(circle at 88% 1%,#ffe9ef 0,#fff9fa 26%,#fff9fa 75%\)/);
+  assert.match(css,/\.ambient-wave,\.card-foot:after,[\s\S]*?animation:none!important/);
 });
 test('successful drink logs animate once, only on today view after rendering',()=>{
   assert.match(app,/import \{ animateHydrationSuccess(?:, [^}]+)? \} from '\.\/motion\.js';/);
@@ -31,7 +36,7 @@ test('reduced motion is respected and repeated effects get cleaned up',()=>{
   assert.match(motion,/burst\.remove\(\); label\.remove\(\)/);
 });
 test('offline cache includes optional motion module without changing push handling',()=>{
-  assert.match(sw,/water-reminder-static-v15-interval-menu-motion/);
+  assert.match(sw,/water-reminder-static-v16-pink-water-sway/);
   assert.match(sw,/'\.\/motion\.js'/);
   assert.match(sw,/self\.addEventListener\('push'/);
 });
