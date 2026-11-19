@@ -6,12 +6,12 @@
 
 # Water Reminder
 
-**Small sips. Better days.**
+**A little water, a little love.**
 
-A lightweight hydration tracker you can add to your iPhone Home Screen. No account, no subscription, no backend.
+A soft pink hydration tracker for iPhone, made with care. Switch instantly between **Tiếng Việt 🇻🇳** and **English 🇬🇧**. No account, no subscription, no backend.
 
 ![PWA](https://img.shields.io/badge/Platform-iPhone%20PWA-102D39?style=flat-square)
-![Version](https://img.shields.io/badge/Version-1.0-0C9B9C?style=flat-square)
+![Languages](https://img.shields.io/badge/Languages-VI%20%7C%20EN-C95C86?style=flat-square)
 ![Cost](https://img.shields.io/badge/Hosting-GitHub%20Pages-657A83?style=flat-square)
 
 [App](#try-the-app) · [Features](#features) · [Install](#install-on-iphone) · [Reminders](#notifications) · [Development](#development)
@@ -28,6 +28,8 @@ A lightweight hydration tracker you can add to your iPhone Home Screen. No accou
 
 ## Features
 
+- **Vietnamese & English.** Switch with VI / EN in the header. Your language preference is saved locally.
+- **Soft rose theme.** A warm, calm pink interface with matching icons and branding.
 - **Quick logging.** Add 150, 250, or 500 ml with one tap, or enter a custom amount.
 - **Daily goal.** Choose your own water target and follow a live progress ring.
 - **History.** See your last seven days as a chart and review daily totals.
@@ -86,9 +88,10 @@ The app uses relative asset paths so it works at the GitHub Pages project URL. N
 ## Project structure
 
 ```text
-index.html               Interface
+index.html               Interface + language switch
 styles.css               iPhone-first styling
 app.js                   UI and browser persistence
+i18n.js                  Vietnamese / English translations
 logic.js                 Testable date, goal, and reminder logic
 sw.js                    Offline asset caching
 manifest.webmanifest     Installable PWA metadata
@@ -104,6 +107,7 @@ PRIVACY.md               Local storage and privacy details
 - [x] Water logging, goals, and history
 - [x] On-device storage and JSON backups
 - [x] Foreground-only in-app nudges
+- [x] Pink theme and Vietnamese / English localization
 - [ ] Background Web Push with an opt-in subscription
 - [ ] Test and polish installation, icon appearance, and notifications on a physical iPhone
 - [ ] Optional device-to-device sync

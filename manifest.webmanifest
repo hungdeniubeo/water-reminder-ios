@@ -2,12 +2,12 @@
   "id": "./",
   "name": "Water Reminder",
   "short_name": "Water",
-  "description": "A little water, every day. Private hydration tracking on your device.",
+  "description": "A soft little water tracker, made with care. Available in Vietnamese and English.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f6faf9",
-  "theme_color": "#f6faf9",
+  "background_color": "#fff5f8",
+  "theme_color": "#fff5f8",
   "orientation": "portrait",
   "icons": [
     {

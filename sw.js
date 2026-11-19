@@ -1,6 +1,6 @@
 /* Static asset caching for offline use. Background push is intentionally not enabled in V1. */
-const CACHE_NAME = 'water-reminder-static-v1';
-const ASSETS = ['./','./index.html','./styles.css','./app.js','./logic.js','./manifest.webmanifest','./assets/icon.svg','./assets/icon-maskable.svg'];
+const CACHE_NAME = 'water-reminder-static-v2-rose';
+const ASSETS = ['./','./index.html','./styles.css','./app.js','./logic.js','./i18n.js','./manifest.webmanifest','./assets/icon.svg','./assets/icon-maskable.svg'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));

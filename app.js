@@ -2,11 +2,14 @@ import {
   STORAGE_KEY, normalizeState, localDayKey, dayKeyOffset,
   totalForDay, getWeekStats, nextReminderSlot
 } from './logic.js';
+import { getLanguage, setLanguage, translate, applyTranslations, formatNumber, formatDate, formatTime as localizedTime } from './i18n.js';
 
+let language = getLanguage();
+const t = (key, vars) => translate(key, language, vars);
 const el = id => document.getElementById(id);
-const comma = number => Number(number).toLocaleString('en-US');
+const comma = number => formatNumber(number, language);
 const ml = number => comma(number) + ' ml';
-const formatTime = date => date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+const formatTime = date => localizedTime(date, language);
 const dateForKey = day => new Date(day + 'T12:00:00');
 
 function readState() {
@@ -28,7 +31,7 @@ function persist() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     return true;
   } catch {
-    showToast('Storage unavailable. Your changes may not be saved.');
+    showToast(t('storageProblem'));
     return false;
   }
 }
@@ -54,14 +57,14 @@ function makeId() {
 function addWater(value) {
   const amount = Number(value);
   if (!Number.isInteger(amount) || amount < 20 || amount > 2000) {
-    showToast('Enter an amount between 20 and 2,000 ml.');
+    showToast(t('amountInvalid'));
     return false;
   }
   const at = new Date();
   state.logs.push({ id: makeId(), amount, at: at.toISOString(), day: localDayKey(at) });
   persist();
   render();
-  showToast('+' + ml(amount) + ' added. Nice one!');
+  showToast(t('waterAdded', { amount: comma(amount) }));
   return true;
 }
 
@@ -71,11 +74,11 @@ function removeWater(id) {
   const removed = state.logs.splice(index, 1)[0];
   persist();
   render();
-  showToast('Entry removed.', () => {
+  showToast(t('entryRemoved'), () => {
     if (!state.logs.some(item => item.id === removed.id)) state.logs.push(removed);
     persist();
     render();
-    showToast('Entry restored.');
+    showToast(t('entryRestored'));
   });
 }
 
@@ -94,16 +97,16 @@ function renderToday() {
   const shownPercent = Math.min(percent, 100);
   const now = new Date();
 
-  el('today-date').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
+  el('today-date').textContent = formatDate(now, language, { weekday: 'long', month: 'long', day: 'numeric' }).toLocaleUpperCase(language === 'vi' ? 'vi-VN' : 'en-US');
   el('today-total').textContent = comma(total);
-  el('today-goal-label').textContent = 'of ' + ml(state.goal);
+  el('today-goal-label').textContent = t('goalOf', { amount: comma(state.goal) });
   el('progress-ring').style.setProperty('--progress', shownPercent + '%');
   el('progress-ring').setAttribute('aria-valuenow', String(shownPercent));
-  el('progress-ring').setAttribute('aria-valuetext', ml(total) + ' of ' + ml(state.goal));
-  el('progress-status-label').textContent = percent >= 100 ? 'GOAL REACHED' : 'ON YOUR WAY';
-  el('progress-message').textContent = percent >= 100 ? 'Goal reached. Well done!' : percent >= 50 ? 'You are doing great.' : total > 0 ? 'A lovely start.' : 'A fresh start.';
-  el('progress-remaining').textContent = percent >= 100 ? 'You have met your goal today.' : ml(state.goal - total) + ' to your goal';
-  el('today-count').textContent = String(logs.length) + (logs.length === 1 ? ' ENTRY' : ' ENTRIES');
+  el('progress-ring').setAttribute('aria-valuetext', ml(total) + ' / ' + ml(state.goal));
+  el('progress-status-label').textContent = t(percent >= 100 ? 'goalReached' : 'onYourWay');
+  el('progress-message').textContent = t(percent >= 100 ? 'reachedToday' : percent >= 50 ? 'halfWay' : total > 0 ? 'startingWell' : 'startFresh');
+  el('progress-remaining').textContent = percent >= 100 ? t('completed') : t('remaining', { amount: comma(state.goal - total) });
+  el('today-count').textContent = t('entryCount', { count: logs.length }).toLocaleUpperCase(language === 'vi' ? 'vi-VN' : 'en-US');
 
   const list = el('today-entries');
   list.replaceChildren();
@@ -112,8 +115,8 @@ function renderToday() {
     empty.className = 'empty-card';
     const title = document.createElement('strong');
     const body = document.createElement('p');
-    title.textContent = 'No water logged just yet';
-    body.textContent = 'Your first glass is just a tap away.';
+    title.textContent = t('emptyTitle');
+    body.textContent = t('emptyDescription');
     empty.append(title, body);
     list.append(empty);
     return;
@@ -133,7 +136,7 @@ function renderToday() {
     remove.className = 'delete-button';
     remove.type = 'button';
     remove.textContent = '×';
-    remove.setAttribute('aria-label', 'Delete ' + ml(log.amount) + ' entry at ' + time.textContent);
+    remove.setAttribute('aria-label', t('removeEntry', { amount: comma(log.amount), time: time.textContent }));
     remove.addEventListener('click', () => removeWater(log.id));
     row.append(createDroplet(), content, remove);
     list.append(row);
@@ -143,7 +146,7 @@ function renderToday() {
 function renderHistory() {
   const stats = getWeekStats(state.logs, state.goal, new Date());
   el('week-average').textContent = ml(stats.average);
-  el('days-reached').textContent = stats.reached + (stats.reached === 1 ? ' day' : ' days');
+  el('days-reached').textContent = t('daysCount', { count: stats.reached });
 
   const bars = el('week-bars');
   bars.replaceChildren();
@@ -160,7 +163,7 @@ function renderHistory() {
     track.append(fill);
     const weekday = document.createElement('span');
     weekday.className = 'bar-day';
-    weekday.textContent = dateForKey(day.day).toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2);
+    weekday.textContent = language === 'vi' ? ['CN','T2','T3','T4','T5','T6','T7'][dateForKey(day.day).getDay()] : ['Su','Mo','Tu','We','Th','Fr','Sa'][dateForKey(day.day).getDay()];
     column.append(track, weekday);
     bars.append(column);
   });
@@ -174,9 +177,9 @@ function renderHistory() {
     row.className = 'history-day-row';
     const info = document.createElement('span');
     info.className = 'history-day-name';
-    info.textContent = offset === 0 ? 'Today' : offset === -1 ? 'Yesterday' : dateForKey(day).toLocaleDateString('en-US', { weekday: 'long' });
+    info.textContent = offset === 0 ? t('today') : offset === -1 ? t('yesterday') : formatDate(dateForKey(day), language, { weekday: 'long' });
     const date = document.createElement('small');
-    date.textContent = dateForKey(day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    date.textContent = formatDate(dateForKey(day), language, { month: 'short', day: 'numeric' });
     info.append(date);
     const total = document.createElement('strong');
     total.textContent = ml(amount);
@@ -184,8 +187,8 @@ function renderHistory() {
     if (amount >= state.goal) {
       const check = document.createElement('span');
       check.className = 'goal-mark';
-      check.setAttribute('aria-label', 'Goal reached');
-      check.title = 'Goal reached';
+      check.setAttribute('aria-label', t('reachedAria'));
+      check.title = t('reachedAria');
       check.textContent = '✓';
       row.append(check);
     }
@@ -205,7 +208,7 @@ function updateReminderPreview() {
   const end = el('remind-end').value;
   const interval = Number(el('remind-interval').value);
   if (!start || !end || start >= end) {
-    el('reminder-preview').textContent = 'Choose a start time earlier than your end time.';
+    el('reminder-preview').textContent = t('previewInvalid');
     return;
   }
   const startMinutes = Number(start.slice(0, 2)) * 60 + Number(start.slice(3));
@@ -214,7 +217,7 @@ function updateReminderPreview() {
   for (let minute = startMinutes; minute <= endMinutes && times.length < 4; minute += interval) {
     times.push(formatClock(String(Math.floor(minute / 60)).padStart(2, '0') + ':' + String(minute % 60).padStart(2, '0')));
   }
-  el('reminder-preview').textContent = 'Preview: ' + times.join(', ') + (startMinutes + interval * 4 <= endMinutes ? ' …' : '');
+  el('reminder-preview').textContent = t('preview', { times: times.join(', '), more: startMinutes + interval * 4 <= endMinutes ? ' …' : '' });
 }
 
 function renderSettings() {
@@ -264,11 +267,24 @@ function checkReminder() {
   if (!slot) return;
   state.lastReminderSlot = slot;
   persist();
-  showToast('A little water break? Take a sip.');
+  showToast(t('reminderToast'));
 }
 
 document.querySelectorAll('[data-tab]').forEach(button => {
   button.addEventListener('click', () => changeScreen(button.dataset.tab));
+});
+
+// Language changes are immediate and independent of the hydration data backup.
+document.querySelectorAll('[data-lang]').forEach(button => {
+  button.addEventListener('click', () => {
+    if (language === button.dataset.lang) return;
+    if (!setLanguage(button.dataset.lang)) return;
+    language = button.dataset.lang;
+    applyTranslations(language);
+    el('toast').hidden = true;
+    render();
+    renderSettings();
+  });
 });
 document.querySelectorAll('[data-add]').forEach(button => {
   button.addEventListener('click', () => addWater(button.dataset.add));
@@ -303,13 +319,13 @@ el('goal-form').addEventListener('submit', event => {
   event.preventDefault();
   const goal = Number(el('goal-input').value);
   if (!Number.isInteger(goal) || goal < 500 || goal > 6000) {
-    showToast('Choose a goal between 500 and 6,000 ml.');
+    showToast(t('goalInvalid'));
     return;
   }
   state.goal = goal;
   persist();
   render();
-  showToast('Daily goal updated.');
+  showToast(t('goalUpdated'));
 });
 ['remind-start', 'remind-end', 'remind-interval'].forEach(id => {
   el(id).addEventListener('change', updateReminderPreview);
@@ -319,7 +335,7 @@ el('reminder-form').addEventListener('submit', event => {
   const start = el('remind-start').value;
   const end = el('remind-end').value;
   if (!start || !end || start >= end) {
-    showToast('End time must be later than start time.');
+    showToast(t('timeInvalid'));
     return;
   }
   state.reminder = {
@@ -330,7 +346,7 @@ el('reminder-form').addEventListener('submit', event => {
   state.lastReminderSlot = '';
   persist();
   updateReminderPreview();
-  showToast(state.reminder.enabled ? 'In-app reminders saved.' : 'Reminders turned off.');
+  showToast(t(state.reminder.enabled ? 'remindersSaved' : 'remindersOff'));
 });
 
 
@@ -345,24 +361,24 @@ function exportBackup() {
   anchor.click();
   anchor.remove();
   setTimeout(() => URL.revokeObjectURL(url), 5000);
-  showToast('Backup prepared. Save it somewhere safe.');
+  showToast(t('backupReady'));
 }
 
 async function restoreBackup(file) {
   if (!file) return;
   try {
-    if (file.size > 5 * 1024 * 1024) throw new Error('Backup file is too large.');
+    if (file.size > 5 * 1024 * 1024) throw new Error(t('backupTooLarge'));
     const payload = JSON.parse(await file.text());
     if (payload.format !== 'water-reminder-backup' || payload.version !== 1 ||
-        !payload.data || !Array.isArray(payload.data.logs)) throw new Error('This is not a valid Water Reminder backup.');
-    if (!window.confirm('Replace your current water history and settings with this backup?')) return;
+        !payload.data || !Array.isArray(payload.data.logs)) throw new Error(t('backupInvalid'));
+    if (!window.confirm(t('backupConfirm'))) return;
     state = normalizeState(payload.data);
     persist();
     render();
     renderSettings();
-    showToast('Your backup has been restored.');
+    showToast(t('backupRestored'));
   } catch (error) {
-    showToast(error.message || 'Could not open this backup.');
+    showToast(error.message || t('backupFailed'));
   }
 }
 
@@ -386,6 +402,7 @@ setInterval(() => {
   checkReminder();
 }, 30_000);
 
+applyTranslations(language);
 render();
 renderSettings();
 if ('serviceWorker' in navigator) {
