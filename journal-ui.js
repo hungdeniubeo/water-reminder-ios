@@ -1,4 +1,5 @@
-import { localDayKey, dayKeyOffset, totalForDay } from './logic.js';
+import { localDayKey, totalForDay } from './logic.js';
+import { getWeekWindow, swipeWeekDirection } from './week-strip.js';
 import { BODY_NOTES_KEY, BODY_SYMPTOMS, BODY_CONTEXTS, cleanBodyNotes, completedDaySummary, recentGoalStreak, monthlyCalendar, dateWithinJournal } from './hydration-insights.js';
 
 // The journal is separate from the couple/push feature. No symptom data leaves the phone.
@@ -6,6 +7,9 @@ export function createJournal({getState, getLanguage, t, number, amountLabel, fo
   const el = id => document.getElementById(id);
   const getDay = day => new Date(day+'T12:00:00');
   let chosenDay=localDayKey();
+  let weeksBack=0;
+  let swipeStarted=null;
+  let lastWeekSwipe=0;
   let month=new Date(new Date().getFullYear(), new Date().getMonth(), 1, 12);
   let notes;
   try { notes=cleanBodyNotes(JSON.parse(localStorage.getItem(BODY_NOTES_KEY)||'{}')); }
@@ -24,17 +28,40 @@ export function createJournal({getState, getLanguage, t, number, amountLabel, fo
 
   function renderWeek(){
     const box=el('home-week-days');box.replaceChildren();
-    for(let n=-6;n<=0;n++){
-      const day=dayKeyOffset(n), logged=hasLog(day), total=dayTotal(day), date=getDay(day);
+    const window=getWeekWindow(weeksBack);
+    const [first,last]=[window.days[0],window.days[6]];
+    const compact=key=>{
+      const [year,month,day]=key.split('-').map(Number);
+      const date=getLanguage()==='en' ? month+'/'+day : day+'/'+month;
+      return date+(first.slice(0,4)!==last.slice(0,4) ? '/'+year : '');
+    };
+    const range=el('week-range');
+    range.textContent=compact(first)+' – '+compact(last);
+    range.setAttribute('aria-label',localDate(first,{day:'numeric',month:'long',year:'numeric'})+' – '+localDate(last,{day:'numeric',month:'long',year:'numeric'}));
+    el('week-prev').disabled=!window.canOlder;
+    el('week-next').disabled=!window.canNewer;
+    for(const day of window.days){
+      const logged=hasLog(day), total=dayTotal(day), date=getDay(day);
+      const available=dateWithinJournal(day), today=day===localDayKey();
       const b=document.createElement('button');b.type='button';
-      b.className='week-day'+(n===0?' is-today':'')+(logged?' has-water':'')+(logged && total>=getState().goal?' is-complete':'');
+      b.disabled=!available;
+      b.className='week-day'+(today?' is-today':'')+(logged?' has-water':'')+(logged && total>=getState().goal?' is-complete':'')+(day===chosenDay && !today?' is-picked':'');
       const label=document.createElement('small');label.textContent=formatDate(date,getLanguage(),{weekday:'short'}).replace('.','');
       const digit=document.createElement('strong');digit.textContent=String(date.getDate());
       const mark=document.createElement('span');mark.className='week-indicator';mark.textContent=logged?'•':'·';
       b.append(label,digit,mark);
-      b.setAttribute('aria-label',localDate(day,{day:'numeric',month:'long'})+', '+(logged?amountLabel(total):t('v3NoEntryShort')));
-      b.addEventListener('click',()=>{selectDay(day);openHistory();});box.append(b);
+      b.setAttribute('aria-label',localDate(day,{day:'numeric',month:'long',year:'numeric'})+', '+(logged?amountLabel(total):t('v3NoEntryShort')));
+      b.addEventListener('click',()=>{if(Date.now()-lastWeekSwipe<450)return;selectDay(day);openHistory();});box.append(b);
     }
+  }
+
+  function changeWeek(direction){
+    const window=getWeekWindow(weeksBack);
+    if(direction>0 && !window.canOlder)return false;
+    if(direction<0 && !window.canNewer)return false;
+    weeksBack=Math.max(0,weeksBack+direction);
+    renderWeek();
+    return true;
   }
 
   function renderStory(){
@@ -158,7 +185,27 @@ export function createJournal({getState, getLanguage, t, number, amountLabel, fo
 
   function render(){renderCalendar();renderSelectedDay();renderPatterns();renderCheckin();}
 
-  el('open-journal').addEventListener('click',()=>{selectDay(localDayKey());openHistory();});
+  el('open-journal').addEventListener('click',()=>{
+    const days=getWeekWindow(weeksBack).days;
+    const visible=days.filter(day=>dateWithinJournal(day));
+    selectDay(visible[visible.length-1]||localDayKey());openHistory();
+  });
+  el('week-prev').addEventListener('click',()=>changeWeek(1));
+  el('week-next').addEventListener('click',()=>changeWeek(-1));
+  const weekDays=el('home-week-days');
+  // One-finger horizontal swipe; keep vertical scrolling and iPhone zoom rules intact.
+  weekDays.addEventListener('touchstart',event=>{
+    const finger=event.touches.length===1 ? event.touches[0] : null;
+    swipeStarted=finger ? {x:finger.clientX,y:finger.clientY} : null;
+  },{passive:true});
+  weekDays.addEventListener('touchcancel',()=>{swipeStarted=null;},{passive:true});
+  weekDays.addEventListener('touchend',event=>{
+    if(!swipeStarted || event.changedTouches.length!==1){swipeStarted=null;return;}
+    const finger=event.changedTouches[0];
+    const direction=swipeWeekDirection(finger.clientX-swipeStarted.x,finger.clientY-swipeStarted.y);
+    swipeStarted=null;
+    if(direction){lastWeekSwipe=Date.now();changeWeek(direction);}
+  },{passive:true});
   el('daily-story-link').addEventListener('click',openHistory);
   el('calendar-prev').addEventListener('click',()=>{const y=month.getFullYear(),m=month.getMonth();month=new Date(y,m-1,1,12);renderCalendar();});
   el('calendar-next').addEventListener('click',()=>{const y=month.getFullYear(),m=month.getMonth();month=new Date(y,m+1,1,12);renderCalendar();});

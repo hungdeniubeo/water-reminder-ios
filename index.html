@@ -30,7 +30,6 @@
           <button type="button" data-lang="vi" class="selected" aria-pressed="true">VI</button>
           <button type="button" data-lang="en" aria-pressed="false">EN</button>
         </div>
-        <button class="round-button" id="about-button" type="button" data-i18n-aria-label="aboutButton" aria-label="Cách cài ứng dụng lên iPhone"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button>
       </div>
     </header>
 
@@ -44,7 +43,12 @@
 
         <section class="week-peek" aria-label="Nhật ký 7 ngày gần đây" data-i18n-aria-label="v3WeekNavAria">
           <div class="week-peek-heading"><span data-i18n="v3WeeklyTiny">BẢY NGÀY CỦA BEO</span><button id="open-journal" type="button" data-i18n="v3SeeJournal">Xem nhật ký ↗</button></div>
-          <div id="home-week-days" class="week-peek-days"></div>
+          <div class="week-peek-controls" role="group" data-i18n-aria-label="v3WeekNavAria" aria-label="Chọn khoảng 7 ngày">
+            <button id="week-prev" type="button" aria-label="Xem 7 ngày trước" data-i18n-aria-label="v3WeekPrevious">‹</button>
+            <span id="week-range" aria-live="polite"></span>
+            <button id="week-next" type="button" aria-label="Xem 7 ngày tiếp theo" data-i18n-aria-label="v3WeekNext" disabled>›</button>
+          </div>
+          <div id="home-week-days" class="week-peek-days" aria-live="polite"></div>
         </section>
 
         <section class="progress-card" data-i18n-aria-label="progressAria" aria-label="Tiến độ uống nước hôm nay">
@@ -182,7 +186,6 @@
   </div>
 
   <dialog id="log-dialog" class="bottom-dialog" aria-labelledby="log-title"><form id="drink-form"><div class="dialog-handle"></div><div class="dialog-top"><span class="eyebrow" data-i18n="dialogEyebrow">NHỚ UỐNG NƯỚC NHÉ ♡</span><button type="button" class="dialog-close" id="close-dialog" data-i18n-aria-label="close" aria-label="Đóng">×</button></div><h2 id="log-title" data-i18n="drinkTitle">Bạn vừa uống bao nhiêu?</h2><p data-i18n="drinkSubtitle">Dù một ngụm nhỏ cũng đáng nhớ.</p><div class="dialog-presets" role="group" aria-label="Chọn lượng nước" data-i18n-aria-label="presetAria"><button type="button" data-preset="150">150 <small>ml</small></button><button type="button" data-preset="250" class="selected">250 <small>ml</small></button><button type="button" data-preset="500">500 <small>ml</small></button></div><label for="amount-input" class="field-label" data-i18n="customAmount">Hoặc nhập số ml</label><input id="amount-input" type="number" inputmode="numeric" required min="20" max="2000" step="1" value="250"><button type="submit" class="button button-primary"><span data-i18n="addToday">Thêm vào hôm nay</span><span aria-hidden="true">↗</span></button></form></dialog>
-  <dialog id="about-dialog" class="bottom-dialog" aria-labelledby="about-title"><div class="dialog-handle"></div><div class="dialog-top"><span class="eyebrow" data-i18n="aboutEyebrow">LUÔN BÊN BẠN</span><button type="button" class="dialog-close" id="close-about" data-i18n-aria-label="close" aria-label="Đóng">×</button></div><h2 id="about-title" data-i18n="aboutTitle">Cài app lên màn hình chính</h2><p data-i18n-html="aboutBody">Mở trang này bằng <strong>Safari</strong> trên iPhone, nhấn <strong>Chia sẻ</strong> → <strong>Thêm vào Màn hình chính</strong>.</p><p class="field-note" data-i18n="aboutNote">Sau lần mở đầu tiên có mạng, app có thể sử dụng offline. Dữ liệu được lưu trên máy.</p><button type="button" class="button button-primary" id="got-it" data-i18n="gotIt">Mình hiểu rồi</button></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden><span id="toast-message"></span><button type="button" id="toast-action" data-i18n="undo" hidden>Hoàn tác</button></div>
 </body>
 </html>

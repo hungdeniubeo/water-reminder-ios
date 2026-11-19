@@ -302,3 +302,46 @@ h2,
   .identity small{font-size:.54rem;letter-spacing:.095em}
   .hero-intro h1{font-size:clamp(2.2rem,9.6vw,2.55rem)}
 }
+
+
+/* Seven-day touch carousel: seven equal dates stay aligned on iPhone 12 Pro Max. */
+.week-peek-controls{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  min-height:31px;
+  margin:0 0 4px;
+}
+.week-peek-controls button{
+  width:29px;
+  height:29px;
+  display:grid;
+  place-items:center;
+  border:1px solid #f0dce4;
+  border-radius:50%;
+  background:#fff9fb;
+  color:#a8587b;
+  font-size:1.18rem;
+  font-weight:500;
+  line-height:1;
+  padding:0 0 3px;
+  touch-action:manipulation;
+}
+.week-peek-controls button:disabled{opacity:.3;cursor:default}
+#week-range{
+  min-width:110px;
+  text-align:center;
+  font-size:.69rem;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+  color:#a77d8f;
+  white-space:nowrap;
+}
+.week-peek-days{
+  touch-action:pan-y;
+  -webkit-user-select:none;
+  user-select:none;
+}
+.week-day.is-picked:not(.is-today){background:#fff6f9;box-shadow:inset 0 0 0 1px #f0d6e0}
+.week-day:disabled{opacity:.3;cursor:default}

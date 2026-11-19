@@ -258,9 +258,6 @@ document.querySelectorAll('[data-lang]').forEach(button => button.addEventListen
 document.querySelectorAll('[data-add]').forEach(button => button.addEventListener('click',()=>addWater(button.dataset.add)));
 el('open-log').addEventListener('click',()=>showDialog(el('log-dialog')));
 el('close-dialog').addEventListener('click',()=>closeDialog(el('log-dialog')));
-el('about-button').addEventListener('click',()=>showDialog(el('about-dialog')));
-el('close-about').addEventListener('click',()=>closeDialog(el('about-dialog')));
-el('got-it').addEventListener('click',()=>closeDialog(el('about-dialog')));
 document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click',()=>{
   el('amount-input').value = button.dataset.preset;
   document.querySelectorAll('[data-preset]').forEach(item=>item.classList.toggle('selected',item===button));
