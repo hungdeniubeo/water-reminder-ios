@@ -9,7 +9,7 @@ const i18n = readFileSync(new URL('../i18n.js', import.meta.url), 'utf8');
 const sw = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
 
 test('daily slogans are romantic, bilingual, two-line, and legible on mobile', () => {
-  assert.equal(DAILY_SLOGANS.length, 24);
+  assert.equal(DAILY_SLOGANS.length, 30);
   for (const pair of DAILY_SLOGANS) {
     for (const lang of ['vi', 'en']) {
       const parts = pair[lang].split('|');
@@ -51,4 +51,14 @@ test('empty-day message addresses cục zàng in Vietnamese only', () => {
   assert.match(i18n, /startFresh: 'Bắt đầu một ngày mới nhé, cục zàng ♡'/);
   assert.match(i18n, /startFresh: 'A new day for my darling ♡'/);
   assert.match(html, /id="progress-message">Bắt đầu một ngày mới nhé, cục zàng ♡/);
+});
+
+
+test('all greetings are gentle: no abrupt calls or commanding phrases', () => {
+  const vietnamese = DAILY_SLOGANS.map(slogan => slogan.vi);
+  assert.equal(new Set(vietnamese).size, 30);
+  assert.equal(new Set(DAILY_SLOGANS.map(slogan => slogan.en)).size, 30);
+  for (const line of vietnamese) {
+    assert.doesNotMatch(line, /^Ê(?:\s|,|!|\.)|uống nước đi|phải uống|quên uống nước rồi/i);
+  }
 });

@@ -165,12 +165,12 @@ input,textarea,select{font-size:16px!important;-webkit-text-size-adjust:100%}
   position:relative;
   z-index:1;
   width:auto;
-  min-height:59px;
+  min-height:64px;
   margin:0 calc(0px - var(--progress-gutter));
-  padding:15px var(--progress-gutter) 17px;
+  padding:16px 16px 18px;
   display:flex;
   align-items:center;
-  justify-content:flex-start;
+  justify-content:center;
   gap:9px;
   border-top:1px solid #efcfdb;
   border-radius:0 0 29px 29px;
@@ -179,7 +179,7 @@ input,textarea,select{font-size:16px!important;-webkit-text-size-adjust:100%}
   line-height:1.45;
 }
 .card-foot .rose-sparkle{display:grid;flex:0 0 17px;place-items:center;line-height:1;font-size:17px}
-.card-foot #progress-message{display:block;min-width:0;flex:1;overflow-wrap:anywhere}
+.card-foot #progress-message{display:block;min-width:0;max-width:100%;flex:0 1 auto;text-align:center;overflow-wrap:anywhere}
 @media(max-width:390px){.progress-card{--progress-gutter:17px}}
 @media(max-width:340px){.progress-card{--progress-gutter:13px}}
 /* Suppress accidental double-tap zoom while preserving taps and vertical scroll. */

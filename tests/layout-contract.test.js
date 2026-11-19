@@ -57,3 +57,10 @@ test('the brand uses a Neutra-inspired display stack with a Vietnamese fallback'
   assert.match(css, /\.hero-intro h1 em\{[^}]*font-style:normal/);
   assert.match(css, /\.identity strong\{[^}]*font-size:1\.44rem/);
 });
+
+
+test('progress banner centers the sparkle and message together', () => {
+  const rules = [...css.matchAll(/\.card-foot\{([^}]+)\}/g)].map(match => match[1]);
+  assert.ok(rules.some(rule => rule.includes('justify-content:center')), 'banner group is centered');
+  assert.match(css, /\.card-foot #progress-message\{[^}]*flex:0 1 auto;text-align:center/);
+});
