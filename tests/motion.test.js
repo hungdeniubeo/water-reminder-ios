@@ -15,7 +15,7 @@ test('background ambience is decorative and does not intercept iPhone swipes',()
   assert.match(css,/@keyframes beo-orb-drift/);
 });
 test('successful drink logs animate once, only on today view after rendering',()=>{
-  assert.match(app,/import \{ animateHydrationSuccess \} from '\.\/motion\.js';/);
+  assert.match(app,/import \{ animateHydrationSuccess(?:, [^}]+)? \} from '\.\/motion\.js';/);
   assert.match(app,/if \(currentScreen === 'today'\) requestAnimationFrame/);
   assert.match(app,/animateHydrationSuccess\(amount, before < state\.goal && before \+ amount >= state\.goal\)/);
 });
