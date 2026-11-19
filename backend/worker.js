@@ -1,5 +1,6 @@
 import { buildPushPayload } from '@block65/webcrypto-web-push';
 import { dueSlot, goodNote, goodSchedule, localClock, randomSecret, safeCompare, sha256, validPushSubscription } from './lib.js';
+import { selectReminderMessage } from './reminder-messages.js';
 
 // A private one-device reminder backend. Existing water-couple D1 schema is reused.
 const ORIGIN = 'https://hungdeniubeo.github.io';
@@ -36,10 +37,10 @@ async function auth(request, env) {
 function ready(env) {
   return !!(env.DB && env.VAPID_PUBLIC_KEY && !env.VAPID_PUBLIC_KEY.startsWith('REPLACE') && env.VAPID_PRIVATE_KEY && env.OWNER_SETUP_CODE && env.OWNER_SETUP_CODE.length >= 16);
 }
-async function notify(env, device) {
+async function notify(env, device, context = {}) {
   if (!device.push_json) fail(409, 'Turn on notifications first');
   const title = 'Water ♡';
-  const body = device.note_to_partner?.trim() || (device.lang === 'en' ? 'Beo, a little water break? ♡' : 'Beo ơi, tới giờ uống nước rồi nè ♡');
+  const body = selectReminderMessage(device, context);
   const subscription = JSON.parse(device.push_json);
   const payload = await buildPushPayload({ data: JSON.stringify({ title, body }), options: { ttl: 900 } }, subscription, {
     subject: env.VAPID_SUBJECT, publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY
@@ -98,7 +99,7 @@ async function route(request,env) {
     const updated=await env.DB.prepare('UPDATE devices SET last_test_at=? WHERE id=? AND last_test_at<?')
       .bind(last,device.id,last-120).run();
     if(!updated.meta.changes) fail(429,'Wait 2 minutes before retrying a push test');
-    const status=await notify(env,device);
+    const status=await notify(env,device,{testAt:last});
     if(status<200||status>=300) fail(502,`Push endpoint returned ${status}`);
     return json({ok:true});
   }
@@ -116,7 +117,7 @@ async function sendScheduled(env,date) {
     if(!slot||slot===device.last_sent_slot) continue;
     const changed=await env.DB.prepare('UPDATE devices SET last_sent_slot=? WHERE id=? AND last_sent_slot<>?').bind(slot,device.id,slot).run();
     if(!changed.meta.changes) continue;
-    try { const status=await notify(env,device);if(status<200||status>=300)console.error('Push rejected',device.id,status); }
+    try { const status=await notify(env,device,{slot});if(status<200||status>=300)console.error('Push rejected',device.id,status); }
     catch(err) { console.error('Push failed',device.id,err.message); }
   }
 }

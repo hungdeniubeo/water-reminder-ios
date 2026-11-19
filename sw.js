@@ -1,5 +1,5 @@
 /* Offline app shell + user-visible Web Push notifications (requires a configured sender). */
-const CACHE_NAME = 'water-reminder-static-v17-clear-history';
+const CACHE_NAME = 'water-reminder-static-v18-loving-push';
 const ASSETS = ['./','./index.html','./styles.css','./app.js','./motion.js','./reminder-picker.js','./daily-slogans.js','./logic.js','./i18n.js','./journal-ui.js','./week-strip.js','./hydration-insights.js','./solo.js','./push-config.js','./manifest.webmanifest','./assets/icon.svg','./assets/icon-maskable.svg'];
 
 self.addEventListener('install', event => {
@@ -33,7 +33,7 @@ self.addEventListener('fetch', event => {
   })());
 });
 self.addEventListener('push', event => {
-  const fallback = { title: 'Water ♡', body: 'Bé ơi, tới giờ uống nước rồi nè ♡' };
+  const fallback = { title: 'Water ♡', body: 'Beo ơi, nhớ uống chút nước nha em ♡' };
   let payload = fallback;
   try { payload = { ...fallback, ...(event.data ? event.data.json() : {}) }; }
   catch { /* keep the friendly fallback */ }

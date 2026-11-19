@@ -42,7 +42,7 @@ test('full deletion is confirmed, persisted, reflected on all views and undoable
   assert.match(app,/new Set\(state\.logs\.map\(item => item\.id\)\)/);
   assert.match(app,/el\('clear-water-all'\)\.addEventListener\('click', clearAllWater\)/);
   assert.match(app,/el\('clear-water-all'\)\.disabled = state\.logs\.length === 0/);
-  assert.match(sw,/water-reminder-static-v17-clear-history/);
+  assert.match(sw,/water-reminder-static-v18-loving-push/);
 });
 
 test('confirm copy explicitly covers every day without removing notes or reminders',()=>{
