@@ -1,4 +1,4 @@
-/* Water — Couple Edition. Airy, warm, deliberately native-font and offline-friendly. */
+/* Water — Beo Edition. Airy, warm, deliberately native-font and offline-friendly. */
 :root{color-scheme:light;--paper:#fff8f9;--surface:#ffffff;--ink:#492b39;--sub:#9b7b88;--berry:#a94370;--berry-deep:#78354f;--rose:#d95e8d;--blush:#ffe7ee;--line:#f3e1e7;--pale:#fff1f5;--good:#8c5976;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 *{box-sizing:border-box}html{background:#f3e6eb}body{margin:0;color:var(--ink);background:linear-gradient(135deg,#fff1f4 0%,#fffaf9 70%);min-height:100dvh}button,input,textarea,select{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}button:disabled{cursor:not-allowed;opacity:.55}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #eaa3be;outline-offset:3px}svg{width:24px;height:24px}h1,h2,h3,p{margin:0}h1{font-size:clamp(2.2rem,7.9vw,3.08rem);line-height:1.12;font-weight:750;letter-spacing:-.065em}h1 em{font-family:Georgia,"Times New Roman",serif;font-weight:500;font-style:italic;letter-spacing:-.055em;color:#b44f79}h2{font-size:1.15rem;letter-spacing:-.035em;font-weight:740}.app-shell{max-width:480px;margin:0 auto;min-height:100dvh;padding:0 22px 28px;background:radial-gradient(circle at 88% 1%,#ffe9ef 0,#fff9fa 26%,#fff9fa 75%)}main{padding-bottom:118px}.screen[hidden],[hidden]{display:none!important}
 .topbar{height:86px;display:flex;justify-content:space-between;align-items:center;gap:10px}.identity{display:flex;align-items:center;gap:10px;min-width:0}.brand-symbol{width:40px;height:40px;border-radius:15px;background:linear-gradient(145deg,#f6a6bf,#df6894);display:grid;place-items:center;color:white;box-shadow:0 6px 14px #d77b9f32}.brand-symbol svg{width:31px;height:31px}.identity-copy{display:flex;flex-direction:column;min-width:0}.identity strong{font-size:1.43rem;font-weight:770;letter-spacing:-.09em;line-height:1.02}.brand-dot{color:#d95e8d}.identity small{font-size:.52rem;letter-spacing:.15em;font-weight:800;color:#bc8199;white-space:nowrap;margin-top:6px}.top-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}.language-switch{display:flex;padding:3px;border-radius:13px;background:#fae9ef;gap:2px}.language-switch button{border:0;background:transparent;min-height:33px;min-width:34px;padding:4px 6px;border-radius:10px;color:#aa8493;font-size:.7rem;font-weight:800}.language-switch button.selected{background:white;color:#a94370;box-shadow:0 2px 8px #a6507220}.round-button{height:38px;width:38px;border:1px solid #f2dae4;border-radius:13px;background:#fffafa;display:grid;place-items:center;color:#a86c86}.round-button svg,.peek-icon svg,.peek-arrow svg,.custom-add svg,.settings-icon svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.round-button svg{width:21px;height:21px}
@@ -141,3 +141,19 @@ body{background:linear-gradient(145deg,#ffeff4,#fffbf9 72%)}
 .body-feedback{margin-top:16px;padding:14px 15px;border-radius:16px;background:#fff1f5;border:1px solid #f2dce4}
 .body-feedback strong{font-size:.81rem;color:#945475;line-height:1.4;display:block}
 .body-feedback p{font-size:.72rem;color:#a17b8c;line-height:1.57;margin-top:6px}
+
+/* iPhone 12 Pro Max: 428 x 926 CSS px, 3x display; keep native Vietnamese glyphs consistent. */
+html,body{width:100%;max-width:100%;overflow-x:clip;touch-action:pan-x pan-y;overscroll-behavior-x:none}
+.app-shell{width:100%;min-height:100dvh;min-height:100svh;padding-bottom:max(26px,env(safe-area-inset-bottom,0px))}
+h1 em{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;font-style:normal;font-weight:660;letter-spacing:-.04em}
+input,textarea,select{font-size:16px!important;-webkit-text-size-adjust:100%}
+.solo-push-card .full-button{width:100%;margin-top:11px}
+.solo-main-button{margin-top:12px}
+.solo-push-card #solo-status{margin:0 0 16px}
+.solo-push-card #solo-activation{margin-top:15px}
+.solo-push-card #solo-controls .field-label{margin-top:17px}
+.solo-push-card #solo-message{min-height:74px}
+.solo-push-card #solo-disconnect{display:block;margin:15px auto 2px}
+.solo-push-card .setup-link{display:inline;color:#a3436b;text-decoration:underline;text-underline-offset:3px;font-size:.79rem}
+@media(min-width:400px) and (max-width:460px){.app-shell{padding-left:24px;padding-right:24px}.progress-main{gap:11px}.hero-intro h1{font-size:2.9rem}.calendar-card{padding:20px 18px}.week-peek{padding-inline:16px}}
+@media(max-width:428px){.tabbar{max-width:428px}.topbar{gap:8px}.identity small{letter-spacing:.055em}.calendar-date{min-height:40px}}

@@ -1,82 +1,53 @@
-<p align="center">
-  <img src="./assets/water-reminder-hero.svg" alt="Water — Couple Edition" width="100%">
-</p>
+<p align="center"><img src="./assets/water-reminder-hero.svg" alt="Water — Dành cho Beo" width="100%"></p>
 
 <div align="center">
 
-# Water ♡
+# Water ♡ — Dành cho Beo
 
-**Một chút nước, một chút thương.**  
 *A little sip, a little love.*
 
-A personal water journal for two iPhones, with an original warm-pink design, Vietnamese / English and no ads or app account.
+**A personal, offline-first hydration journal designed for one iPhone 12 Pro Max.**
 
-[**Open the app**](https://hungdeniubeo.github.io/water-reminder-ios/) · [Install on iPhone](#install-on-iphone) · [Enable notifications](./docs/SETUP_PUSH.md)
+[Open the app](https://hungdeniubeo.github.io/water-reminder-ios/) · [Install](#install-on-iphone) · [Enable push reminders](./docs/SETUP_PUSH.md)
 
 </div>
 
----
+## What it does
 
-## What's inside
+- **Today:** Add 150, 250, 500 ml or a custom amount, and review daily progress.
+- **Journal:** Calendar, past-day logs, seven completed-day summaries and local symptom check-ins.
+- **Gentle reminders:** Foreground nudges, or optional lock-screen Web Push after Cloudflare setup.
+- **Just one device:** No couple pairing, no accounts, no sign-in forms, no second phone.
+- **VI / EN:** Language switch remains available.
+- **Private history:** All drink entries and self-reported symptoms remain on the iPhone. Export/restore a local JSON backup.
 
-- **Today:** one-tap 150 / 250 / 500 ml, custom water amounts, daily progress and drink history.
-- **Journal:** a month-by-month calendar, date-specific entries, backfilling a past day, 7-day recorded-intake insights and optional self-reported body notes.
-- **Us two:** personal names, a message for your partner, optional private pairing and today's shared totals.
-- **Gentle nudges:** in-app reminders today; real iPhone Web Push when the Cloudflare Worker is configured and each device opts in.
-- **VI / EN:** switch at the top of the app; preference is saved on that iPhone.
-- **Privacy first:** detailed water logs and self-reported symptoms stay on the device. JSON export/restore includes the personal notes.
-- **Wellness education:** short, sourced guidance about possible dehydration signs and practical habits, without claiming to diagnose hydration status.
+The wellness notes are educational and describe logged habits, **not a diagnosis of dehydration**.
 
 ## Install on iPhone
 
-1. Open **https://hungdeniubeo.github.io/water-reminder-ios/** in **Safari** on iPhone.
-2. Tap **Share → Add to Home Screen → Add**.
-3. Open **Water ♡** from the Home Screen. No App Store, Xcode, or Apple Developer membership required.
+Open [the app](https://hungdeniubeo.github.io/water-reminder-ios/) in **Safari**, tap **Share → Add to Home Screen → Add**, then launch Water from its Home Screen icon. This PWA does not require an App Store developer membership.
 
-GitHub Pages must be enabled at **Settings → Pages → Deploy from a branch → main / (root)**. The PWA works offline after the initial load and service worker installation.
+The layout is tailored to the iPhone 12 Pro Max **428 × 926 CSS-pixel portrait viewport**, with native font fallback and safe-area-aware bottom navigation. Browser pinch-zoom/double-tap zoom is suppressed for this dedicated one-device experience; the iPhone's system accessibility Zoom is separate.
 
-## A note about notifications
+## Enable real notifications
 
-**GitHub Pages cannot send lock-screen notifications by itself.** The frontend supports Web Push, but until the private Cloudflare Worker / D1 sender is deployed, the app **only displays in-app reminders while it is open**. We deliberately show that limitation in the interface.
+The GitHub Pages frontend cannot send scheduled notifications while closed. A separate Cloudflare Worker + D1 backend is included under [`backend/`](./backend). The existing D1 database named `water-couple` can be reused; **do not create another database**.
 
-The backend source is in [`backend/`](./backend). Setup for just two phones is in **[docs/SETUP_PUSH.md](./docs/SETUP_PUSH.md)**.
+See [setup guide](./docs/SETUP_PUSH.md). Once configured, open **Settings → Reminders for Beo**, enter your private activation code, enable notifications and send a test notification.
 
-Once connected, the sender uses the recipient's selected language and the partner's custom note. iOS 16.4+ supports Web Push for Home Screen web apps; delivery still depends on device permission, network and Focus mode.
-
-## Local development
+## Development and tests
 
 ```bash
 python3 -m http.server 8000
-```
-
-Visit `http://localhost:8000`. The frontend needs no bundler. To run the tests with Node.js 22+:
-
-```bash
 npm test
 ```
 
-### Files
-
-| Path | Purpose |
-|---|---|
-| `index.html`, `styles.css` | App UI, pink theme, responsive layouts |
-| `app.js`, `logic.js`, `i18n.js` | Water logging, date logic, VI / EN |
-| `journal-ui.js`, `hydration-insights.js` | Calendar, local body check-ins, log-pattern summaries |
-| `couple.js`, `push-config.js` | Optional backend connection and pairing |
-| `sw.js`, `manifest.webmanifest` | Offline experience, install, push handling |
-| `backend/` | Cloudflare Worker, D1 schema and VAPID sender |
-| `docs/SETUP_PUSH.md` | One-time backend setup |
+The app uses plain HTML/CSS/JavaScript with no frontend build dependency. Node.js 22+ is recommended for the tests and Cloudflare tooling.
 
 ## Privacy
 
-No analytics, ads, or account sign-in. Every drink entry and symptom check-in stays in the browser's local storage on its iPhone. If optional couple pairing is enabled, the server stores minimal push and couple metadata and **daily totals only**, not an entry-by-entry drinking history. Read [PRIVACY.md](./PRIVACY.md).
+No analytics, no sign-in and no cloud sync of water history or health notes. Cloudflare D1 stores only an opaque device identifier, a hash of its access token, notification schedule, message and Web Push subscription. Read [PRIVACY.md](./PRIVACY.md).
 
-## Health information note
+## Notes
 
-Water compares drinks **you recorded** against a **personal goal you chose**. Unlogged days are labeled **not recorded** rather than 0 ml; incomplete days are excluded from the completed-day trend. It cannot assess body hydration, diagnose dehydration or recommend medical treatment. Symptoms entered in the journal are self-reported and stay local. Total water intake can also include fluids from food and other beverages. If you have a prescribed fluid restriction, follow your clinician's instructions.
-
-Health reading: [NHS — Dehydration](https://www.nhs.uk/conditions/dehydration/) · [MedlinePlus — Water in diet](https://medlineplus.gov/ency/article/002471.htm).
-
-The interface is independently designed. It does not use Flo logos, assets or screen layouts.
-
-<sub>Personal project. No open-source license has been added.</sub>
+This is an original visual design inspired by gentle wellness journaling patterns, not a reproduction of Flo branding or screens. No license has been granted for redistribution.

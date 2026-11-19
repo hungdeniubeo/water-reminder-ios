@@ -1,15 +1,12 @@
-# Web Push status — Water Couple V2
+# One-iPhone reminder architecture
 
-The push frontend, Worker sender, D1 schema, per-device schedules and private pairing flow are implemented in source code. **Deployment has not been completed**: Cloudflare must be set up and `PUSH_API_URL` configured before real lock-screen notifications work.
+Water ♡ runs on GitHub Pages and stores drinking history and symptom notes only on the iPhone. Real lock-screen notifications require an opt-in Web Push subscription and Cloudflare Worker.
 
-See the actionable one-time steps in **[SETUP_PUSH.md](./SETUP_PUSH.md)**.
+- `backend/worker.js` handles one private device, VAPID signing/encryption, and scheduled sends.
+- A D1 database named `water-couple` is reused solely for device registration, schedule, and subscription. The couple pairing endpoints and second-device features are removed.
+- Cron runs every minute (Cloudflare plan limits apply). Duplicates are suppressed with last sent slot.
+- `OWNER_SETUP_CODE` is a Worker Secret used once to activate the iPhone. It is not public or committed.
+- Disable notifications to remove the subscription; disconnect device to free the single activation slot.
+- No history, amounts, daily totals, or health symptoms are transmitted to the Worker.
 
-Acceptance tests still to complete on actual iPhones:
-
-- [ ] Cloudflare Worker/D1 deployed and a test push accepted by Apple's push service.
-- [ ] Two Home Screen iOS 16.4+ PWAs paired using the 8-character code.
-- [ ] Notifications permitted on each phone and test push received while phone is locked.
-- [ ] Schedule and timezone verified, including after switching between VI/EN.
-- [ ] Disable/re-enable notifications, Focus mode, offline recovery, reinstall and unpairing tested.
-
-Until then, the fallback reminder is an in-app message only when Water is visible.
+See [SETUP_PUSH.md](./SETUP_PUSH.md) for the complete one-time setup. Web Push is supported for Home Screen web apps on iOS 16.4+, subject to platform permissions and delivery conditions.

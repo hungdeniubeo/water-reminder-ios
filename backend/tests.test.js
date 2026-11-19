@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dueSlot, goodSchedule, localClock, safeCompare, randomPairCode, validPushSubscription } from './lib.js';
+import { dueSlot, goodSchedule, localClock, safeCompare, randomSecret, validPushSubscription } from './lib.js';
 
 test('timezone conversion preserves local day and minute', () => {
   assert.deepEqual(localClock(new Date('2026-11-19T03:00:00.000Z'), 'Asia/Ho_Chi_Minh'), { day: '2026-11-19', minutes: 600 });
@@ -18,9 +18,9 @@ test('schedule validates timezone and interval', () => {
   assert.equal(goodSchedule({ ...base, start: '22:00' }), false);
   assert.equal(goodSchedule({ ...base, interval: 15 }), false);
 });
-test('pair codes are high entropy and compare safely', () => {
-  const code = randomPairCode();
-  assert.match(code, /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8}$/);
+test('one-device auth secrets have sufficient entropy and compare safely', () => {
+  const code = randomSecret();
+  assert.ok(code.length >= 40);
   assert.equal(safeCompare('secret','secret'), true);
   assert.equal(safeCompare('secret','secreT'), false);
 });

@@ -1,17 +1,9 @@
-export const ROOM_ID = 'water-couple-private-room';
-export const PAIR_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-export const PAIR_LENGTH = 8;
-export const PAIR_SECONDS = 600;
 export const INTERVALS = [60, 90, 120, 180];
 
 export function randomSecret(bytes = 32) {
   const raw = crypto.getRandomValues(new Uint8Array(bytes));
   let binary = ''; for (const b of raw) binary += String.fromCharCode(b);
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
-}
-export function randomPairCode() {
-  const raw = crypto.getRandomValues(new Uint8Array(PAIR_LENGTH));
-  return Array.from(raw, byte => PAIR_ALPHABET[byte % PAIR_ALPHABET.length]).join('');
 }
 export async function sha256(value) {
   const bytes = new TextEncoder().encode(String(value));

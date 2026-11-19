@@ -1,43 +1,31 @@
 import { STORAGE_KEY, normalizeState, localDayKey, dayKeyOffset, totalForDay, getWeekStats, nextReminderSlot } from './logic.js';
 import { getLanguage, setLanguage, translate, applyTranslations, formatDate, formatNumber, formatTime } from './i18n.js';
-import { backendConfigured, getSession, clearSession, getPublicConfig, getCouple, createCouple, joinCouple, renewInvite, leaveCouple, updateProfile, updateProgress, updateSchedule, registerSubscription, unregisterSubscription, requestTestPush } from './couple.js';
+import { configured, session, clearSession, publicConfig, decodeVapidPublicKey, activateDevice, getDevice, updateSchedule, updateMessage, subscribe, unsubscribe, testPush, disconnect } from './solo.js';
 import { createJournal } from './journal-ui.js';
 
 const el = id => document.getElementById(id);
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh';
-const PROFILE_KEY = 'water-couple-profile-v2';
 const circleLength = 2 * Math.PI * 72;
 const t = (key, vars) => translate(key, lang, vars);
 const number = value => formatNumber(value, lang);
 const amountLabel = amount => number(amount) + ' ml';
 
-function getProfile() {
-  try { const parsed = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null'); return { name: String(parsed?.name || '').slice(0, 32), note: String(parsed?.note || '').slice(0, 150) }; }
-  catch { return { name: '', note: '' }; }
-}
 function loadState() {
   try { return normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')); }
   catch { return normalizeState(null); }
 }
 let state = loadState();
-let profile = getProfile();
 let lang = getLanguage();
 let currentScreen = 'today';
 let renderedDay = localDayKey();
 let toastTimer = null;
 let backend = null;
-let remote = null;
-let invite = null;
+let notificationState = null;
 let syncing = false;
-let fetchingCouple = false;
 let journal;
 
 function persistState() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); return true; }
-  catch { toast(t('storageProblem')); return false; }
-}
-function saveProfileLocal() {
-  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); return true; }
   catch { toast(t('storageProblem')); return false; }
 }
 function toast(message, undo) {
@@ -51,17 +39,6 @@ function toast(message, undo) {
 }
 function id() { return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2); }
 
-function todayProgress() { const day = localDayKey(); return { day, total: totalForDay(state.logs, day), goal: state.goal }; }
-function sendProgress() {
-  if (!getSession() || !backend?.ready) return;
-  const data = todayProgress();
-  updateProgress(data).then(() => {
-    if (currentScreen === 'couple' && remote) {
-      remote.self = { ...remote.self, total: data.total, goal: data.goal };
-      renderCouple();
-    }
-  }).catch(() => { /* keep local history safe; retry when next visible */ });
-}
 function addWater(value) {
   const amount = Number(value);
   if (!Number.isInteger(amount) || amount < 20 || amount > 2000) { toast(t('amountInvalid')); return false; }
@@ -70,8 +47,6 @@ function addWater(value) {
   persistState();
   renderToday();
   if (currentScreen === 'history') renderHistory();
-  if (currentScreen === 'couple') renderCouple();
-  sendProgress();
   toast(t('waterAdded', { amount: number(amount) }));
   return true;
 }
@@ -79,10 +54,10 @@ function removeWater(logId) {
   const index = state.logs.findIndex(item => item.id === logId);
   if (index < 0) return;
   const entry = state.logs.splice(index, 1)[0];
-  persistState(); renderToday(); renderHistory(); sendProgress();
+  persistState(); renderToday(); renderHistory();
   toast(t('entryRemoved'), () => {
     if (!state.logs.some(item => item.id === entry.id)) state.logs.push(entry);
-    persistState(); renderToday(); renderHistory(); sendProgress();
+    persistState(); renderToday(); renderHistory();
     toast(t('entryRestored'));
   });
 }
@@ -199,97 +174,63 @@ function renderSettings() {
   el('remind-end').value = state.reminder.end;
   el('remind-interval').value = String(state.reminder.interval);
   previewSchedule();
-  el('reminder-mode-note').textContent = remote?.self?.pushEnabled ? t('v2ReminderPush') : t('v2ReminderFallback');
+  el('reminder-mode-note').textContent = notificationState?.pushEnabled ? t('soloPushActiveNote') : t('v2ReminderFallback');
 }
-function initProfileForm() {
-  el('my-name').value = profile.name;
-  el('partner-note').value = profile.note;
-  el('note-count').textContent = profile.note.length + '/150';
-}
-function renderCouple() {
-  const configured = backendConfigured() && !!backend?.ready;
-  const session = getSession();
-  const paired = !!remote?.paired;
-  const pending = !!session && !paired;
-  el('backend-unavailable').hidden = configured;
-  if (!configured) {
-    el('backend-unavailable').querySelector('strong').textContent = t('v2SetupNeeded');
-    el('backend-unavailable').querySelector('p span').textContent = t('v2SetupNeededDesc');
-  }
-  el('connect-card').hidden = !configured;
-  el('pair-create-box').hidden = !!session;
-  el('pair-join-box').hidden = !!session;
-  el('pair-create-box').closest('section').querySelector('.or-divider').hidden = !!session;
-  el('paired-info').hidden = !session;
-  el('paired-description').textContent = paired ? t('v2PairAlready') : t('v2PairWaiting');
-  el('pair-invite').hidden = !pending;
-  el('couple-status').textContent = paired ? t('v2Connected') : pending ? t('v2WaitingPartner') : t('v2NotPaired');
-  el('me-name').textContent = profile.name || t('v2Me');
-  const me = todayProgress();
-  el('me-progress').textContent = t('v2PartnerToday', { amount: number(me.total), goal: number(me.goal) });
-  el('partner-name').textContent = remote?.partner?.name || t('v2Partner');
-  el('partner-progress').textContent = remote?.partner ?
-    t('v2PartnerToday', { amount: number(remote.partner.total), goal: number(remote.partner.goal) }) : t('v2PartnerPending');
-  const enabled = !!remote?.self?.pushEnabled && typeof Notification !== 'undefined' && Notification.permission === 'granted';
-  el('push-status').textContent = !configured ? t('v2PushUnavailable') : enabled ? t('v2PushActive') : t('v2PushInactive');
-  el('enable-push').disabled = !configured || !session || enabled;
-  el('test-push').disabled = !configured || !session || !enabled;
+function renderPushSettings() {
+  const connected = configured() && backend?.ready;
+  const active = !!session();
+  const enabled = !!notificationState?.pushEnabled && typeof Notification !== 'undefined' && Notification.permission === 'granted';
+  el('solo-setup-help').hidden = connected;
+  el('solo-activation').hidden = !connected || active;
+  el('solo-controls').hidden = !connected || !active;
+  el('solo-status').textContent = !configured() ? t('soloNotConfigured') : !backend?.ready ? t('soloNotReady') :
+    !active ? t('soloActivateFirst') : enabled ? t('soloPushEnabled') : t('soloActivated');
+  el('enable-push').disabled = !connected || !active || enabled;
+  el('test-push').disabled = !connected || !active || !enabled;
   el('disable-push').hidden = !enabled;
-  el('reminder-mode-note').textContent = enabled ? t('v2ReminderPush') : t('v2ReminderFallback');
+  el('reminder-mode-note').textContent = enabled ? t('soloPushActiveNote') : t('v2ReminderFallback');
 }
 function changeScreen(screen) {
-  if (!['today','history','couple','settings'].includes(screen)) return;
+  if (!['today','history','settings'].includes(screen)) return;
   currentScreen = screen;
-  for (const name of ['today','history','couple','settings']) el('screen-'+name).hidden = name !== screen;
+  for (const name of ['today','history','settings']) el('screen-'+name).hidden = name !== screen;
   document.querySelectorAll('[data-tab]').forEach(button => {
     const selected = button.dataset.tab === screen;
     button.classList.toggle('active',selected);
     if (selected) button.setAttribute('aria-current','page'); else button.removeAttribute('aria-current');
   });
-  if (screen === 'history') renderHistory();
+  if (screen === 'history') {renderHistory();journal?.render();}
   if (screen === 'settings') renderSettings();
-  if (screen === 'couple') { renderCouple(); refreshCouple(); }
   window.scrollTo({ top:0, behavior:'auto' });
 }
 function applyLocale() {
   applyTranslations(lang);
-  renderToday();renderHistory();renderSettings();renderCouple();
+  renderToday();renderHistory();journal?.render();renderSettings();renderPushSettings();
 }
 function showDialog(dialog) { if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open',''); }
 function closeDialog(dialog) { if (typeof dialog.close === 'function') dialog.close(); else dialog.removeAttribute('open'); }
-function profilePayload() { return { name: profile.name || t('v2Me'), note: profile.note, locale: lang }; }
 function schedulePayload() { return { ...state.reminder, locale: lang, timezone }; }
-async function refreshCouple() {
-  if (!getSession() || !backend?.ready || fetchingCouple) return;
-  fetchingCouple = true;
-  try { remote = await getCouple(); renderCouple(); }
-  catch (err) {
-    if (err.status === 401) { clearSession();remote=null; invite=null;renderCouple();toast(t('v2PairAuthLost')); }
-  } finally { fetchingCouple = false; }
-}
-async function safeRemoteSync() {
-  if (syncing || !getSession() || !backend?.ready) return;
+async function syncSchedule() {
+  if (syncing || !session() || !backend?.ready) return;
   syncing = true;
-  try { await Promise.all([updateProfile(profilePayload()),updateSchedule(schedulePayload()),updateProgress(todayProgress())]); await refreshCouple(); }
-  catch { /* Re-send on the next visit; never interfere with local tracking. */ }
+  try { await updateSchedule(schedulePayload()); }
+  catch (err) { if (err.status === 401) { clearSession(); notificationState = null; renderPushSettings(); } }
   finally { syncing = false; }
 }
+async function refreshDevice() {
+  if (!session() || !backend?.ready) { notificationState=null;renderPushSettings();return; }
+  try { notificationState=await getDevice();if(notificationState.note && !el('solo-message').value)el('solo-message').value=notificationState.note; }
+  catch (err) { if (err.status===401) { clearSession();notificationState=null; } }
+  renderPushSettings();
+}
 async function beginBackend() {
-  if (!backendConfigured()) {renderCouple();return;}
-  try { backend = await getPublicConfig(); renderCouple(); if (getSession() && backend.ready) { await refreshCouple(); await safeRemoteSync(); } }
-  catch { backend=null; renderCouple(); }
-}
-function pairingError(err) {
-  if (err.status === 401) {clearSession();remote=null; renderCouple();toast(t('v2PairAuthLost'));return;}
-  toast(t('v2PairError') + (err.status === 403 ? ' ('+err.message+')' : ''));
-}
-function putInvite(newInvite) {
-  invite = newInvite;
-  el('invite-code').textContent = newInvite.code || '--------';
-  el('pair-invite').hidden = false;
+  if (!configured()) { renderPushSettings();return; }
+  try { backend=await publicConfig(); } catch { backend=null; }
+  renderPushSettings();
+  if (backend?.ready && session()) {await refreshDevice(); await syncSchedule();}
 }
 function checkForegroundReminder() {
-  if (document.hidden || remote?.self?.pushEnabled) return;
+  if (document.hidden || notificationState?.pushEnabled) return;
   const due = nextReminderSlot(new Date(), state.reminder, state.lastReminderSlot);
   if (!due) return;
   state.lastReminderSlot = due;
@@ -302,7 +243,7 @@ document.querySelectorAll('[data-tab]').forEach(button => button.addEventListene
 document.querySelectorAll('[data-go]').forEach(button => button.addEventListener('click',()=>changeScreen(button.dataset.go)));
 document.querySelectorAll('[data-lang]').forEach(button => button.addEventListener('click',()=>{
   if (button.dataset.lang === lang) return;
-  lang = button.dataset.lang; setLanguage(lang); applyLocale(); safeRemoteSync();
+  lang = button.dataset.lang; setLanguage(lang); applyLocale(); syncSchedule();
 }));
 document.querySelectorAll('[data-add]').forEach(button => button.addEventListener('click',()=>addWater(button.dataset.add)));
 el('open-log').addEventListener('click',()=>showDialog(el('log-dialog')));
@@ -323,7 +264,7 @@ el('drink-form').addEventListener('submit',event=>{
 el('goal-form').addEventListener('submit',event=>{
   event.preventDefault();const goal=Number(el('goal-input').value);
   if (!Number.isInteger(goal)||goal<500||goal>6000) {toast(t('goalInvalid'));return;}
-  state.goal=goal;persistState();renderToday();renderSettings();renderCouple();sendProgress();toast(t('goalUpdated'));
+  state.goal=goal;persistState();renderToday();renderSettings();toast(t('goalUpdated'));
 });
 ['remind-start','remind-end','remind-interval'].forEach(name=>el(name).addEventListener('change',previewSchedule));
 el('reminder-form').addEventListener('submit',async event=>{
@@ -332,7 +273,7 @@ el('reminder-form').addEventListener('submit',async event=>{
   state.reminder={enabled:el('remind-enabled').checked,start,end,interval:Number(el('remind-interval').value)};
   state.lastReminderSlot='';persistState();renderNextReminder();
   toast(t(state.reminder.enabled?'remindersSaved':'remindersOff'));
-  if (getSession() && backend?.ready) {try{await updateSchedule(schedulePayload());}catch{toast(t('v2PushBackendDown'));}}
+  if (session() && backend?.ready) {try{await updateSchedule(schedulePayload());}catch{toast(t('soloBackendDown'));}}
 });
 
 // Backup is local-only. Device credentials and personal notes are never exported.
@@ -350,110 +291,99 @@ el('backup-file').addEventListener('change',async()=>{
     const obj=JSON.parse(await file.text());
     if(obj.format!=='water-reminder-backup'||obj.version!==1||!Array.isArray(obj.data?.logs))throw Error(t('backupInvalid'));
     if(!confirm(t('backupConfirm')))return;
-    state=normalizeState(obj.data);persistState();if(obj.bodyNotes)journal?.restoreNotes(obj.bodyNotes);applyLocale();sendProgress();toast(t('backupRestored'));
+    state=normalizeState(obj.data);persistState();if(obj.bodyNotes)journal?.restoreNotes(obj.bodyNotes);applyLocale();toast(t('backupRestored'));
   }catch(err){toast(err.message||t('backupFailed'));}
 });
 
-// Couple identity and one-time pairing.
-el('partner-note').addEventListener('input',()=>el('note-count').textContent=el('partner-note').value.length+'/150');
-el('profile-form').addEventListener('submit',async event=>{
-  event.preventDefault();profile={name:el('my-name').value.trim().slice(0,32),note:el('partner-note').value.slice(0,150)};
-  if(!profile.name){toast(t('v2NeedName'));return;}
-  saveProfileLocal();renderCouple();toast(t('v2ProfileSaved'));
-  if(getSession()&&backend?.ready){try{await updateProfile(profilePayload());await refreshCouple();}catch{toast(t('v2PushBackendDown'));}}
-});
-el('create-pair').addEventListener('click',async()=>{
-  if(!backend?.ready){toast(t('v2PairNeedBackend'));return;}
-  const key=el('setup-passphrase').value;
-  if(!key){toast(t('v2PairNeedBackend'));return;}
-  const button=el('create-pair');button.disabled=true;
+// Activate exactly one phone, then opt into Web Push from its Home Screen app.
+el('solo-activate').addEventListener('click',async()=>{
+  if(!backend?.ready){toast(t('soloNotReady'));return;}
+  const code=el('solo-code').value;
+  if(code.length<16){toast(t('soloCodeTooShort'));return;}
+  el('solo-activate').disabled=true;
   try{
-    const response=await createCouple(key,profilePayload());el('setup-passphrase').value='';putInvite(response);
-    await safeRemoteSync();await refreshCouple();renderCouple();toast(t('v2PairReady'));
-  }catch(err){pairingError(err);}finally{button.disabled=false;}
+    await activateDevice(code,lang);
+    el('solo-code').value='';
+    await syncSchedule();
+    await refreshDevice();
+    toast(t('soloActivationSuccess'));
+  }catch(err){toast(err.status===409?t('soloAlreadyUsed'):t('soloActivationError'));}
+  finally{el('solo-activate').disabled=false;}
 });
-el('join-pair').addEventListener('click',async()=>{
-  if(!backend?.ready){toast(t('v2PairNeedBackend'));return;}
-  const code=el('join-code').value.trim().toUpperCase();if(code.length!==8){toast(t('v2PairError'));return;}
-  const button=el('join-pair');button.disabled=true;
-  try{
-    await joinCouple(code,profilePayload());invite=null;await safeRemoteSync();await refreshCouple();renderCouple();toast(t('v2PairJoined'));
-  }catch(err){pairingError(err);}finally{button.disabled=false;}
+el('solo-save-message').addEventListener('click',async()=>{
+  if(!session())return;
+  try{await updateMessage(el('solo-message').value.trim());await refreshDevice();toast(t('soloMessageSaved'));}
+  catch{toast(t('soloBackendDown'));}
 });
-el('copy-code').addEventListener('click',async()=>{
-  if(!invite?.code)return;
-  try{await navigator.clipboard.writeText(invite.code);toast(t('v2CopyDone'));}catch{toast(invite.code);}
-});
-el('refresh-pair').addEventListener('click',async()=>{
-  if(!getSession())return;
-  try{await refreshCouple();if(!remote?.paired){putInvite(await renewInvite());}toast(t('v2PairRefreshed'));}catch(err){pairingError(err);}
-});
-el('leave-pair').addEventListener('click',async()=>{
-  if(!getSession()||!confirm(t('v2ConfirmLeave')))return;
-  try{
-    const reg=await navigator.serviceWorker?.ready;const sub=await reg?.pushManager?.getSubscription();if(sub)await sub.unsubscribe();
-    await leaveCouple();remote=null;invite=null;renderCouple();toast(t('v2PairLeft'));
-  }catch(err){pairingError(err);}
-});
-
-// Permission is requested only directly inside the user's click handler.
 el('enable-push').addEventListener('click',async()=>{
-  if(!getSession()){toast(t('v2PushNeedPair'));return;}
-  if(!backend?.ready){toast(t('v2PushUnavailable'));return;}
-  const standalone=matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+  if(!session()||!backend?.ready){toast(t('soloActivateFirst'));return;}
+  const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
   if(!standalone && /iPhone|iPad|iPod/.test(navigator.userAgent)){toast(t('v2PushNeedInstall'));return;}
   if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){toast(t('v2PushUnsupported'));return;}
   if(Notification.permission==='denied'){toast(t('v2PushDenied'));return;}
-  // requestPermission is invoked synchronously by the user's gesture.
-  const requestPermission=Notification.requestPermission();
+  // Must originate from the click gesture on iOS.
+  const permissionPromise=Notification.requestPermission();
   const button=el('enable-push');button.disabled=true;
   try{
-    const permission=await requestPermission;
+    const permission=await permissionPromise;
     if(permission!=='granted'){toast(t('v2PushDenied'));return;}
     const registration=await navigator.serviceWorker.ready;
-    const publicKey=backend.vapidPublicKey;
-    if(!publicKey)throw Error('Missing VAPID public key');
-    const subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:publicKey});
-    await registerSubscription(subscription.toJSON());
+    const subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:decodeVapidPublicKey(backend.vapidPublicKey)});
+    await subscribe(subscription.toJSON());
     await updateSchedule(schedulePayload());
-    await refreshCouple();renderCouple();toast(t('v2PushSuccess'));
-  }catch(err){console.error('Push subscription error',err);toast(t('v2PushError'));}
-  finally{renderCouple();}
+    await refreshDevice();toast(t('v2PushSuccess'));
+  }catch(err){console.error('Push setup failed',err);toast(t('v2PushError'));}
+  finally{renderPushSettings();}
 });
 el('test-push').addEventListener('click',async()=>{
-  try{await requestTestPush();toast(t('v2PushTestSuccess'));}
+  try{await testPush();toast(t('v2PushTestSuccess'));}
   catch(err){toast(t('v2PushError')+' ('+err.message+')');}
 });
 el('disable-push').addEventListener('click',async()=>{
   try{
-    await unregisterSubscription();
-    const registration=await navigator.serviceWorker?.ready;const subscription=await registration?.pushManager?.getSubscription();
-    if(subscription)await subscription.unsubscribe();
-    await refreshCouple();renderCouple();toast(t('v2PushDisabled'));
-  }catch{toast(t('v2PushBackendDown'));}
+    await unsubscribe();
+    const registration=await navigator.serviceWorker?.ready;
+    const existing=await registration?.pushManager?.getSubscription();if(existing)await existing.unsubscribe();
+    await refreshDevice();toast(t('v2PushDisabled'));
+  }catch{toast(t('soloBackendDown'));}
 });
-
+el('solo-disconnect').addEventListener('click',async()=>{
+  if(!session()||!confirm(t('soloConfirmDisconnect')))return;
+  try{
+    const registration=await navigator.serviceWorker?.ready;
+    const existing=await registration?.pushManager?.getSubscription();if(existing)await existing.unsubscribe();
+    await disconnect();notificationState=null;renderPushSettings();toast(t('soloDisconnected'));
+  }catch{toast(t('soloBackendDown'));}
+});
 // Journal data and self-reported symptoms stay exclusively on this device.
 journal = createJournal({
   getState:()=>state, getLanguage:()=>lang, t, number, amountLabel, formatDate, formatTime,
   openHistory:()=>changeScreen('history'),
   addEntry:(day,amount)=>{
     state.logs.push({id:id(),at:new Date().toISOString(),day,amount});
-    persistState();renderToday();renderHistory();renderCouple();sendProgress();toast(t('v3DaySaved'));
+    persistState();renderToday();renderHistory();toast(t('v3DaySaved'));
   },
   deleteEntry:removeWater,
   showToast:toast
 });
 // Keep the existing local data even when the push backend is unconfigured/offline.
-applyLocale();initProfileForm();renderCouple();beginBackend();
+applyLocale();beginBackend();
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{}));
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden)return;
-  if(localDayKey()!==renderedDay){renderToday();renderHistory();sendProgress();renderedDay=localDayKey();}
-  checkForegroundReminder();refreshCouple();
+  if(localDayKey()!==renderedDay){renderToday();renderHistory();renderedDay=localDayKey();}
+  checkForegroundReminder();refreshDevice();
 });
 setInterval(()=>{
   if(document.hidden)return;
-  if(localDayKey()!==renderedDay){renderToday();renderHistory();sendProgress();renderedDay=localDayKey();}
+  if(localDayKey()!==renderedDay){renderToday();renderHistory();renderedDay=localDayKey();}
   renderNextReminder();checkForegroundReminder();
 },30_000);
+
+// Dedicated iPhone PWA: ignore two-finger pinch and Safari gesture zoom.
+for(const eventName of ['gesturestart','gesturechange','gestureend']){
+  document.addEventListener(eventName,event=>event.preventDefault(),{passive:false});
+}
+document.addEventListener('touchmove',event=>{
+  if(event.touches.length>1)event.preventDefault();
+},{passive:false});
