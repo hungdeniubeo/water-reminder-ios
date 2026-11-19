@@ -3,7 +3,7 @@ import { getLanguage, setLanguage, translate, applyTranslations, formatDate, for
 import { configured, session, clearSession, publicConfig, decodeVapidPublicKey, activateDevice, getDevice, updateSchedule, updateMessage, subscribe, unsubscribe, testPush, disconnect } from './solo.js';
 import { createJournal } from './journal-ui.js';
 import { getDailySlogan } from './daily-slogans.js';
-import { animateHydrationSuccess } from './motion.js';
+import { animateHydrationSuccess, animateScreenEntry, animateToast, animateBarChart, animateSave, animateEntry } from './motion.js';
 
 const el = id => document.getElementById(id);
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh';
@@ -37,6 +37,7 @@ function toast(message, undo) {
   button.hidden = !undo;
   button.onclick = undo ? () => { button.hidden = true; undo(); } : null;
   el('toast').hidden = false;
+  animateToast(el('toast'));
   toastTimer = setTimeout(() => { el('toast').hidden = true; }, undo ? 5300 : 3500);
 }
 function id() { return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2); }
@@ -62,10 +63,10 @@ function removeWater(logId) {
   const index = state.logs.findIndex(item => item.id === logId);
   if (index < 0) return;
   const entry = state.logs.splice(index, 1)[0];
-  persistState(); renderToday(); renderHistory();
+  persistState(); renderToday(); renderHistory(); journal?.render();
   toast(t('entryRemoved'), () => {
     if (!state.logs.some(item => item.id === entry.id)) state.logs.push(entry);
-    persistState(); renderToday(); renderHistory();
+    persistState(); renderToday(); renderHistory(); journal?.render();
     toast(t('entryRestored'));
   });
 }
@@ -170,6 +171,7 @@ function renderHistory() {
     if (value >= state.goal) { const check = document.createElement('span'); check.className='goal-mark'; check.textContent='✓'; check.title = t('reachedAria'); row.append(check); }
     days.append(row);
   }
+  animateBarChart(bars);
 }
 function previewSchedule() {
   const start = el('remind-start').value; const end = el('remind-end').value;
@@ -209,6 +211,7 @@ function renderPushSettings() {
 }
 function changeScreen(screen) {
   if (!['today','history','settings'].includes(screen)) return;
+  const changed = currentScreen !== screen;
   currentScreen = screen;
   for (const name of ['today','history','settings']) el('screen-'+name).hidden = name !== screen;
   document.querySelectorAll('[data-tab]').forEach(button => {
@@ -218,6 +221,7 @@ function changeScreen(screen) {
   });
   if (screen === 'history') {renderHistory();journal?.render();}
   if (screen === 'settings') renderSettings();
+  if (changed) animateScreenEntry(el('screen-'+screen));
   window.scrollTo({ top:0, behavior:'auto' });
 }
 function applyLocale() {
@@ -278,7 +282,7 @@ el('drink-form').addEventListener('submit',event=>{
 el('goal-form').addEventListener('submit',event=>{
   event.preventDefault();const goal=Number(el('goal-input').value);
   if (!Number.isInteger(goal)||goal<500||goal>6000) {toast(t('goalInvalid'));return;}
-  state.goal=goal;persistState();renderToday();renderSettings();toast(t('goalUpdated'));
+  state.goal=goal;persistState();renderToday();renderSettings();animateSave(el('goal-form'));toast(t('goalUpdated'));
 });
 ['remind-start','remind-end','remind-interval'].forEach(name=>el(name).addEventListener('change',previewSchedule));
 el('reminder-form').addEventListener('submit',async event=>{
@@ -286,6 +290,7 @@ el('reminder-form').addEventListener('submit',async event=>{
   if (!start||!end||start>=end) {toast(t('timeInvalid'));return;}
   state.reminder={enabled:el('remind-enabled').checked,start,end,interval:Number(el('remind-interval').value)};
   state.lastReminderSlot='';persistState();renderNextReminder();
+  animateSave(el('reminder-form'));
   toast(t(state.reminder.enabled?'remindersSaved':'remindersOff'));
   if (session() && backend?.ready) {try{await updateSchedule(schedulePayload());}catch{toast(t('soloBackendDown'));}}
 });
@@ -375,7 +380,10 @@ journal = createJournal({
   openHistory:()=>changeScreen('history'),
   addEntry:(day,amount)=>{
     state.logs.push({id:id(),at:new Date().toISOString(),day,amount});
-    persistState();renderToday();renderHistory();toast(t('v3DaySaved'));
+    persistState();renderToday();renderHistory();journal?.render();
+    animateSave(document.querySelector('.day-journal-card'));
+    animateEntry(document.querySelector('#journal-day-entries .journal-entry'));
+    toast(t('v3DaySaved'));
   },
   deleteEntry:removeWater,
   showToast:toast

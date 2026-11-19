@@ -489,3 +489,155 @@ h2,
   .water-particle,.water-float-label,.bottom-dialog[open]{animation:none!important}
   .quick-add,.custom-add,.dialog-presets button,.button-primary{transition:none!important}
 }
+
+
+/* Beo global motion system: responsive micro-interactions, no layout shifts. */
+.screen.beo-screen-in{animation:beo-page-arrive .52s cubic-bezier(.2,.85,.25,1) both}
+.hero-intro.beo-hero-in{animation:beo-heading-arrive .54s cubic-bezier(.2,.85,.25,1) both}
+@keyframes beo-page-arrive{
+  from{opacity:.28;transform:translate3d(0,10px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes beo-heading-arrive{
+  from{opacity:.4;transform:translate3d(0,7px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+
+/* Navigation: a small floating icon, not a moving tab bar. */
+.tab{position:relative;transition:color .22s ease,background-color .22s ease}
+.tab svg{transition:transform .29s cubic-bezier(.2,.8,.25,1),stroke .24s ease}
+.tab.active svg{transform:translateY(-2px) scale(1.07)}
+.tab.active{background:#fff1f67a}
+.tab:active:not(:disabled){background:#ffe9f1}
+.language-switch button{transition:background-color .23s ease,color .23s ease,box-shadow .23s ease}
+.language-switch button.selected{animation:beo-pill-settle .33s cubic-bezier(.2,.8,.25,1)}
+@keyframes beo-pill-settle{
+  0%{transform:scale(.95);opacity:.72}
+  100%{transform:scale(1);opacity:1}
+}
+
+/* The day/week carousel and monthly calendar slide only AFTER a valid change. */
+.week-peek{overflow:hidden}
+.week-peek-days.beo-slide-right,.calendar-grid.beo-slide-right{
+  animation:beo-slide-right .4s cubic-bezier(.2,.85,.25,1) both
+}
+.week-peek-days.beo-slide-left,.calendar-grid.beo-slide-left{
+  animation:beo-slide-left .4s cubic-bezier(.2,.85,.25,1) both
+}
+#week-range.beo-label-in,#calendar-month.beo-label-in{
+  animation:beo-label-appear .4s ease-out both
+}
+@keyframes beo-slide-right{
+  from{opacity:.36;transform:translate3d(-12px,0,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes beo-slide-left{
+  from{opacity:.36;transform:translate3d(12px,0,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes beo-label-appear{
+  from{opacity:.25;transform:translateY(3px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.week-day,.calendar-date{
+  transition:background-color .19s ease,color .19s ease,
+    border-color .19s ease,box-shadow .19s ease,transform .17s ease;
+}
+.week-day:active:not(:disabled),.calendar-date:active:not(:disabled),
+#week-prev:active:not(:disabled),#week-next:active:not(:disabled),
+.calendar-controls button:active:not(:disabled){transform:scale(.92)}
+.week-day.beo-today-ping{animation:beo-date-ping .54s ease-out}
+@keyframes beo-date-ping{
+  0%,100%{filter:brightness(1);transform:scale(1)}
+  45%{filter:brightness(1.09);transform:scale(1.06)}
+}
+
+/* Day details / charts / wellbeing chips have their own quiet feedback. */
+.day-journal-card.beo-day-in{
+  animation:beo-detail-arrive .44s cubic-bezier(.2,.85,.25,1)
+}
+@keyframes beo-detail-arrive{
+  from{opacity:.5;transform:translate3d(0,8px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+.bar-fill{transition:height .7s cubic-bezier(.2,.8,.25,1)}
+.checkin-chip,.journal-presets button,.dialog-presets button{
+  transition:background-color .22s ease,border-color .22s ease,
+    box-shadow .22s ease,color .22s ease,transform .18s ease;
+}
+.checkin-chip.selected{box-shadow:0 4px 12px #ac537a24}
+.checkin-chip:active,.journal-presets button:active,.dialog-presets button:active{transform:scale(.95)}
+.checkin-chip.beo-chip-pop{animation:beo-chip-pop .38s cubic-bezier(.2,.85,.25,1)}
+@keyframes beo-chip-pop{
+  0%,100%{transform:scale(1)}
+  47%{transform:scale(1.065)}
+}
+.body-feedback.beo-feedback-in,
+.pattern-card.beo-feedback-in{
+  animation:beo-soft-feedback .46s ease-out both
+}
+@keyframes beo-soft-feedback{
+  0%{opacity:.58;transform:translateY(5px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+.beo-save-glow{animation:beo-save-highlight .72s ease-out}
+@keyframes beo-save-highlight{
+  0%,100%{box-shadow:0 0 0 0 #d88ca000}
+  38%{box-shadow:0 0 0 4px #df93b132,0 7px 20px #a3507514}
+}
+.entry-item.beo-entry-in,
+.journal-entry.beo-entry-in{
+  animation:beo-fresh-entry .5s cubic-bezier(.2,.85,.25,1) both
+}
+@keyframes beo-fresh-entry{
+  from{opacity:.18;transform:translate3d(0,9px,0) scale(.986)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+
+/* Buttons and inputs respond gently without changing their touch target. */
+.peek-arrow,.story-arrow,.delete-button,.journal-delete,.dialog-close,
+#week-prev,#week-next,.calendar-controls button,.button,.text-button{
+  transition:transform .18s cubic-bezier(.2,.85,.25,1),
+    background-color .2s ease,box-shadow .2s ease,color .2s ease;
+}
+.peek-arrow:active,.story-arrow:active,.delete-button:active,
+.journal-delete:active,.dialog-close:active,.button:active:not(:disabled),
+.text-button:active:not(:disabled){transform:scale(.95)}
+input:not([type=checkbox]),textarea,select{
+  transition:border-color .22s ease,box-shadow .22s ease,background-color .22s ease;
+}
+input:not([type=checkbox]):focus,textarea:focus,select:focus{
+  border-color:#dfa9bf;box-shadow:0 0 0 3px #f5dbe68a;background:#fff;
+}
+.switch-track{transition:background-color .24s ease,box-shadow .24s ease}
+.switch-row:active .switch-track{box-shadow:0 0 0 4px #f0d7e380}
+
+/* Small touches of personality without constant movement on every element. */
+.hero-intro .tiny-heart{animation:beo-heart-breath 6.5s ease-in-out infinite}
+.daily-story .story-glyph{animation:beo-soft-twinkle 7s ease-in-out infinite}
+.bottom-quote span:first-child{display:inline-block;animation:beo-heart-breath 7.5s ease-in-out infinite}
+@keyframes beo-heart-breath{
+  0%,100%{opacity:.65;transform:translateY(0) scale(1)}
+  50%{opacity:1;transform:translateY(-2px) scale(1.1)}
+}
+@keyframes beo-soft-twinkle{
+  0%,100%{opacity:.7;transform:scale(.97)}
+  50%{opacity:1;transform:scale(1.045)}
+}
+
+/* The toast's x centering must remain exact throughout the pop-in. */
+.toast.beo-toast-in{animation:beo-toast-pop .38s cubic-bezier(.2,.85,.25,1) both}
+@keyframes beo-toast-pop{
+  from{opacity:.25;transform:translate3d(-50%,10px,0) scale(.975)}
+  to{opacity:1;transform:translate3d(-50%,0,0) scale(1)}
+}
+
+/* Respect iPhone accessibility settings and keep the interface static when requested. */
+@media(prefers-reduced-motion:reduce){
+  .app-shell *, .app-shell *::before, .app-shell *::after,
+  .toast,.bottom-dialog{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}

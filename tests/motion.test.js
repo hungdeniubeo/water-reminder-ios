@@ -31,7 +31,49 @@ test('reduced motion is respected and repeated effects get cleaned up',()=>{
   assert.match(motion,/burst\.remove\(\); label\.remove\(\)/);
 });
 test('offline cache includes optional motion module without changing push handling',()=>{
-  assert.match(sw,/water-reminder-static-v13-floating-beo/);
+  assert.match(sw,/water-reminder-static-v14-all-screens-motion/);
   assert.match(sw,/'\.\/motion\.js'/);
   assert.match(sw,/self\.addEventListener\('push'/);
+});
+
+
+test('all three views play a stable entrance, without touching tab layout or iOS safe area',()=>{
+  assert.match(app,/animateScreenEntry\(el\('screen-'\+screen\)\)/);
+  assert.match(css,/\.screen\.beo-screen-in\{/);
+  assert.match(css,/\.tab\.active svg\{/);
+  assert.match(css,/\.toast\.beo-toast-in\{/);
+  assert.match(css,/translate3d\(-50%,10px,0\)/);
+});
+test('past-day journal, week swipes and month paging have motion cues',()=>{
+  const journal=readFileSync(new URL('../journal-ui.js',import.meta.url),'utf8');
+  assert.match(journal,/animateWeekChange\(direction\)/);
+  assert.match(journal,/animateCalendarChange\(1\)/);
+  assert.match(journal,/animateCalendarChange\(-1\)/);
+  assert.match(journal,/animateDaySelection\(\)/);
+  assert.match(app,/renderToday\(\);renderHistory\(\);journal\?\.render\(\)/);
+});
+test('selected wellbeing chips, save feedback and live chart are animated',()=>{
+  const journal=readFileSync(new URL('../journal-ui.js',import.meta.url),'utf8');
+  assert.match(journal,/animateChipSelection\(b\)/);
+  assert.match(journal,/animateSave\(el\('save-body-checkin'\)\)/);
+  assert.match(app,/animateBarChart\(bars\)/);
+  assert.match(app,/animateSave\(el\('goal-form'\)\)/);
+  assert.match(app,/animateSave\(el\('reminder-form'\)\)/);
+});
+test('whole-app animation helpers skip safely in Node and honor reduced motion',async()=>{
+  const motion=await import('../motion.js');
+  for(const action of [
+    ()=>motion.animateScreenEntry(null),
+    ()=>motion.animateWeekChange(1),
+    ()=>motion.animateCalendarChange(-1),
+    ()=>motion.animateDaySelection(),
+    ()=>motion.animateChipSelection(null),
+    ()=>motion.animateFeedback(null),
+    ()=>motion.animateSave(null),
+    ()=>motion.animateEntry(null),
+    ()=>motion.animateToast(null),
+    ()=>motion.animateBarChart(null)
+  ])assert.equal(action(),false);
+  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+  assert.match(css,/transition-duration:\.01ms!important/);
 });

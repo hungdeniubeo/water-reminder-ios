@@ -1,5 +1,6 @@
 import { localDayKey, totalForDay } from './logic.js';
 import { getWeekWindow, swipeWeekDirection } from './week-strip.js';
+import { animateWeekChange, animateCalendarChange, animateDaySelection, animateChipSelection, animateFeedback, animateSave } from './motion.js';
 import { BODY_NOTES_KEY, BODY_SYMPTOMS, BODY_CONTEXTS, cleanBodyNotes, completedDaySummary, recentGoalStreak, monthlyCalendar, dateWithinJournal } from './hydration-insights.js';
 
 // The journal is separate from the couple/push feature. No symptom data leaves the phone.
@@ -61,6 +62,7 @@ export function createJournal({getState, getLanguage, t, number, amountLabel, fo
     if(direction<0 && !window.canNewer)return false;
     weeksBack=Math.max(0,weeksBack+direction);
     renderWeek();
+    animateWeekChange(direction);
     return true;
   }
 
@@ -99,6 +101,7 @@ export function createJournal({getState, getLanguage, t, number, amountLabel, fo
     if(!dateWithinJournal(day))return;
     chosenDay=day;const d=getDay(day);month=new Date(d.getFullYear(),d.getMonth(),1,12);
     render();
+    animateDaySelection();
   }
 
   function renderSelectedDay(){
@@ -174,7 +177,8 @@ export function createJournal({getState, getLanguage, t, number, amountLabel, fo
         b.textContent=t(prefix+name);b.setAttribute('aria-pressed',String(active.has(name)));
         b.addEventListener('click',()=>{
           active.has(name)?active.delete(name):active.add(name);
-          b.classList.toggle('selected',active.has(name));b.setAttribute('aria-pressed',String(active.has(name)));renderBodyFeedback();
+          b.classList.toggle('selected',active.has(name));b.setAttribute('aria-pressed',String(active.has(name)));
+          animateChipSelection(b);renderBodyFeedback();animateFeedback(el('body-feedback'));
         });box.append(b);
       }
     }
@@ -207,8 +211,8 @@ export function createJournal({getState, getLanguage, t, number, amountLabel, fo
     if(direction){lastWeekSwipe=Date.now();changeWeek(direction);}
   },{passive:true});
   el('daily-story-link').addEventListener('click',openHistory);
-  el('calendar-prev').addEventListener('click',()=>{const y=month.getFullYear(),m=month.getMonth();month=new Date(y,m-1,1,12);renderCalendar();});
-  el('calendar-next').addEventListener('click',()=>{const y=month.getFullYear(),m=month.getMonth();month=new Date(y,m+1,1,12);renderCalendar();});
+  el('calendar-prev').addEventListener('click',()=>{const y=month.getFullYear(),m=month.getMonth();month=new Date(y,m-1,1,12);renderCalendar();animateCalendarChange(1);});
+  el('calendar-next').addEventListener('click',()=>{const y=month.getFullYear(),m=month.getMonth();month=new Date(y,m+1,1,12);renderCalendar();animateCalendarChange(-1);});
   document.querySelectorAll('[data-journal-preset]').forEach(button=>button.addEventListener('click',()=>{
     el('journal-amount').value=button.dataset.journalPreset;
     document.querySelectorAll('[data-journal-preset]').forEach(item=>item.classList.toggle('selected',item===button));
@@ -226,7 +230,11 @@ export function createJournal({getState, getLanguage, t, number, amountLabel, fo
     if(!dateWithinJournal(chosenDay))return;
     if(symptoms.size||contexts.size)notes[chosenDay]={symptoms:[...symptoms],contexts:[...contexts]};
     else delete notes[chosenDay];
-    if(saveNotes())showToast(t('v3BodySaved'));
+    if(saveNotes()){
+      animateSave(el('save-body-checkin'));
+      animateFeedback(el('body-feedback'));
+      showToast(t('v3BodySaved'));
+    }
   });
 
   return {
