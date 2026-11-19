@@ -1,5 +1,5 @@
 /* Offline app shell + user-visible Web Push notifications (requires a configured sender). */
-const CACHE_NAME = 'water-reminder-static-v5-beo-single';
+const CACHE_NAME = 'water-reminder-static-v6-aligned';
 const ASSETS = ['./','./index.html','./styles.css','./app.js','./logic.js','./i18n.js','./journal-ui.js','./hydration-insights.js','./solo.js','./push-config.js','./manifest.webmanifest','./assets/icon.svg','./assets/icon-maskable.svg'];
 
 self.addEventListener('install', event => {

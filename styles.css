@@ -157,3 +157,31 @@ input,textarea,select{font-size:16px!important;-webkit-text-size-adjust:100%}
 .solo-push-card .setup-link{display:inline;color:#a3436b;text-decoration:underline;text-underline-offset:3px;font-size:.79rem}
 @media(min-width:400px) and (max-width:460px){.app-shell{padding-left:24px;padding-right:24px}.progress-main{gap:11px}.hero-intro h1{font-size:2.9rem}.calendar-card{padding:20px 18px}.week-peek{padding-inline:16px}}
 @media(max-width:428px){.tabbar{max-width:428px}.topbar{gap:8px}.identity small{letter-spacing:.055em}.calendar-date{min-height:40px}}
+
+/* iPhone polish: keep the progress-card footer flush with the rounded card edge. */
+.progress-card{--progress-gutter:22px;padding-bottom:0}
+.card-foot{
+  box-sizing:border-box;
+  position:relative;
+  z-index:1;
+  width:auto;
+  min-height:59px;
+  margin:0 calc(0px - var(--progress-gutter));
+  padding:15px var(--progress-gutter) 17px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:9px;
+  border-top:1px solid #efcfdb;
+  border-radius:0 0 29px 29px;
+  background:#fff6f8;
+  color:#a9577e;
+  line-height:1.45;
+}
+.card-foot .rose-sparkle{display:grid;flex:0 0 17px;place-items:center;line-height:1;font-size:17px}
+.card-foot #progress-message{display:block;min-width:0;flex:1;overflow-wrap:anywhere}
+@media(max-width:390px){.progress-card{--progress-gutter:17px}}
+@media(max-width:340px){.progress-card{--progress-gutter:13px}}
+/* Suppress accidental double-tap zoom while preserving taps and vertical scroll. */
+html,body,.app-shell{touch-action:pan-y}
+button,a,input,textarea,select,.tabbar{touch-action:manipulation}
