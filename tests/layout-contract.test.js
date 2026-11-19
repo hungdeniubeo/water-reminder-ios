@@ -48,3 +48,12 @@ test('app blocks selecting or copying static UI while retaining editable fields'
   assert.match(app, /\['copy', 'cut', 'contextmenu', 'selectstart'\]/);
   assert.match(app, /isEditableControl\(event.target\)/);
 });
+
+
+test('the brand uses a Neutra-inspired display stack with a Vietnamese fallback', () => {
+  assert.match(html, /family=Be\+Vietnam\+Pro/);
+  assert.match(css, /--beo-display-font:"UTM Neutra","Be Vietnam Pro"/);
+  assert.match(css, /\.hero-intro h1\{[^}]*font-weight:600/);
+  assert.match(css, /\.hero-intro h1 em\{[^}]*font-style:normal/);
+  assert.match(css, /\.identity strong\{[^}]*font-size:1\.44rem/);
+});
