@@ -9,7 +9,7 @@ export const messages = {
   vi: {
     documentTitle: 'Water Reminder — Nhắc uống nước',
     pageDescription: 'Một chiếc app nhỏ xinh để ghi lại nước uống mỗi ngày.',
-    brandTagline: 'DÀNH CHO EM ♡',
+    brandTagline: 'Dành cho Beo ♡',
     aboutButton: 'Cách cài ứng dụng lên iPhone',
     languageLabel: 'Chọn ngôn ngữ',
     todayTitle: 'Uống đủ nước,|thương mình hơn.',
@@ -207,7 +207,7 @@ export const messages = {
   en: {
     documentTitle: 'Water Reminder — Your daily sip',
     pageDescription: 'A little water tracker made with care. Log your drinks and build a daily habit.',
-    brandTagline: 'JUST FOR YOU ♡',
+    brandTagline: 'For Beo ♡',
     aboutButton: 'How to install Water on your iPhone',
     languageLabel: 'Choose a language',
     todayTitle: 'A little water,|a little love.',
