@@ -716,3 +716,23 @@ input:not([type=checkbox]):focus,textarea:focus,select:focus{
     transition:none!important;animation:none!important;
   }
 }
+
+
+/* Compact destructive action placed beside local backup controls. */
+.clear-water-row{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;border-top:1px solid #f4e2e9;margin-top:17px;padding-top:16px;
+}
+.clear-water-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.clear-water-copy strong{font-size:.81rem;font-weight:650;color:#80556b}
+.clear-water-copy small{font-size:.72rem;line-height:1.42;color:#a48995}
+.clear-water-button{
+  flex:0 0 auto;min-width:76px;min-height:44px;padding:10px 16px;
+  border:1px solid #e6c0d0;border-radius:13px;
+  background:#fff7fa;color:#a4476b;font-weight:700;font-size:.86rem;
+  transition:background-color .18s ease,transform .18s ease,border-color .18s ease;
+}
+.clear-water-button:active:not(:disabled){transform:scale(.97);background:#ffedf4}
+.clear-water-button:focus-visible{outline:3px solid #eaa3be;outline-offset:3px}
+.clear-water-button:disabled{opacity:.42;cursor:not-allowed}
+@media(prefers-reduced-motion:reduce){.clear-water-button{transition:none}}

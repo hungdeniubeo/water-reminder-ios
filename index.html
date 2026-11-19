@@ -190,7 +190,15 @@
           </div>
           <p class="field-note" data-i18n="soloPushHint">Thêm app vào Màn hình chính, bật lịch nhắc và cho phép thông báo để nhận lời nhắc khi màn hình khóa.</p>
         </section>
-        <section class="white-card form-card"><div class="settings-heading"><span class="settings-icon">⇩</span><span><h2 data-i18n="backupTitle">Giữ lại kỷ niệm nhỏ</h2><p data-i18n="backupDescription">Lưu một bản dữ liệu phòng khi cần.</p></span></div><div class="backup-actions"><button type="button" class="button button-primary" id="export-backup" data-i18n="exportData">Xuất dữ liệu</button><button type="button" class="button button-outline" id="import-backup" data-i18n="restoreFile">Khôi phục</button></div><input id="backup-file" type="file" accept=".json,application/json" hidden aria-label="Chọn tệp sao lưu JSON" data-i18n-aria-label="backupAria"><p class="field-note" data-i18n="v2PrivacyNote">Nhật ký và ghi chú cơ thể chỉ lưu trên iPhone này, không đồng bộ lên Cloudflare.</p></section>
+        <section class="white-card form-card"><div class="settings-heading"><span class="settings-icon">⇩</span><span><h2 data-i18n="backupTitle">Giữ lại kỷ niệm nhỏ</h2><p data-i18n="backupDescription">Lưu một bản dữ liệu phòng khi cần.</p></span></div><div class="backup-actions"><button type="button" class="button button-primary" id="export-backup" data-i18n="exportData">Xuất dữ liệu</button><button type="button" class="button button-outline" id="import-backup" data-i18n="restoreFile">Khôi phục</button></div><input id="backup-file" type="file" accept=".json,application/json" hidden aria-label="Chọn tệp sao lưu JSON" data-i18n-aria-label="backupAria">
+          <div class="clear-water-row">
+            <span class="clear-water-copy">
+              <strong data-i18n="clearWaterTitle">Lịch sử uống nước</strong>
+              <small data-i18n="clearWaterDescription">Xoá tất cả những lần uống đã ghi.</small>
+            </span>
+            <button type="button" id="clear-water-all" class="clear-water-button" data-i18n="clearWaterButton" data-i18n-aria-label="clearWaterAria" aria-label="Xoá toàn bộ lịch sử uống nước" disabled>Xoá</button>
+          </div>
+          <p class="field-note" data-i18n="v2PrivacyNote">Nhật ký và ghi chú cơ thể chỉ lưu trên iPhone này, không đồng bộ lên Cloudflare.</p></section>
         <p class="version" data-i18n="v2Version">WATER ♡ · BEO EDITION</p>
       </section>
     </main>

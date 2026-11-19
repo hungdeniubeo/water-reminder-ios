@@ -60,6 +60,11 @@ export function normalizeState(input) {
   return data;
 }
 
+// Reset only water intake. Keep goals, reminder settings and other fields intact.
+export function clearWaterLogs(current) {
+  return { ...current, logs: [] };
+}
+
 export function totalForDay(logs, day) {
   return logs.reduce((sum, log) => sum + (log.day === day ? log.amount : 0), 0);
 }

@@ -50,7 +50,7 @@ test('UI stays usable without JavaScript and is cached for offline iPhone use',(
   assert.match(css,/\.beo-interval-picker:not\(\.beo-enhanced\) \.beo-interval-menu\{display:none\}/);
   assert.match(html,/id="beo-interval-trigger"[^>]+ hidden>/);
   assert.match(sw,/'\.\/reminder-picker\.js'/);
-  assert.match(sw,/water-reminder-static-v16-pink-water-sway/);
+  assert.match(sw,/water-reminder-static-v17-clear-history/);
   const picker=setupReminderIntervalPicker();
   assert.equal(typeof picker.sync,'function');
   assert.equal(typeof picker.close,'function');

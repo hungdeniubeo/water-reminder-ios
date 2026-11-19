@@ -1,4 +1,4 @@
-import { STORAGE_KEY, normalizeState, localDayKey, dayKeyOffset, totalForDay, getWeekStats, nextReminderSlot } from './logic.js';
+import { STORAGE_KEY, normalizeState, localDayKey, dayKeyOffset, totalForDay, getWeekStats, nextReminderSlot, clearWaterLogs } from './logic.js';
 import { getLanguage, setLanguage, translate, applyTranslations, formatDate, formatNumber, formatTime } from './i18n.js';
 import { configured, session, clearSession, publicConfig, decodeVapidPublicKey, activateDevice, getDevice, updateSchedule, updateMessage, subscribe, unsubscribe, testPush, disconnect } from './solo.js';
 import { createJournal } from './journal-ui.js';
@@ -60,6 +60,27 @@ function addWater(value) {
   });
   toast(t('waterAdded', { amount: number(amount) }));
   return true;
+}
+function clearAllWater() {
+  if (!state.logs.length) return;
+  // Destructive across all dates: require an explicit confirmation.
+  if (!window.confirm(t('clearWaterConfirm'))) return;
+  const snapshot = state.logs.slice();
+  state = clearWaterLogs(state);
+  if (!persistState()) {
+    state = { ...state, logs: snapshot };
+    return;
+  }
+  renderToday(); renderHistory(); journal?.render(); renderSettings();
+  toast(t('clearWaterDone'), () => {
+    const existing = new Set(state.logs.map(item => item.id));
+    state = { ...state, logs: [
+      ...snapshot.filter(item => !existing.has(item.id)), ...state.logs
+    ] };
+    if (!persistState()) return;
+    renderToday(); renderHistory(); journal?.render(); renderSettings();
+    toast(t('clearWaterUndone'));
+  });
 }
 function removeWater(logId) {
   const index = state.logs.findIndex(item => item.id === logId);
@@ -189,6 +210,7 @@ function previewSchedule() {
   el('reminder-preview').textContent = t('preview', { times: slots.join(', '), more: startMin + 4*interval <= endMin ? ' …' : '' });
 }
 function renderSettings() {
+  el('clear-water-all').disabled = state.logs.length === 0;
   el('goal-input').value = state.goal;
   el('remind-enabled').checked = !!state.reminder.enabled;
   el('remind-start').value = state.reminder.start;
@@ -306,6 +328,7 @@ el('export-backup').addEventListener('click',()=>{
   const anchor=document.createElement('a');anchor.href=url;anchor.download='water-backup-'+localDayKey()+'.json';document.body.append(anchor);anchor.click();anchor.remove();
   setTimeout(()=>URL.revokeObjectURL(url),5000);toast(t('backupReady'));
 });
+el('clear-water-all').addEventListener('click', clearAllWater);
 el('import-backup').addEventListener('click',()=>el('backup-file').click());
 el('backup-file').addEventListener('change',async()=>{
   const file=el('backup-file').files[0];el('backup-file').value='';if(!file)return;
