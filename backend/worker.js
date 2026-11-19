@@ -51,8 +51,10 @@ function publicDevice(row, today) {
 }
 async function currentCouple(env, device) {
   const other = await env.DB.prepare('SELECT * FROM devices WHERE room_id=? AND id<>? LIMIT 1').bind(device.room_id, device.id).first();
-  const today = localClock(new Date(), device.timezone).day;
-  return { self: publicDevice(device, today), partner: publicDevice(other, today), paired: !!other };
+  const now = new Date();
+  const today = localClock(now, device.timezone).day;
+  const partnerToday = other ? localClock(now, other.timezone).day : today;
+  return { self: publicDevice(device, today), partner: publicDevice(other, partnerToday), paired: !!other };
 }
 async function sendPush(env, device, title, body) {
   if (!device.push_json) error(409, 'Enable notifications on this phone first');
