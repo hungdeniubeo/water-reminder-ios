@@ -26,10 +26,10 @@ Cấu hình `wrangler.jsonc` đã dùng binding `DB` và database ID có sẵn. 
 node scripts/generate-vapid.mjs
 ```
 
-Lệnh in ra `VAPID_PUBLIC_KEY` và `VAPID_PRIVATE_KEY`.
+Lệnh **chỉ in public key**. Private key được lưu trong file `~/.water-beo/vapid-private-key` với quyền chỉ chủ máy đọc.
 
 - **PUBLIC KEY** được phép gửi cho ChatGPT để cập nhật `backend/wrangler.jsonc`.
-- **PRIVATE KEY** phải được giữ kín và nhập trực tiếp vào Wrangler Secret ở bước 4. Không dán vào ChatGPT hoặc commit vào GitHub.
+- **PRIVATE KEY** không in trên Terminal. Khi đến bước 4, Wrangler đọc khóa trực tiếp từ file riêng trên Mac.
 - Đừng làm mất khóa private. Đổi bộ khóa sẽ cần đăng ký lại Web Push trên iPhone.
 
 ## 3. Điền public key rồi deploy
@@ -48,11 +48,11 @@ Worker sẽ có tên `water-beo-push`, giữ nguyên D1 `water-couple`. URL có 
 ## 4. Đặt secrets (không gửi qua Chat)
 
 ```bash
-npx wrangler secret put VAPID_PRIVATE_KEY
+npx wrangler secret put VAPID_PRIVATE_KEY < ~/.water-beo/vapid-private-key
 npx wrangler secret put OWNER_SETUP_CODE
 ```
 
-- Nhập **private key** đã tạo khi Wrangler yêu cầu.
+- Lệnh đầu lấy **private key** từ file, không in ra màn hình.
 - Tự đặt **OWNER_SETUP_CODE** dài ít nhất 16 ký tự, khó đoán và giữ kín. Đây là mã kích hoạt **một iPhone**.
 - Kiểm tra lại bằng `npx wrangler secret list` (chỉ hiện tên secrets, không lộ giá trị).
 
