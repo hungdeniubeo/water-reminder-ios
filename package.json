@@ -1,0 +1,13 @@
+{
+  "name": "water-reminder-ios-pwa",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline-first water tracker for iPhone Home Screen",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
