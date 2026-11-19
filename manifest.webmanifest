@@ -1,0 +1,26 @@
+{
+  "id": "./",
+  "name": "Water Reminder",
+  "short_name": "Water",
+  "description": "A little water, every day. Private hydration tracking on your device.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6faf9",
+  "theme_color": "#f6faf9",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
