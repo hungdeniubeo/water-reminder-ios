@@ -1,10 +1,8 @@
 name: PWA checks
-
 on:
   push:
     branches: [main]
   pull_request:
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -19,6 +17,11 @@ jobs:
         run: |
           node --check app.js
           node --check logic.js
+          node --check i18n.js
+          node --check couple.js
           node --check sw.js
-      - name: Run unit tests
+          node --check push-config.js
+          node --check backend/worker.js
+          node --check backend/lib.js
+      - name: Test browser and backend logic
         run: npm test

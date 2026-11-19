@@ -1,119 +1,72 @@
 <p align="center">
-  <img src="./assets/water-reminder-hero.svg" alt="Water Reminder illustration" width="100%" />
+  <img src="./assets/water-reminder-hero.svg" alt="Water — Couple Edition" width="100%">
 </p>
 
 <div align="center">
 
-# Water Reminder
+# Water ♡
 
-**A little water, a little love.**
+**Một chút nước, một chút thương.**  
+*A little sip, a little love.*
 
-A soft pink hydration tracker for iPhone, made with care. Switch instantly between **Tiếng Việt 🇻🇳** and **English 🇬🇧**. No account, no subscription, no backend.
+A tiny hydration tracker for two iPhones. Soft pink, Vietnamese / English, no ads or account.
 
-![PWA](https://img.shields.io/badge/Platform-iPhone%20PWA-102D39?style=flat-square)
-![Languages](https://img.shields.io/badge/Languages-VI%20%7C%20EN-C95C86?style=flat-square)
-![Cost](https://img.shields.io/badge/Hosting-GitHub%20Pages-657A83?style=flat-square)
-
-[App](#try-the-app) · [Features](#features) · [Install](#install-on-iphone) · [Reminders](#notifications) · [Development](#development)
+[**Open the app**](https://hungdeniubeo.github.io/water-reminder-ios/) · [Install on iPhone](#install-on-iphone) · [Enable notifications](./docs/SETUP_PUSH.md)
 
 </div>
 
 ---
 
-## Try the app
+## What's inside
 
-**[Open Water Reminder ↗](https://hungdeniubeo.github.io/water-reminder-ios/)**
-
-> **Publishing note:** The link works after GitHub Pages has been enabled for this repository under **Settings → Pages**. The project is built and committed to `main`; Pages activation is a separate repository setting.
-
-## Features
-
-- **Vietnamese & English.** Switch with VI / EN in the header. Your language preference is saved locally.
-- **Soft rose theme.** A warm, calm pink interface with matching icons and branding.
-- **Quick logging.** Add 150, 250, or 500 ml with one tap, or enter a custom amount.
-- **Daily goal.** Choose your own water target and follow a live progress ring.
-- **History.** See your last seven days as a chart and review daily totals.
-- **Local reminders.** Optional gentle in-app nudges at chosen times **while the app is open**.
-- **Offline-first.** After the first visit, the service worker caches the app for offline use.
-- **Backup and restore.** Export your entries and preferences as JSON and restore them later.
-- **On-device data.** Your logs and settings stay in your browser's local storage. No sign-in or analytics.
-
-This is a **Progressive Web App**, not a native iOS app or an App Store release.
+- **Today:** one-tap 150 / 250 / 500 ml, custom water amounts, daily progress and drink history.
+- **History:** 7-day chart, recent daily totals, quick goal overview.
+- **Us two:** personal names, a message for your partner, optional private pairing and today's shared totals.
+- **Gentle nudges:** in-app reminders today; real iPhone Web Push when the Cloudflare Worker is configured and each device opts in.
+- **VI / EN:** switch at the top of the app; preference is saved on that iPhone.
+- **Privacy first:** water entry details stay on the device. JSON export/restore is available in Settings.
 
 ## Install on iPhone
 
-1. Open the published link in **Safari** on your iPhone.
-2. Tap **Share** → **Add to Home Screen**.
-3. Choose **Add**. Then open Water Reminder from its Home Screen icon.
-4. Visit once while online so the app's assets can be cached for offline use.
+1. Open **https://hungdeniubeo.github.io/water-reminder-ios/** in **Safari** on iPhone.
+2. Tap **Share → Add to Home Screen → Add**.
+3. Open **Water ♡** from the Home Screen. No App Store, Xcode, or Apple Developer membership required.
 
-Your history is stored locally. **Use Settings → Export data to keep a backup.** Removing the app or clearing website data can erase your logs. The app does not sync between devices.
+GitHub Pages must be enabled at **Settings → Pages → Deploy from a branch → main / (root)**. The PWA works offline after the initial load and service worker installation.
 
-## Notifications
+## A note about notifications
 
-**V1 reminder behavior:** When you leave Water Reminder open, it can display an in-app nudge at your chosen interval. It **cannot** send scheduled iPhone lock-screen notifications after you close it.
+**GitHub Pages cannot send lock-screen notifications by itself.** The frontend supports Web Push, but until the private Cloudflare Worker / D1 sender is deployed, the app **only displays in-app reminders while it is open**. We deliberately show that limitation in the interface.
 
-For true background notifications on iOS 16.4+, the installed PWA needs Web Push (Push API, service worker, user permission) plus a server that sends notifications. GitHub Pages cannot do the sending alone.
+The backend source is in [`backend/`](./backend). Setup for just two phones is in **[docs/SETUP_PUSH.md](./docs/SETUP_PUSH.md)**.
 
-See **[Background notification plan](./docs/REMINDERS_PLAN.md)** for a proposed free-tier implementation.
+Once connected, the sender uses the recipient's selected language and the partner's custom note. iOS 16.4+ supports Web Push for Home Screen web apps; delivery still depends on device permission, network and Focus mode.
 
-## Development
-
-No package install, server-side code or frontend build tool is required for the static app.
+## Local development
 
 ```bash
-git clone https://github.com/hungdeniubeo/water-reminder-ios.git
-cd water-reminder-ios
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000](http://localhost:8000). Service workers work on localhost or over HTTPS.
-
-To run the pure logic tests, install Node.js 20+ and run:
+Visit `http://localhost:8000`. The frontend needs no bundler. To run the tests with Node.js 22+:
 
 ```bash
 npm test
 ```
 
-### Publish with GitHub Pages
+### Files
 
-1. Make sure the GitHub repository is **public** (GitHub Pages is included for public repositories on GitHub Free).
-2. Open **Settings → Pages** for this repository.
-3. Under **Build and deployment**, select **Deploy from a branch**.
-4. Select **`main`** and **`/(root)`**, then click **Save**.
-5. Once GitHub finishes publishing, visit **https://hungdeniubeo.github.io/water-reminder-ios/**.
-
-The app uses relative asset paths so it works at the GitHub Pages project URL. No custom domain is required.
-
-## Project structure
-
-```text
-index.html               Interface + language switch
-styles.css               iPhone-first styling
-app.js                   UI and browser persistence
-i18n.js                  Vietnamese / English translations
-logic.js                 Testable date, goal, and reminder logic
-sw.js                    Offline asset caching
-manifest.webmanifest     Installable PWA metadata
-assets/                  App icons and README banner
-tests/                   Node.js logic tests
-docs/REMINDERS_PLAN.md   Background Web Push proposal
-PRIVACY.md               Local storage and privacy details
-```
-
-## Roadmap
-
-- [x] Offline-ready PWA shell
-- [x] Water logging, goals, and history
-- [x] On-device storage and JSON backups
-- [x] Foreground-only in-app nudges
-- [x] Pink theme and Vietnamese / English localization
-- [ ] Background Web Push with an opt-in subscription
-- [ ] Test and polish installation, icon appearance, and notifications on a physical iPhone
-- [ ] Optional device-to-device sync
+| Path | Purpose |
+|---|---|
+| `index.html`, `styles.css` | App UI, pink theme, responsive layouts |
+| `app.js`, `logic.js`, `i18n.js` | Water logging, date logic, VI / EN |
+| `couple.js`, `push-config.js` | Optional backend connection and pairing |
+| `sw.js`, `manifest.webmanifest` | Offline experience, install, push handling |
+| `backend/` | Cloudflare Worker, D1 schema and VAPID sender |
+| `docs/SETUP_PUSH.md` | One-time backend setup |
 
 ## Privacy
 
-Read the [privacy notes](./PRIVACY.md). No third-party analytics, account system, or cloud storage is included in V1.
+No analytics, ads, or account sign-in. Every drink entry stays in the browser's local storage on its iPhone. If optional couple pairing is enabled, the server stores minimal push and couple metadata and **daily totals only**, not an entry-by-entry drinking history. Read [PRIVACY.md](./PRIVACY.md).
 
-<sub>**License:** No license is currently specified. All rights reserved unless a license is added.</sub>
+<sub>Personal project. No open-source license has been added.</sub>

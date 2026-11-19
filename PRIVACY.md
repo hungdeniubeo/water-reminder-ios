@@ -1,35 +1,35 @@
-# Water Reminder — Privacy Notes (V1)
+# Privacy notes — Water ♡ (Couple Edition V2)
 
-**Last updated:** November 19, 2026
+_Last updated 19 November 2026_
 
-Water Reminder is a static Progressive Web App (PWA) designed for personal hydration tracking.
+Water is a personal hydration tracker for two people. It is a static PWA hosted on GitHub Pages and may optionally connect to a Cloudflare Worker to support Web Push and pairing.
 
-## Data kept on your device
+## Without the optional backend
 
-The app stores water entries, daily goal, reminder preferences, and a record of the last displayed in-app reminder in your device's browser storage. It uses local storage only; there is no account, database server, cloud sync, or analytics in V1.
+All water log entries, daily goal, language choice, message draft, reminder schedule and backups are stored locally on your device (localStorage). No personal data is sent by the app to a server. GitHub Pages processes standard website requests to serve static files under its own platform policies. No analytics, third-party trackers or advertising scripts are included.
 
-No water-intake records or preferences are sent to the developer by app code.
+## If you enable the couple connection
 
-## Hosting and network access
+On explicit pairing, the Cloudflare Worker stores the minimal information required for two devices to coordinate:
 
-The static app is hosted on GitHub Pages. When you visit or update it, GitHub may process normal website requests according to GitHub's policies. The app downloads its own files (HTML, CSS, JavaScript, manifest, and icons). It does not embed third-party tracking scripts.
+- each person's display name, language, personal reminder schedule and IANA timezone;
+- message each person chooses to send in the partner's reminder;
+- today's **total** water intake and daily goal (not individual drink log entries);
+- Web Push endpoint and public encryption keys for deliveries, notification opt-in state and deduplication timestamps;
+- a one-way hash of each device's private token.
 
-## Offline use and retention
+The device authentication token itself is stored locally and is **not** included in JSON backups. The secret VAPID private key and owner setup passphrase stay on the Cloudflare Worker as secrets.
 
-A service worker caches the app's static files after an initial online visit. Data you enter is stored separately in browser local storage. Your data **may be lost** if you clear website data, remove the Home Screen app, switch devices, or the browser clears storage.
-
-Use **Settings → Export data** to save a local JSON backup, and **Restore file** to restore that backup on a device. Backups are handled locally; they are not uploaded to a server by the app.
+Only paired devices with valid credentials should be able to read couple information. The service is intended for a private 2-person project, not a public social network. Cloudflare may log operational metadata subject to its terms.
 
 ## Notifications
 
-V1 does not register for remote push notifications and does not ask for iOS notification permission. Optional reminder nudges only appear while the app is open.
+Browser notification permission is requested only when you tap **Enable notifications** from the installed Home Screen app. Disable them in the app, or revoke permission in iPhone Settings. The server may still temporarily retain records if you stop using the app without disconnecting; use **Disconnect this device** to delete the server registration.
 
-A future version may introduce opt-in Web Push; its privacy terms will be updated before collecting push subscriptions.
+## Backups, clearing and deletion
 
-## Control and deletion
+Use **Settings → Export data** to save your detailed water history as a local JSON file. **Restore** replaces current logs and preferences. Removing the app, clearing browser data or switching devices can erase local records, so keep your own backup if needed. Delete backup files separately in Files/iCloud Drive if no longer wanted.
 
-You can remove individual entries from the Today screen. You can also clear this site's browser data to remove all local entries and settings. Backups saved to Files or elsewhere must be deleted separately.
+You can delete drink entries inside Today. You can disconnect your device in the Couple tab, which deletes its server record and push subscription; the remaining partner can pair another device. The server room disappears when both devices disconnect.
 
-## Questions
-
-For feedback or issues, please use this project's [GitHub Issues](https://github.com/hungdeniubeo/water-reminder-ios/issues).
+For questions, use [GitHub Issues](https://github.com/hungdeniubeo/water-reminder-ios/issues).
