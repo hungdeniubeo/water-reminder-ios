@@ -1,26 +1,16 @@
 {
   "id": "./",
-  "name": "Water Reminder",
-  "short_name": "Water",
-  "description": "A soft little water tracker, made with care. Available in Vietnamese and English.",
+  "name": "Water ♡ - Couple Edition",
+  "short_name": "Water ♡",
+  "description": "Một chiếc app nhắc uống nước dịu dàng, dành riêng cho hai đứa mình.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#fff5f8",
-  "theme_color": "#fff5f8",
+  "background_color": "#fff8f9",
+  "theme_color": "#fff8f9",
   "orientation": "portrait",
   "icons": [
-    {
-      "src": "./assets/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "./assets/icon-maskable.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
-    }
+    {"src":"./assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"},
+    {"src":"./assets/icon-maskable.svg","sizes":"any","type":"image/svg+xml","purpose":"maskable"}
   ]
 }

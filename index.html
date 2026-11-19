@@ -3,197 +3,122 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#fff5f8">
-  <meta name="description" content="Một chiếc app nhỏ xinh để ghi lại nước uống mỗi ngày.">
+  <meta name="theme-color" content="#fff8f9">
+  <meta name="description" content="Một chiếc app nhắc uống nước dịu dàng, dành riêng cho hai đứa mình.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Water">
+  <meta name="apple-mobile-web-app-title" content="Water ♡">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="./assets/icon.svg">
   <link rel="stylesheet" href="./styles.css">
-  <title>Water Reminder — Nhắc uống nước</title>
+  <title>Water ♡ — Cho những ngày dịu dàng</title>
   <script type="module" src="./app.js"></script>
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <div class="identity">
-        <span class="brand-symbol" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none"><path d="M16 3C12 9 6.5 14.8 6.5 21a9.5 9.5 0 0 0 19 0C25.5 14.8 20 9 16 3Z" fill="currentColor"/><path d="M12 20a5 5 0 0 0 4 5" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
-        </span>
-        <span><strong>Water.</strong><small data-i18n="brandTagline">DÀNH CHO EM ♡</small></span>
+      <div class="identity" aria-label="Water, một chiếc app cho hai đứa">
+        <span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 5C15 13 10 19 10 25a10 10 0 0 0 20 0c0-6-5-12-10-20Z" fill="currentColor"/><path d="m16 22 4 4 4-4" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="identity-copy"><strong>water<span class="brand-dot">.</span></strong><small data-i18n="brandTagline">DÀNH CHO EM ♡</small></span>
       </div>
       <div class="top-actions">
         <div class="language-switch" role="group" aria-label="Chọn ngôn ngữ" data-i18n-aria-label="languageLabel">
           <button type="button" data-lang="vi" class="selected" aria-pressed="true">VI</button>
           <button type="button" data-lang="en" aria-pressed="false">EN</button>
         </div>
-        <button class="round-button" id="about-button" aria-label="Cách cài ứng dụng lên iPhone" data-i18n-aria-label="aboutButton" data-i18n-title="aboutButton" title="Cách cài ứng dụng lên iPhone">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
-        </button>
+        <button class="round-button" id="about-button" type="button" data-i18n-aria-label="aboutButton" aria-label="Cách cài ứng dụng lên iPhone"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button>
       </div>
     </header>
 
-    <main id="main-content">
-      <section class="screen" id="screen-today" aria-labelledby="today-heading">
-        <div class="page-intro">
-          <p class="eyebrow" id="today-date">HÔM NAY</p>
-          <h1 id="today-heading" data-i18n-heading="todayTitle">Uống đủ nước,<br><em>thương mình hơn.</em></h1>
-          <p class="subtitle" data-i18n="todaySubtitle">Một chút quan tâm, mỗi ngày một lần.</p>
+    <main>
+      <section id="screen-today" class="screen" aria-labelledby="today-heading">
+        <div class="hero-intro">
+          <div class="eyebrow-row"><span class="eyebrow" id="today-date">HÔM NAY</span><span class="tiny-heart" aria-hidden="true">♡</span></div>
+          <h1 id="today-heading" data-i18n-heading="v2TodayTitle">Uống một chút,<br><em>vui cả ngày.</em></h1>
+          <p class="subtitle" data-i18n="v2TodaySubtitle">Thương bản thân từ những điều bé xíu.</p>
         </div>
 
-        <section class="progress-card" aria-label="Tiến độ uống nước hôm nay" data-i18n-aria-label="progressAria">
-          <div class="progress-card-heading">
-            <span class="label-mini" data-i18n="todayWater">LƯỢNG NƯỚC HÔM NAY</span>
-            <span class="status-pill"><span aria-hidden="true">●</span><span id="progress-status-label">CỐ LÊN NÀO ♡</span></span>
-          </div>
-          <div class="progress-ring" id="progress-ring" role="progressbar" aria-label="Tiến độ uống nước hôm nay" data-i18n-aria-label="progressAria" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <div class="progress-ring-inner">
-              <svg class="ring-drop" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5C9 7 5.5 10.6 5.5 15a6.5 6.5 0 1 0 13 0C18.5 10.6 15 7 12 2.5Z" fill="currentColor"/></svg>
-              <strong id="today-total">0</strong>
-              <span class="ring-unit" data-i18n="consumedUnit">ml đã uống</span>
-              <span class="ring-divider"></span>
-              <span class="ring-goal" id="today-goal-label">mục tiêu 2.000 ml</span>
+        <section class="progress-card" data-i18n-aria-label="progressAria" aria-label="Tiến độ uống nước hôm nay">
+          <div class="card-topline"><span class="micro-label" data-i18n="todayWater">LƯỢNG NƯỚC HÔM NAY</span><span class="rose-tag" id="progress-status-label">BẮT ĐẦU THÔI ♡</span></div>
+          <div class="progress-main">
+            <div class="progress-figure">
+              <div class="count-line"><strong id="today-total">0</strong><span>ml</span></div>
+              <span class="progress-unit" data-i18n="consumedUnit">ml đã uống</span>
+              <div class="progress-divider"></div>
+              <span class="goal-meta" id="today-goal-label">mục tiêu 2.000 ml</span>
+              <span class="goal-remaining" id="progress-remaining">Còn 2.000 ml để đạt mục tiêu</span>
+            </div>
+            <div class="progress-graphic" id="progress-ring" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-i18n-aria-label="progressAria" aria-label="Tiến độ uống nước hôm nay">
+              <svg class="ring-svg" viewBox="0 0 180 180" aria-hidden="true">
+                <circle class="ring-back" cx="90" cy="90" r="72"></circle>
+                <circle class="ring-front" id="ring-front" cx="90" cy="90" r="72" stroke-dasharray="452.39" stroke-dashoffset="452.39"></circle>
+              </svg>
+              <span class="ring-center" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 5C18 15 12 21 12 28a12 12 0 0 0 24 0c0-7-6-13-12-23Z" fill="currentColor"/><path d="m19 27 5 5 5-5" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><small id="progress-percent">0%</small></span>
             </div>
           </div>
-          <div class="progress-caption"><strong id="progress-message">Bắt đầu một ngày mới nhé ♡</strong><span id="progress-remaining">Còn 2.000 ml để đạt mục tiêu</span></div>
-          <button class="button button-dark" type="button" id="open-log">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-            <span data-i18n="logDrink">Thêm nước</span>
-            <span class="button-arrow" aria-hidden="true">↗</span>
-          </button>
+          <div class="card-foot"><span class="rose-sparkle" aria-hidden="true">✦</span><span id="progress-message">Bắt đầu một ngày mới nhé ♡</span></div>
         </section>
 
-        <section class="quick-section" aria-label="Thêm nước nhanh" data-i18n-aria-label="quickAdd">
-          <div class="section-title-row"><h2 data-i18n="quickAdd">Thêm nhanh</h2><span data-i18n="quickSub">LƯỢNG THƯỜNG UỐNG</span></div>
-          <div class="quick-actions">
-            <button class="quick-add" type="button" data-add="150"><strong>+150</strong><small>ml</small></button>
-            <button class="quick-add" type="button" data-add="250"><strong>+250</strong><small>ml</small></button>
-            <button class="quick-add" type="button" data-add="500"><strong>+500</strong><small>ml</small></button>
-          </div>
+        <div class="section-title-row quick-title"><h2 data-i18n="v2QuickTitle">Thêm một ly nước</h2><span data-i18n="v2QuickEyebrow">CHỌN NHANH</span></div>
+        <div class="quick-actions" aria-label="Thêm nước nhanh" data-i18n-aria-label="quickAdd">
+          <button class="quick-add" type="button" data-add="150"><span class="glass-icon" aria-hidden="true">◡</span><strong>150 <small>ml</small></strong><span class="quick-plus">+</span></button>
+          <button class="quick-add" type="button" data-add="250"><span class="glass-icon" aria-hidden="true">◡</span><strong>250 <small>ml</small></strong><span class="quick-plus">+</span></button>
+          <button class="quick-add" type="button" data-add="500"><span class="glass-icon" aria-hidden="true">◡</span><strong>500 <small>ml</small></strong><span class="quick-plus">+</span></button>
+        </div>
+        <button class="custom-add" id="open-log" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="v2CustomAdd">Nhập lượng nước khác</span><span aria-hidden="true">↗</span></button>
+
+        <section class="reminder-peek" aria-label="Lời nhắc tiếp theo">
+          <span class="peek-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+          <span class="peek-copy"><small data-i18n="v2NextReminder">LỜI NHẮC TIẾP THEO</small><strong id="next-reminder">Chưa bật nhắc nhở</strong></span>
+          <button type="button" class="peek-arrow" data-go="settings" data-i18n-aria-label="v2EditReminder" aria-label="Chỉnh giờ nhắc"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
         </section>
 
         <section class="activity-section">
           <div class="section-title-row"><h2 data-i18n="todaySips">Đã uống hôm nay</h2><span id="today-count">0 LẦN</span></div>
           <ul id="today-entries" class="entry-list" aria-live="polite"></ul>
         </section>
+        <div class="bottom-quote"><span aria-hidden="true">♡</span><span data-i18n="v2LoveQuote">Đừng quên chăm sóc mình, nha.</span></div>
       </section>
 
-      <section class="screen" id="screen-history" aria-labelledby="history-heading" hidden>
-        <div class="page-intro compact">
-          <p class="eyebrow" data-i18n="historyEyebrow">NHÌN LẠI MỖI NGÀY</p>
-          <h1 id="history-heading" data-i18n-heading="historyTitle">Mỗi ngụm nhỏ,<br><em>một thay đổi.</em></h1>
-          <p class="subtitle" data-i18n="historySubtitle">Cùng xem thói quen uống nước của bạn.</p>
-        </div>
-        <section class="white-card" aria-label="Lịch sử 7 ngày" data-i18n-aria-label="sevenDays">
-          <div class="section-title-row"><h2 data-i18n="sevenDays">7 ngày gần đây</h2><span data-i18n="dailyTotals">TỔNG THEO NGÀY</span></div>
-          <div class="week-bars" id="week-bars"></div>
-          <div class="history-summary">
-            <span><small data-i18n="averagePerDay">TRUNG BÌNH / NGÀY</small><strong id="week-average">0 ml</strong></span>
-            <span><small data-i18n="goalDays">ĐẠT MỤC TIÊU</small><strong id="days-reached">0 ngày</strong></span>
-          </div>
-        </section>
-        <section class="history-days-section">
-          <div class="section-title-row"><h2 data-i18n="dayByDay">Từng ngày một</h2><span data-i18n="lastFourteenDays">14 NGÀY GẦN ĐÂY</span></div>
-          <div id="history-days" class="history-days"></div>
-        </section>
+      <section id="screen-history" class="screen" aria-labelledby="history-heading" hidden>
+        <div class="hero-intro slim"><span class="eyebrow" data-i18n="historyEyebrow">NHÌN LẠI MỖI NGÀY</span><h1 id="history-heading" data-i18n-heading="v2HistoryTitle">Mỗi ngày một chút,<br><em>đều đáng yêu.</em></h1><p class="subtitle" data-i18n="historySubtitle">Cùng xem thói quen uống nước của bạn.</p></div>
+        <section class="white-card chart-card" aria-label="Lịch sử 7 ngày" data-i18n-aria-label="sevenDays"><div class="section-title-row"><h2 data-i18n="sevenDays">7 ngày gần đây</h2><span data-i18n="dailyTotals">TỔNG THEO NGÀY</span></div><div class="week-bars" id="week-bars"></div><div class="history-summary"><span><small data-i18n="averagePerDay">TRUNG BÌNH / NGÀY</small><strong id="week-average">0 ml</strong></span><span><small data-i18n="goalDays">ĐẠT MỤC TIÊU</small><strong id="days-reached">0 ngày</strong></span></div></section>
+        <section class="history-days-section"><div class="section-title-row"><h2 data-i18n="dayByDay">Từng ngày một</h2><span data-i18n="lastFourteenDays">14 NGÀY GẦN ĐÂY</span></div><div id="history-days" class="history-days"></div></section>
       </section>
 
-      <section class="screen" id="screen-settings" aria-labelledby="settings-heading" hidden>
-        <div class="page-intro compact">
-          <p class="eyebrow" data-i18n="settingsEyebrow">CHỈ DÀNH CHO BẠN</p>
-          <h1 id="settings-heading" data-i18n-heading="settingsTitle">Theo nhịp riêng<br><em>của mình.</em></h1>
-          <p class="subtitle" data-i18n="settingsSubtitle">Điều chỉnh một chút cho vừa với ngày của bạn.</p>
-        </div>
+      <section id="screen-couple" class="screen" aria-labelledby="couple-heading" hidden>
+        <div class="hero-intro slim"><span class="eyebrow" data-i18n="v2CoupleEyebrow">MỘT CHÚT QUAN TÂM</span><h1 id="couple-heading" data-i18n-heading="v2CoupleTitle">Uống nước cùng nhau,<br><em>thương nhau hơn.</em></h1><p class="subtitle" data-i18n="v2CoupleSubtitle">Dành cho hai chiếc điện thoại và hai người thương.</p></div>
+        <div class="couple-art" aria-hidden="true"><span class="art-heart art-left">♥</span><span class="art-heart art-right">♥</span><div class="couple-art-center">♡</div><small>JUST US TWO</small></div>
+        <div id="backend-unavailable" class="info-banner" role="status"><span class="info-bullet">i</span><p><strong data-i18n="v2SetupNeeded">Chưa kết nối gửi thông báo</strong><span data-i18n="v2SetupNeededDesc">Giao diện đã sẵn sàng. Cần kích hoạt Cloudflare một lần để kết nối hai máy và gửi thông báo khi khóa màn hình.</span></p></div>
+        <div class="section-title-row"><h2 data-i18n="v2TwoPeople">Hai đứa mình</h2><span id="couple-status" class="state-label" data-i18n="v2NotPaired">CHƯA KẾT NỐI</span></div>
+        <div class="couple-person-grid" id="couple-people"><div class="person-card"><span class="person-avatar">♡</span><span class="person-name" id="me-name">Mình</span><span class="person-detail" id="me-progress">0 / 2.000 ml</span></div><div class="person-card second"><span class="person-avatar">✿</span><span class="person-name" id="partner-name">Người thương</span><span class="person-detail" id="partner-progress">Chờ kết nối</span></div></div>
 
-        <form class="white-card form-card" id="goal-form">
-          <div class="settings-heading">
-            <span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/></svg></span>
-            <span><h2 data-i18n="dailyGoal">Mục tiêu mỗi ngày</h2><p data-i18n="dailyGoalDescription">Chọn lượng nước bạn muốn theo dõi.</p></span>
-          </div>
-          <label class="field-label" for="goal-input" data-i18n="goalField">Mục tiêu (ml)</label>
-          <div class="goal-edit"><input id="goal-input" name="goal" inputmode="numeric" type="number" min="500" max="6000" step="50" required><button type="submit" class="button button-mint" data-i18n="saveGoal">Lưu mục tiêu</button></div>
-          <p class="field-note" data-i18n="goalNote">Từ 500 đến 6.000 ml. Đây là mục tiêu cá nhân, không phải tư vấn y tế.</p>
-        </form>
+        <section class="white-card couple-profile"><div class="settings-heading"><span class="settings-icon">♡</span><span><h2 data-i18n="v2Personalise">Lời nhắn của mình</h2><p data-i18n="v2PersonaliseDesc">Người kia sẽ thấy câu này trong lời nhắc.</p></span></div><form id="profile-form"><label class="field-label" for="my-name" data-i18n="v2MyName">Tên của bạn</label><input id="my-name" maxlength="32" autocomplete="nickname" placeholder="Ví dụ: Anh" data-i18n-placeholder="v2NamePlaceholder"><label class="field-label space-above" for="partner-note" data-i18n="v2NoteLabel">Lời nhắc gửi người thương</label><textarea id="partner-note" rows="3" maxlength="150" data-i18n-placeholder="v2NotePlaceholder" placeholder="Nhớ uống nước nha, thương em ♡"></textarea><div class="hint-line"><span data-i18n="v2NoteHint">Câu nhắc này sẽ hiện trên iPhone của người kia khi đã kết nối.</span><small id="note-count">0/150</small></div><button class="button button-primary" type="submit" data-i18n="v2SavePersonalisation">Lưu lời nhắn</button></form></section>
 
-        <form class="white-card form-card" id="reminder-form">
-          <div class="settings-heading">
-            <span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg></span>
-            <span><h2 data-i18n="reminders">Nhắc uống nước</h2><p data-i18n="reminderDescription">Nhắc nhẹ khi ứng dụng đang mở.</p></span>
-          </div>
-          <label class="switch-row" for="remind-enabled"><span data-i18n="enableReminders">Bật nhắc nhở</span><span class="switch"><input id="remind-enabled" name="enabled" type="checkbox"><span class="switch-track"></span></span></label>
-          <div class="reminder-fields">
-            <div><label class="field-label" for="remind-start" data-i18n="from">Từ</label><input id="remind-start" type="time" required></div>
-            <div><label class="field-label" for="remind-end" data-i18n="until">Đến</label><input id="remind-end" type="time" required></div>
-          </div>
-          <label class="field-label" for="remind-interval" data-i18n="every">Nhắc sau mỗi</label>
-          <select id="remind-interval">
-            <option value="60" data-i18n="interval60">1 giờ</option>
-            <option value="90" data-i18n="interval90">1 giờ 30 phút</option>
-            <option value="120" data-i18n="interval120">2 giờ</option>
-            <option value="180" data-i18n="interval180">3 giờ</option>
-          </select>
-          <p class="reminder-preview" id="reminder-preview">Lịch nhắc: 09:00, 11:00 …</p>
-          <button type="submit" class="button button-outline" data-i18n="saveReminders">Lưu lịch nhắc</button>
-          <div class="note-box"><strong data-i18n="reminderNoteTitle">Lưu ý nho nhỏ</strong><p data-i18n="reminderNote">Phiên bản hiện tại chỉ hiện lời nhắc khi app đang mở. Thông báo trên màn hình khóa khi đóng app sẽ được bổ sung sau.</p></div>
-        </form>
+        <section class="white-card connect-card" id="connect-card"><div class="settings-heading"><span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M8 12a4 4 0 1 1 4 4H8a4 4 0 0 1 0-8m8 0a4 4 0 1 1 0 8h-4"/></svg></span><span><h2 data-i18n="v2PairTitle">Kết nối hai iPhone</h2><p data-i18n="v2PairDescription">Tạo mã trên máy đầu tiên và nhập mã đó trên máy còn lại.</p></span></div><div id="pair-create-box"><label class="field-label" for="setup-passphrase" data-i18n="v2SetupPassphrase">Mã thiết lập riêng (chỉ dùng lần đầu)</label><input id="setup-passphrase" type="password" autocomplete="off" placeholder="Mã do bạn tự tạo ở Cloudflare" data-i18n-placeholder="v2SetupPassphrasePlaceholder"><button type="button" class="button button-primary" id="create-pair" data-i18n="v2CreatePair">Tạo không gian của hai đứa</button></div><div class="or-divider"><span data-i18n="v2Or">HOẶC</span></div><div id="pair-join-box"><label class="field-label" for="join-code" data-i18n="v2PairCodeLabel">Nhập mã từ máy người kia</label><div class="inline-input"><input id="join-code" maxlength="10" autocapitalize="characters" autocomplete="one-time-code" placeholder="VD: LOVE2026"><button type="button" class="button button-outline" id="join-pair" data-i18n="v2JoinPair">Kết nối</button></div></div><div class="invite-box" id="pair-invite" hidden><span class="micro-label" data-i18n="v2InviteTitle">MÃ KẾT NỐI (10 PHÚT)</span><div class="invite-code-line"><strong id="invite-code">--------</strong><button type="button" id="copy-code" class="mini-button" data-i18n="v2CopyCode">Copy</button></div><p class="helper" data-i18n="v2InviteHelp">Gửi mã này cho người kia để ghép đôi.</p></div><div class="paired-box" id="paired-info" hidden><p id="paired-description">Hai máy đã kết nối ♡</p><button type="button" id="refresh-pair" class="text-button" data-i18n="v2RefreshPair">Làm mới trạng thái</button><button type="button" id="leave-pair" class="text-button subtle-danger" data-i18n="v2LeavePair">Ngắt kết nối máy này</button></div></section>
 
-        <section class="white-card privacy-card">
-          <div class="settings-heading">
-            <span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></span>
-            <span><h2 data-i18n="privacyTitle">Riêng tư cho bạn</h2><p data-i18n="privacyDescription">Dữ liệu được lưu trên thiết bị này.</p></span>
-          </div>
-          <p class="field-note" data-i18n="privacyNote">Không cần tài khoản, không theo dõi và không đồng bộ. Xóa dữ liệu Safari hoặc gỡ app có thể làm mất lịch sử.</p>
-        </section>
-        <section class="white-card backup-card">
-          <div class="settings-heading">
-            <span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3"/></svg></span>
-            <span><h2 data-i18n="backupTitle">Giữ lại kỷ niệm nhỏ</h2><p data-i18n="backupDescription">Lưu một bản dữ liệu phòng khi cần.</p></span>
-          </div>
-          <div class="backup-actions">
-            <button type="button" class="button button-mint" id="export-backup" data-i18n="exportData">Xuất dữ liệu</button>
-            <button type="button" class="button button-outline" id="import-backup" data-i18n="restoreFile">Khôi phục</button>
-          </div>
-          <input id="backup-file" type="file" accept=".json,application/json" hidden aria-label="Chọn tệp sao lưu JSON" data-i18n-aria-label="backupAria">
-          <p class="field-note" data-i18n="backupNote">Khôi phục sẽ thay thế dữ liệu và cài đặt hiện có. Tệp chỉ được đọc trên máy, không tải lên mạng.</p>
-        </section>
-        <p class="version" data-i18n="version">WATER REMINDER · PHIÊN BẢN 1.1</p>
+        <section class="white-card notifications-card"><div class="settings-heading"><span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg></span><span><h2 data-i18n="v2PushTitle">Thông báo trên iPhone</h2><p id="push-status" data-i18n="v2PushInactive">Chưa bật thông báo.</p></span></div><button type="button" class="button button-primary" id="enable-push" data-i18n="v2EnablePush" disabled>Bật thông báo</button><button type="button" class="button button-outline secondary-action" id="test-push" data-i18n="v2TestPush" disabled>Gửi thử một lời nhắc</button><button type="button" class="text-button" id="disable-push" data-i18n="v2DisablePush" hidden>Tắt thông báo trên máy này</button><p class="helper" data-i18n="v2PushHint">Cần thêm app vào Màn hình chính, cấp quyền thông báo và kích hoạt dịch vụ gửi push.</p></section>
+      </section>
+
+      <section id="screen-settings" class="screen" aria-labelledby="settings-heading" hidden>
+        <div class="hero-intro slim"><span class="eyebrow" data-i18n="settingsEyebrow">CHỈ DÀNH CHO BẠN</span><h1 id="settings-heading" data-i18n-heading="v2SettingsTitle">Những điều nhỏ,<br><em>theo ý mình.</em></h1><p class="subtitle" data-i18n="settingsSubtitle">Điều chỉnh một chút cho vừa với ngày của bạn.</p></div>
+        <form class="white-card form-card" id="goal-form"><div class="settings-heading"><span class="settings-icon">◎</span><span><h2 data-i18n="dailyGoal">Mục tiêu mỗi ngày</h2><p data-i18n="dailyGoalDescription">Chọn lượng nước bạn muốn theo dõi.</p></span></div><label class="field-label" for="goal-input" data-i18n="goalField">Mục tiêu (ml)</label><div class="goal-edit"><input id="goal-input" name="goal" inputmode="numeric" type="number" min="500" max="6000" step="50" required><button type="submit" class="button button-primary" data-i18n="saveGoal">Lưu mục tiêu</button></div><p class="field-note" data-i18n="goalNote">Từ 500 đến 6.000 ml. Đây là mục tiêu cá nhân, không phải tư vấn y tế.</p></form>
+        <form class="white-card form-card" id="reminder-form"><div class="settings-heading"><span class="settings-icon">◷</span><span><h2 data-i18n="reminders">Nhắc uống nước</h2><p data-i18n="v2ReminderDescription">Đặt lịch để không quên một ngụm nào.</p></span></div><label class="switch-row" for="remind-enabled"><span data-i18n="enableReminders">Bật nhắc nhở</span><span class="switch"><input id="remind-enabled" name="enabled" type="checkbox"><span class="switch-track"></span></span></label><div class="reminder-fields"><div><label class="field-label" for="remind-start" data-i18n="from">Từ</label><input id="remind-start" type="time" required></div><div><label class="field-label" for="remind-end" data-i18n="until">Đến</label><input id="remind-end" type="time" required></div></div><label class="field-label" for="remind-interval" data-i18n="every">Nhắc sau mỗi</label><select id="remind-interval"><option value="60" data-i18n="interval60">1 giờ</option><option value="90" data-i18n="interval90">1 giờ 30 phút</option><option value="120" data-i18n="interval120">2 giờ</option><option value="180" data-i18n="interval180">3 giờ</option></select><p id="reminder-preview" class="reminder-preview"></p><button type="submit" class="button button-outline" data-i18n="saveReminders">Lưu lịch nhắc</button><p id="reminder-mode-note" class="soft-note" data-i18n="v2ReminderFallback">Khi chưa bật thông báo push, app chỉ nhắc khi đang mở.</p></form>
+        <section class="white-card form-card"><div class="settings-heading"><span class="settings-icon">⇩</span><span><h2 data-i18n="backupTitle">Giữ lại kỷ niệm nhỏ</h2><p data-i18n="backupDescription">Lưu một bản dữ liệu phòng khi cần.</p></span></div><div class="backup-actions"><button type="button" class="button button-primary" id="export-backup" data-i18n="exportData">Xuất dữ liệu</button><button type="button" class="button button-outline" id="import-backup" data-i18n="restoreFile">Khôi phục</button></div><input id="backup-file" type="file" accept=".json,application/json" hidden aria-label="Chọn tệp sao lưu JSON" data-i18n-aria-label="backupAria"><p class="field-note" data-i18n="v2PrivacyNote">Lịch sử chi tiết chỉ lưu trên iPhone này. Khi kết nối, hai máy chỉ chia sẻ tổng lượng nước hôm nay.</p></section>
+        <p class="version" data-i18n="v2Version">WATER ♡ · COUPLE EDITION V2</p>
       </section>
     </main>
 
     <nav class="tabbar" aria-label="Điều hướng chính" data-i18n-aria-label="navAria">
-      <button class="tab active" type="button" data-tab="today" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C9 7.6 5 11.4 5 16a7 7 0 0 0 14 0c0-4.6-4-8.4-7-13Z"/></svg><span data-i18n="tabToday">Hôm nay</span></button>
-      <button class="tab" type="button" data-tab="history"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18M7 16l5-5 4 3 5-7"/></svg><span data-i18n="tabHistory">Lịch sử</span></button>
-      <button class="tab" type="button" data-tab="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16M9 3v8M15 13v8"/><circle cx="9" cy="7" r="2" fill="currentColor" stroke="none"/><circle cx="15" cy="17" r="2" fill="currentColor" stroke="none"/></svg><span data-i18n="tabSettings">Cài đặt</span></button>
+      <button type="button" class="tab active" data-tab="today" aria-current="page"><svg viewBox="0 0 24 24"><path d="M12 3C9 7.6 5 11.4 5 16a7 7 0 0 0 14 0c0-4.6-4-8.4-7-13Z"/></svg><span data-i18n="tabToday">Hôm nay</span></button>
+      <button type="button" class="tab" data-tab="history"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15l4-5 4 2 4-6"/></svg><span data-i18n="tabHistory">Lịch sử</span></button>
+      <button type="button" class="tab couple-nav" data-tab="couple"><svg viewBox="0 0 24 24"><path d="M20.5 8.2c0 4.6-8.5 10.4-8.5 10.4S3.5 12.8 3.5 8.2a4.6 4.6 0 0 1 8.5-2.4 4.6 4.6 0 0 1 8.5 2.4Z"/></svg><span data-i18n="v2TabCouple">Hai đứa</span></button>
+      <button type="button" class="tab" data-tab="settings"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M9 3v8M15 13v8"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg><span data-i18n="tabSettings">Cài đặt</span></button>
     </nav>
   </div>
 
-  <dialog id="log-dialog" class="bottom-dialog" aria-labelledby="log-title">
-    <form id="drink-form">
-      <div class="dialog-handle" aria-hidden="true"></div>
-      <div class="dialog-top"><span class="eyebrow" data-i18n="dialogEyebrow">NHỚ UỐNG NƯỚC NHÉ ♡</span><button class="dialog-close" type="button" id="close-dialog" aria-label="Đóng" data-i18n-aria-label="close">×</button></div>
-      <h2 id="log-title" data-i18n="drinkTitle">Bạn vừa uống bao nhiêu?</h2>
-      <p data-i18n="drinkSubtitle">Dù một ngụm nhỏ cũng đáng nhớ.</p>
-      <div class="dialog-presets" role="group" aria-label="Chọn lượng nước" data-i18n-aria-label="presetAria">
-        <button type="button" data-preset="150">150 <small>ml</small></button>
-        <button type="button" data-preset="250" class="selected">250 <small>ml</small></button>
-        <button type="button" data-preset="500">500 <small>ml</small></button>
-      </div>
-      <label for="amount-input" class="field-label" data-i18n="customAmount">Hoặc nhập số ml</label>
-      <input type="number" id="amount-input" inputmode="numeric" required min="20" max="2000" step="1" value="250">
-      <button type="submit" class="button button-dark"><span data-i18n="addToday">Thêm vào hôm nay</span> <span aria-hidden="true">↗</span></button>
-    </form>
-  </dialog>
-
-  <dialog id="about-dialog" class="bottom-dialog" aria-labelledby="about-title">
-    <div class="dialog-handle" aria-hidden="true"></div>
-    <div class="dialog-top"><span class="eyebrow" data-i18n="aboutEyebrow">LUÔN BÊN BẠN</span><button class="dialog-close" type="button" id="close-about" aria-label="Đóng" data-i18n-aria-label="close">×</button></div>
-    <h2 id="about-title" data-i18n="aboutTitle">Cài app lên màn hình chính</h2>
-    <p data-i18n-html="aboutBody">Mở trang này bằng <strong>Safari</strong> trên iPhone, nhấn <strong>Chia sẻ</strong> → <strong>Thêm vào Màn hình chính</strong>. Sau đó mở Water từ biểu tượng mới.</p>
-    <p class="field-note" data-i18n="aboutNote">Sau lần mở đầu tiên có mạng, app có thể sử dụng offline. Dữ liệu được lưu trên máy của bạn.</p>
-    <button type="button" class="button button-mint" id="got-it" data-i18n="gotIt">Mình hiểu rồi</button>
-  </dialog>
-
+  <dialog id="log-dialog" class="bottom-dialog" aria-labelledby="log-title"><form id="drink-form"><div class="dialog-handle"></div><div class="dialog-top"><span class="eyebrow" data-i18n="dialogEyebrow">NHỚ UỐNG NƯỚC NHÉ ♡</span><button type="button" class="dialog-close" id="close-dialog" data-i18n-aria-label="close" aria-label="Đóng">×</button></div><h2 id="log-title" data-i18n="drinkTitle">Bạn vừa uống bao nhiêu?</h2><p data-i18n="drinkSubtitle">Dù một ngụm nhỏ cũng đáng nhớ.</p><div class="dialog-presets" role="group" aria-label="Chọn lượng nước" data-i18n-aria-label="presetAria"><button type="button" data-preset="150">150 <small>ml</small></button><button type="button" data-preset="250" class="selected">250 <small>ml</small></button><button type="button" data-preset="500">500 <small>ml</small></button></div><label for="amount-input" class="field-label" data-i18n="customAmount">Hoặc nhập số ml</label><input id="amount-input" type="number" inputmode="numeric" required min="20" max="2000" step="1" value="250"><button type="submit" class="button button-primary"><span data-i18n="addToday">Thêm vào hôm nay</span><span aria-hidden="true">↗</span></button></form></dialog>
+  <dialog id="about-dialog" class="bottom-dialog" aria-labelledby="about-title"><div class="dialog-handle"></div><div class="dialog-top"><span class="eyebrow" data-i18n="aboutEyebrow">LUÔN BÊN BẠN</span><button type="button" class="dialog-close" id="close-about" data-i18n-aria-label="close" aria-label="Đóng">×</button></div><h2 id="about-title" data-i18n="aboutTitle">Cài app lên màn hình chính</h2><p data-i18n-html="aboutBody">Mở trang này bằng <strong>Safari</strong> trên iPhone, nhấn <strong>Chia sẻ</strong> → <strong>Thêm vào Màn hình chính</strong>.</p><p class="field-note" data-i18n="aboutNote">Sau lần mở đầu tiên có mạng, app có thể sử dụng offline. Dữ liệu được lưu trên máy.</p><button type="button" class="button button-primary" id="got-it" data-i18n="gotIt">Mình hiểu rồi</button></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden><span id="toast-message"></span><button type="button" id="toast-action" data-i18n="undo" hidden>Hoàn tác</button></div>
 </body>
 </html>
