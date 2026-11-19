@@ -1,6 +1,6 @@
 /* Offline app shell + user-visible Web Push notifications (requires a configured sender). */
-const CACHE_NAME = 'water-reminder-static-v9-editorial-type';
-const ASSETS = ['./','./index.html','./styles.css','./app.js','./logic.js','./i18n.js','./journal-ui.js','./hydration-insights.js','./solo.js','./push-config.js','./manifest.webmanifest','./assets/icon.svg','./assets/icon-maskable.svg'];
+const CACHE_NAME = 'water-reminder-static-v10-daily-beo';
+const ASSETS = ['./','./index.html','./styles.css','./app.js','./daily-slogans.js','./logic.js','./i18n.js','./journal-ui.js','./hydration-insights.js','./solo.js','./push-config.js','./manifest.webmanifest','./assets/icon.svg','./assets/icon-maskable.svg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));

@@ -2,6 +2,7 @@ import { STORAGE_KEY, normalizeState, localDayKey, dayKeyOffset, totalForDay, ge
 import { getLanguage, setLanguage, translate, applyTranslations, formatDate, formatNumber, formatTime } from './i18n.js';
 import { configured, session, clearSession, publicConfig, decodeVapidPublicKey, activateDevice, getDevice, updateSchedule, updateMessage, subscribe, unsubscribe, testPush, disconnect } from './solo.js';
 import { createJournal } from './journal-ui.js';
+import { getDailySlogan } from './daily-slogans.js';
 
 const el = id => document.getElementById(id);
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh';
@@ -86,8 +87,17 @@ function makeDropIcon() {
   wrapper.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5C9 7 5.5 10.6 5.5 15a6.5 6.5 0 1 0 13 0C18.5 10.6 15 7 12 2.5Z"/></svg>';
   return wrapper;
 }
+/** Keep the same greeting all day; switch on the next local calendar day. */
+function renderDailySlogan(day) {
+  const [first, second] = getDailySlogan(day, lang).split('|');
+  const secondLine = document.createElement('em');
+  secondLine.textContent = second;
+  el('today-heading').replaceChildren(document.createTextNode(first), document.createElement('br'), secondLine);
+}
+
 function renderToday() {
   const day = localDayKey();
+  renderDailySlogan(day);
   const entries = state.logs.filter(item => item.day === day).sort((a,b) => b.at.localeCompare(a.at));
   const total = totalForDay(entries, day);
   const fraction = Math.min(total / state.goal, 1);
