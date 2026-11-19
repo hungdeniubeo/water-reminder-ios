@@ -9,3 +9,5 @@
 @media(min-width:550px){body{padding:24px 0}.app-shell{border-radius:30px;box-shadow:0 14px 70px #1d4f4c18;overflow:hidden;min-height:calc(100vh - 48px)}.topbar{padding-top:4px}}
 @media(max-width:360px){.app-shell{padding:0 15px}.progress-card{padding:20px 17px}.progress-ring{width:212px;height:212px}.progress-ring-inner{width:177px;height:177px}.progress-ring-inner strong{font-size:2.7rem}.status-pill{font-size:.54rem}.tabbar{padding-left:14px;padding-right:14px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+.backup-card{margin-top:17px}.backup-card .settings-heading{margin-bottom:15px}.backup-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.backup-actions .button{width:100%;padding:10px;font-size:.83rem;min-height:47px}.backup-card .field-note{margin-top:13px}

@@ -140,6 +140,18 @@
           </div>
           <p class="field-note">No account, analytics or cloud sync. Clearing browser data or removing the installed app may erase your history.</p>
         </section>
+        <section class="white-card backup-card">
+          <div class="settings-heading">
+            <span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3"/></svg></span>
+            <span><h2>Keep a backup</h2><p>Save your entries as a file, just in case.</p></span>
+          </div>
+          <div class="backup-actions">
+            <button type="button" class="button button-mint" id="export-backup">Export data</button>
+            <button type="button" class="button button-outline" id="import-backup">Restore file</button>
+          </div>
+          <input id="backup-file" type="file" accept=".json,application/json" hidden aria-label="Select a backup JSON file">
+          <p class="field-note">Restore replaces the water history and settings on this device. Nothing is uploaded.</p>
+        </section>
         <p class="version">WATER REMINDER · VERSION 1.0</p>
       </section>
     </main>

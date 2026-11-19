@@ -333,6 +333,47 @@ el('reminder-form').addEventListener('submit', event => {
   showToast(state.reminder.enabled ? 'In-app reminders saved.' : 'Reminders turned off.');
 });
 
+
+function exportBackup() {
+  const payload = { format: 'water-reminder-backup', version: 1, exportedAt: new Date().toISOString(), data: state };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = 'water-reminder-backup-' + localDayKey() + '.json';
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  showToast('Backup prepared. Save it somewhere safe.');
+}
+
+async function restoreBackup(file) {
+  if (!file) return;
+  try {
+    if (file.size > 5 * 1024 * 1024) throw new Error('Backup file is too large.');
+    const payload = JSON.parse(await file.text());
+    if (payload.format !== 'water-reminder-backup' || payload.version !== 1 ||
+        !payload.data || !Array.isArray(payload.data.logs)) throw new Error('This is not a valid Water Reminder backup.');
+    if (!window.confirm('Replace your current water history and settings with this backup?')) return;
+    state = normalizeState(payload.data);
+    persist();
+    render();
+    renderSettings();
+    showToast('Your backup has been restored.');
+  } catch (error) {
+    showToast(error.message || 'Could not open this backup.');
+  }
+}
+
+el('export-backup').addEventListener('click', exportBackup);
+el('import-backup').addEventListener('click', () => el('backup-file').click());
+el('backup-file').addEventListener('change', async () => {
+  const file = el('backup-file').files[0];
+  await restoreBackup(file);
+  el('backup-file').value = '';
+});
+
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) {
     if (localDayKey() !== renderedDay) render();
