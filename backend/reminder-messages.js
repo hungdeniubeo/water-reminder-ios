@@ -59,7 +59,7 @@ export const REMINDER_MESSAGES = Object.freeze({
   ])
 });
 
-const asMinutes = value => /^([01]\\d|2[0-3]):[0-5]\\d$/.test(value || '')
+const asMinutes = value => /^([01]\d|2[0-3]):[0-5]\d$/.test(value || '')
   ? Number(value.slice(0, 2)) * 60 + Number(value.slice(3, 5))
   : null;
 
@@ -75,7 +75,7 @@ export function selectReminderMessage(device, { slot = '', testAt = null, now = 
   if (Number.isInteger(testAt) && testAt >= 0) {
     sequence = Math.floor(testAt / 120);
   } else {
-    const local = /^\\d{4}-\\d{2}-\\d{2}:\\d+$/.test(slot)
+    const local = /^\d{4}-\d{2}-\d{2}:\d+$/.test(slot)
       ? { day: slot.slice(0, 10), minutes: Number(slot.slice(11)) }
       : localClock(now, device?.timezone || 'Asia/Ho_Chi_Minh');
     const start = asMinutes(device?.start_time) ?? 540;
