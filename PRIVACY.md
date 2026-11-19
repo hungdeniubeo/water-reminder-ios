@@ -1,4 +1,4 @@
-# Privacy notes — Water ♡ (Couple Edition V2)
+# Privacy notes — Water ♡ (Couple Edition V3)
 
 _Last updated 19 November 2026_
 
@@ -6,7 +6,7 @@ Water is a personal hydration tracker for two people. It is a static PWA hosted 
 
 ## Without the optional backend
 
-All water log entries, daily goal, language choice, message draft, reminder schedule and backups are stored locally on your device (localStorage). No personal data is sent by the app to a server. GitHub Pages processes standard website requests to serve static files under its own platform policies. No analytics, third-party trackers or advertising scripts are included.
+All water log entries, optional self-reported symptoms (thirst, dry mouth, headache, dizziness, dark urine, tiredness), heat/activity notes, daily goal, language choice, message draft, reminder schedule and backups are stored locally on your device (localStorage). No personal water log or symptom data is sent by the app to a server. GitHub Pages processes standard website requests to serve static files under its own platform policies. No analytics, third-party trackers or advertising scripts are included.
 
 ## If you enable the couple connection
 
@@ -28,8 +28,12 @@ Browser notification permission is requested only when you tap **Enable notifica
 
 ## Backups, clearing and deletion
 
-Use **Settings → Export data** to save your detailed water history as a local JSON file. **Restore** replaces current logs and preferences. Removing the app, clearing browser data or switching devices can erase local records, so keep your own backup if needed. Delete backup files separately in Files/iCloud Drive if no longer wanted.
+Use **Settings → Export data** to save your detailed water history and optional body notes as a local JSON file. **Restore** replaces current logs and preferences. Removing the app, clearing browser data or switching devices can erase local records, so keep your own backup if needed. Delete backup files separately in Files/iCloud Drive if no longer wanted.
 
 You can delete drink entries inside Today. You can disconnect your device in the Couple tab, which deletes its server record and push subscription; the remaining partner can pair another device. The server room disappears when both devices disconnect.
 
 For questions, use [GitHub Issues](https://github.com/hungdeniubeo/water-reminder-ios/issues).
+
+## Hydration insights and medical information
+
+The app calculates patterns only from the amounts the user records. A day without entries is **not** treated as zero fluid intake, and a partially completed day is not used to determine a completed-day trend. Optional body notes are not diagnostic measurements. The app does not diagnose dehydration, estimate physiological hydration level, or prescribe a particular amount to drink. Educational tips link to NHS and MedlinePlus. No notes about symptoms or health are uploaded to the couple backend.

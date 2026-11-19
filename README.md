@@ -9,7 +9,7 @@
 **Một chút nước, một chút thương.**  
 *A little sip, a little love.*
 
-A tiny hydration tracker for two iPhones. Soft pink, Vietnamese / English, no ads or account.
+A personal water journal for two iPhones, with an original warm-pink design, Vietnamese / English and no ads or app account.
 
 [**Open the app**](https://hungdeniubeo.github.io/water-reminder-ios/) · [Install on iPhone](#install-on-iphone) · [Enable notifications](./docs/SETUP_PUSH.md)
 
@@ -20,11 +20,12 @@ A tiny hydration tracker for two iPhones. Soft pink, Vietnamese / English, no ad
 ## What's inside
 
 - **Today:** one-tap 150 / 250 / 500 ml, custom water amounts, daily progress and drink history.
-- **History:** 7-day chart, recent daily totals, quick goal overview.
+- **Journal:** a month-by-month calendar, date-specific entries, backfilling a past day, 7-day recorded-intake insights and optional self-reported body notes.
 - **Us two:** personal names, a message for your partner, optional private pairing and today's shared totals.
 - **Gentle nudges:** in-app reminders today; real iPhone Web Push when the Cloudflare Worker is configured and each device opts in.
 - **VI / EN:** switch at the top of the app; preference is saved on that iPhone.
-- **Privacy first:** water entry details stay on the device. JSON export/restore is available in Settings.
+- **Privacy first:** detailed water logs and self-reported symptoms stay on the device. JSON export/restore includes the personal notes.
+- **Wellness education:** short, sourced guidance about possible dehydration signs and practical habits, without claiming to diagnose hydration status.
 
 ## Install on iPhone
 
@@ -60,6 +61,7 @@ npm test
 |---|---|
 | `index.html`, `styles.css` | App UI, pink theme, responsive layouts |
 | `app.js`, `logic.js`, `i18n.js` | Water logging, date logic, VI / EN |
+| `journal-ui.js`, `hydration-insights.js` | Calendar, local body check-ins, log-pattern summaries |
 | `couple.js`, `push-config.js` | Optional backend connection and pairing |
 | `sw.js`, `manifest.webmanifest` | Offline experience, install, push handling |
 | `backend/` | Cloudflare Worker, D1 schema and VAPID sender |
@@ -67,6 +69,14 @@ npm test
 
 ## Privacy
 
-No analytics, ads, or account sign-in. Every drink entry stays in the browser's local storage on its iPhone. If optional couple pairing is enabled, the server stores minimal push and couple metadata and **daily totals only**, not an entry-by-entry drinking history. Read [PRIVACY.md](./PRIVACY.md).
+No analytics, ads, or account sign-in. Every drink entry and symptom check-in stays in the browser's local storage on its iPhone. If optional couple pairing is enabled, the server stores minimal push and couple metadata and **daily totals only**, not an entry-by-entry drinking history. Read [PRIVACY.md](./PRIVACY.md).
+
+## Health information note
+
+Water compares drinks **you recorded** against a **personal goal you chose**. Unlogged days are labeled **not recorded** rather than 0 ml; incomplete days are excluded from the completed-day trend. It cannot assess body hydration, diagnose dehydration or recommend medical treatment. Symptoms entered in the journal are self-reported and stay local. Total water intake can also include fluids from food and other beverages. If you have a prescribed fluid restriction, follow your clinician's instructions.
+
+Health reading: [NHS — Dehydration](https://www.nhs.uk/conditions/dehydration/) · [MedlinePlus — Water in diet](https://medlineplus.gov/ency/article/002471.htm).
+
+The interface is independently designed. It does not use Flo logos, assets or screen layouts.
 
 <sub>Personal project. No open-source license has been added.</sub>

@@ -18,6 +18,8 @@ jobs:
           node --check app.js
           node --check logic.js
           node --check i18n.js
+          node --check journal-ui.js
+          node --check hydration-insights.js
           node --check couple.js
           node --check sw.js
           node --check push-config.js

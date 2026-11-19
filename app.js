@@ -1,6 +1,7 @@
 import { STORAGE_KEY, normalizeState, localDayKey, dayKeyOffset, totalForDay, getWeekStats, nextReminderSlot } from './logic.js';
 import { getLanguage, setLanguage, translate, applyTranslations, formatDate, formatNumber, formatTime } from './i18n.js';
 import { backendConfigured, getSession, clearSession, getPublicConfig, getCouple, createCouple, joinCouple, renewInvite, leaveCouple, updateProfile, updateProgress, updateSchedule, registerSubscription, unregisterSubscription, requestTestPush } from './couple.js';
+import { createJournal } from './journal-ui.js';
 
 const el = id => document.getElementById(id);
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh';
@@ -29,6 +30,7 @@ let remote = null;
 let invite = null;
 let syncing = false;
 let fetchingCouple = false;
+let journal;
 
 function persistState() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); return true; }
@@ -128,6 +130,8 @@ function renderToday() {
   el('progress-message').textContent = percent >= 100 ? t('reachedToday') : percent >= 50 ? t('halfWay') : total ? t('startingWell') : t('startFresh');
   el('today-count').textContent = t('entryCount', { count: entries.length }).toLocaleUpperCase(lang === 'vi' ? 'vi-VN' : 'en-US');
   renderNextReminder();
+  journal?.renderWeek();
+  journal?.renderStory();
   const list = el('today-entries');
   list.replaceChildren();
   if (!entries.length) {
@@ -150,7 +154,8 @@ function renderToday() {
 }
 function renderHistory() {
   const stats = getWeekStats(state.logs, state.goal, new Date());
-  el('week-average').textContent = amountLabel(stats.average);
+  const loggedWeekDays = stats.days.filter(day=>state.logs.some(item=>item.day===day.day));
+  el('week-average').textContent = loggedWeekDays.length ? amountLabel(Math.round(loggedWeekDays.reduce((sum,day)=>sum+day.amount,0)/loggedWeekDays.length)) : '—';
   el('days-reached').textContent = t('daysCount', { count: stats.reached });
   const bars = el('week-bars'); bars.replaceChildren();
   for (const d of stats.days) {
@@ -168,7 +173,7 @@ function renderHistory() {
     const label = document.createElement('span'); label.className = 'history-day-name';
     label.textContent = offset === 0 ? t('today') : offset === -1 ? t('yesterday') : formatDate(new Date(day + 'T12:00:00'), lang, { weekday: 'long' });
     const date = document.createElement('small'); date.textContent = formatDate(new Date(day + 'T12:00:00'), lang, { day: 'numeric', month: 'short' }); label.append(date);
-    const total = document.createElement('strong'); total.textContent = amountLabel(value);
+    const total = document.createElement('strong'); total.textContent = state.logs.some(item=>item.day===day) ? amountLabel(value) : t('v3NoEntryShort');
     row.append(label, total);
     if (value >= state.goal) { const check = document.createElement('span'); check.className='goal-mark'; check.textContent='✓'; check.title = t('reachedAria'); row.append(check); }
     days.append(row);
@@ -332,7 +337,7 @@ el('reminder-form').addEventListener('submit',async event=>{
 
 // Backup is local-only. Device credentials and personal notes are never exported.
 el('export-backup').addEventListener('click',()=>{
-  const obj={format:'water-reminder-backup',version:1,exportedAt:new Date().toISOString(),data:state};
+  const obj={format:'water-reminder-backup',version:1,exportedAt:new Date().toISOString(),data:state,bodyNotes:journal?.exportNotes()};
   const url=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));
   const anchor=document.createElement('a');anchor.href=url;anchor.download='water-backup-'+localDayKey()+'.json';document.body.append(anchor);anchor.click();anchor.remove();
   setTimeout(()=>URL.revokeObjectURL(url),5000);toast(t('backupReady'));
@@ -345,7 +350,7 @@ el('backup-file').addEventListener('change',async()=>{
     const obj=JSON.parse(await file.text());
     if(obj.format!=='water-reminder-backup'||obj.version!==1||!Array.isArray(obj.data?.logs))throw Error(t('backupInvalid'));
     if(!confirm(t('backupConfirm')))return;
-    state=normalizeState(obj.data);persistState();applyLocale();sendProgress();toast(t('backupRestored'));
+    state=normalizeState(obj.data);persistState();if(obj.bodyNotes)journal?.restoreNotes(obj.bodyNotes);applyLocale();sendProgress();toast(t('backupRestored'));
   }catch(err){toast(err.message||t('backupFailed'));}
 });
 
@@ -428,6 +433,17 @@ el('disable-push').addEventListener('click',async()=>{
   }catch{toast(t('v2PushBackendDown'));}
 });
 
+// Journal data and self-reported symptoms stay exclusively on this device.
+journal = createJournal({
+  getState:()=>state, getLanguage:()=>lang, t, number, amountLabel, formatDate, formatTime,
+  openHistory:()=>changeScreen('history'),
+  addEntry:(day,amount)=>{
+    state.logs.push({id:id(),at:new Date().toISOString(),day,amount});
+    persistState();renderToday();renderHistory();renderCouple();sendProgress();toast(t('v3DaySaved'));
+  },
+  deleteEntry:removeWater,
+  showToast:toast
+});
 // Keep the existing local data even when the push backend is unconfigured/offline.
 applyLocale();initProfileForm();renderCouple();beginBackend();
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{}));

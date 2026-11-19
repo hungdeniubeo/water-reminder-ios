@@ -1,16 +1,26 @@
 {
   "id": "./",
-  "name": "Water ♡ - Couple Edition",
+  "name": "Water ♡ — Dành cho Beo",
   "short_name": "Water ♡",
-  "description": "Một chiếc app nhắc uống nước dịu dàng, dành riêng cho hai đứa mình.",
+  "description": "Nhật ký uống nước, phân tích thói quen và ghi chú riêng cho Beo.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#fff8f9",
-  "theme_color": "#fff8f9",
+  "background_color": "#fffaf9",
+  "theme_color": "#fffaf9",
   "orientation": "portrait",
   "icons": [
-    {"src":"./assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"},
-    {"src":"./assets/icon-maskable.svg","sizes":"any","type":"image/svg+xml","purpose":"maskable"}
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
   ]
 }

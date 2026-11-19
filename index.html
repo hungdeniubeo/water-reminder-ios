@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#fff8f9">
-  <meta name="description" content="Một chiếc app nhắc uống nước dịu dàng, dành riêng cho hai đứa mình.">
+  <meta name="theme-color" content="#fffaf9">
+  <meta name="description" content="Nhật ký uống nước dịu dàng cho Beo, theo dõi từng ngày và chăm sóc thói quen.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Water ♡">
@@ -38,6 +38,11 @@
           <p class="subtitle" data-i18n="v2TodaySubtitle">Thương bản thân từ những điều bé xíu.</p>
         </div>
 
+        <section class="week-peek" aria-label="Nhật ký 7 ngày gần đây" data-i18n-aria-label="v3WeekNavAria">
+          <div class="week-peek-heading"><span data-i18n="v3WeeklyTiny">BẢY NGÀY CỦA BEO</span><button id="open-journal" type="button" data-i18n="v3SeeJournal">Xem nhật ký ↗</button></div>
+          <div id="home-week-days" class="week-peek-days"></div>
+        </section>
+
         <section class="progress-card" data-i18n-aria-label="progressAria" aria-label="Tiến độ uống nước hôm nay">
           <div class="card-topline"><span class="micro-label" data-i18n="todayWater">LƯỢNG NƯỚC HÔM NAY</span><span class="rose-tag" id="progress-status-label">BẮT ĐẦU THÔI ♡</span></div>
           <div class="progress-main">
@@ -67,6 +72,12 @@
         </div>
         <button class="custom-add" id="open-log" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="v2CustomAdd">Nhập lượng nước khác</span><span aria-hidden="true">↗</span></button>
 
+        <section class="daily-story" aria-labelledby="daily-story-title">
+          <span class="story-glyph" aria-hidden="true">✦</span>
+          <div class="daily-story-content"><span class="story-eyebrow" data-i18n="v3DailyStoryLabel">MỘT CHÚT ĐỂ Ý</span><h2 id="daily-story-title" data-i18n="v3DailyStoryTitle">Một ngày dễ thương đang bắt đầu.</h2><p id="daily-story-text" data-i18n="v3DailyStoryIntro">Ghi lại từng ly nước để mình nhìn thấy thói quen rõ hơn nhé.</p></div>
+          <button type="button" id="daily-story-link" aria-label="Xem phân tích" data-i18n-aria-label="v3GoInsights" class="story-arrow">↗</button>
+        </section>
+
         <section class="reminder-peek" aria-label="Lời nhắc tiếp theo">
           <span class="peek-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
           <span class="peek-copy"><small data-i18n="v2NextReminder">LỜI NHẮC TIẾP THEO</small><strong id="next-reminder">Chưa bật nhắc nhở</strong></span>
@@ -81,9 +92,53 @@
       </section>
 
       <section id="screen-history" class="screen" aria-labelledby="history-heading" hidden>
-        <div class="hero-intro slim"><span class="eyebrow" data-i18n="historyEyebrow">NHÌN LẠI MỖI NGÀY</span><h1 id="history-heading" data-i18n-heading="v2HistoryTitle">Mỗi ngày một chút,<br><em>đều đáng yêu.</em></h1><p class="subtitle" data-i18n="historySubtitle">Cùng xem thói quen uống nước của bạn.</p></div>
-        <section class="white-card chart-card" aria-label="Lịch sử 7 ngày" data-i18n-aria-label="sevenDays"><div class="section-title-row"><h2 data-i18n="sevenDays">7 ngày gần đây</h2><span data-i18n="dailyTotals">TỔNG THEO NGÀY</span></div><div class="week-bars" id="week-bars"></div><div class="history-summary"><span><small data-i18n="averagePerDay">TRUNG BÌNH / NGÀY</small><strong id="week-average">0 ml</strong></span><span><small data-i18n="goalDays">ĐẠT MỤC TIÊU</small><strong id="days-reached">0 ngày</strong></span></div></section>
-        <section class="history-days-section"><div class="section-title-row"><h2 data-i18n="dayByDay">Từng ngày một</h2><span data-i18n="lastFourteenDays">14 NGÀY GẦN ĐÂY</span></div><div id="history-days" class="history-days"></div></section>
+        <div class="hero-intro slim journal-intro">
+          <span class="eyebrow" data-i18n="v3JournalEyebrow">NHẬT KÝ CỦA BEO</span>
+          <h1 id="history-heading" data-i18n-heading="v3JournalTitle">Mỗi ngày một chút,|đủ đầy yêu thương.</h1>
+          <p class="subtitle" data-i18n="v3JournalSubtitle">Chọn một ngày để xem, ghi thêm nước và lắng nghe cơ thể.</p>
+        </div>
+        <section class="white-card calendar-card" aria-labelledby="calendar-title">
+          <div class="calendar-header"><div><span class="story-eyebrow" data-i18n="v3CalendarEyebrow">NHÌN LẠI THÓI QUEN</span><h2 id="calendar-title" data-i18n="v3CalendarTitle">Lịch uống nước</h2></div>
+            <div class="calendar-controls"><button type="button" id="calendar-prev" aria-label="Tháng trước" data-i18n-aria-label="v3PreviousMonth">‹</button><span id="calendar-month"></span><button type="button" id="calendar-next" aria-label="Tháng sau" data-i18n-aria-label="v3NextMonth">›</button></div>
+          </div>
+          <div id="calendar-weekdays" class="calendar-weekdays"></div>
+          <div id="calendar-grid" class="calendar-grid"></div>
+          <div class="calendar-legend"><span><i class="legend-dot has-log"></i><span data-i18n="v3LegendRecorded">Có ghi nhận</span></span><span><i class="legend-dot goal-met"></i><span data-i18n="v3LegendGoal">Đạt mục tiêu</span></span><span data-i18n="v3LegendEmpty">Chấm rỗng = chưa ghi</span></div>
+        </section>
+        <section class="white-card day-journal-card" aria-labelledby="journal-day-title">
+          <div class="day-journal-top"><div><span class="story-eyebrow" data-i18n="v3DaySummaryLabel">NGÀY ĐÃ CHỌN</span><h2 id="journal-day-title"></h2></div><span class="day-total-pill" id="journal-day-total">0 ml</span></div>
+          <p class="day-journal-copy" id="journal-day-message"></p>
+          <form class="journal-add-row" id="journal-add-form"><label class="sr-only" for="journal-amount" data-i18n="v3AddPastLabel">Nhập số ml của ngày này</label><input id="journal-amount" type="number" inputmode="numeric" min="20" max="2000" step="1" value="250" required><button type="submit" class="button button-primary" data-i18n="v3AddOnDate">+ Ghi cho ngày này</button></form>
+          <p class="day-journal-footnote" data-i18n="v3BackfillNote">Ghi bổ sung là ước lượng theo trí nhớ. Không cần cố nhớ chính xác từng ngụm.</p>
+          <div class="journal-presets" role="group" data-i18n-aria-label="v3QuickDayAmounts" aria-label="Lượng nước thường dùng"><button type="button" data-journal-preset="150">150 ml</button><button type="button" data-journal-preset="250" class="selected">250 ml</button><button type="button" data-journal-preset="500">500 ml</button></div>
+          <div id="journal-day-entries" class="journal-day-entries"></div>
+        </section>
+        <section class="insights-block" aria-labelledby="insights-heading">
+          <div class="section-title-row"><h2 id="insights-heading" data-i18n="v3InsightsHeading">Nhìn lại 7 ngày</h2><span data-i18n="v3FullDays">7 NGÀY ĐÃ KẾT THÚC</span></div>
+          <div class="insight-metrics">
+            <article class="insight-metric"><span data-i18n="v3AvgTitle">TRUNG BÌNH KHI CÓ GHI</span><strong id="insight-average">—</strong><small data-i18n="v3AvgUnit">ml / ngày có ghi</small></article>
+            <article class="insight-metric alt"><span data-i18n="v3GoalTitle">NGÀY ĐẠT MỤC TIÊU</span><strong id="insight-goals">—</strong><small id="insight-log-days">0 ngày có ghi</small></article>
+          </div>
+          <div id="insight-pattern" class="pattern-card" role="status"></div>
+          <p class="insights-disclaimer" data-i18n="v3MissingExplanation">Ngày không có nhật ký không được tính là ngày uống ít. Chỉ tính trung bình từ những ngày đã ghi.</p>
+        </section>
+        <section class="white-card chart-card" data-i18n-aria-label="sevenDays" aria-label="Lịch sử 7 ngày"><div class="section-title-row"><h2 data-i18n="sevenDays">7 ngày gần đây</h2><span data-i18n="dailyTotals">TỔNG THEO NGÀY</span></div><div class="week-bars" id="week-bars"></div><div class="history-summary"><span><small data-i18n="averagePerDay">TRUNG BÌNH / NGÀY</small><strong id="week-average">0 ml</strong></span><span><small data-i18n="goalDays">ĐẠT MỤC TIÊU</small><strong id="days-reached">0 ngày</strong></span></div></section>
+        <section class="white-card body-checkin" aria-labelledby="body-check-title">
+          <div class="checkin-title"><span class="settings-icon" aria-hidden="true">♡</span><div><span class="story-eyebrow" data-i18n="v3CheckinEyebrow">KHÔNG BẮT BUỘC</span><h2 id="body-check-title" data-i18n="v3CheckinHeading">Cơ thể Beo thế nào?</h2><p data-i18n="v3CheckinDescription">Chọn những gì bạn thực sự cảm thấy trong ngày đã chọn.</p></div></div>
+          <div class="checkin-section-label" data-i18n="v3SymptomsLabel">DẤU HIỆU NHẬN THẤY</div><div id="body-symptoms" class="checkin-chips"></div>
+          <div class="checkin-section-label" data-i18n="v3ContextLabel">HOẠT ĐỘNG / THỜI TIẾT</div><div id="body-contexts" class="checkin-chips"></div>
+          <div id="body-feedback" class="body-feedback" role="status"></div>
+          <button type="button" id="save-body-checkin" class="button button-outline body-save" data-i18n="v3SaveBodyCheckin">Lưu ghi chú hôm nay</button><p class="checkin-note" data-i18n="v3PrivateSymptoms">Ghi chú cơ thể chỉ nằm trên máy này, không gửi cho người kia hay Cloudflare.</p>
+        </section>
+        <section class="body-guidance" aria-labelledby="body-guidance-heading">
+          <div class="section-title-row"><h2 id="body-guidance-heading" data-i18n="v3GuidanceHeading">Một chút kiến thức</h2><span data-i18n="v3GuidanceTag">THAM KHẢO</span></div>
+          <article class="guidance-feature"><span class="guidance-icon" aria-hidden="true">✿</span><div><span class="story-eyebrow" data-i18n="v3GuidanceQuestion">UỐNG ÍT NƯỚC CÓ SAO KHÔNG?</span><h3 data-i18n="v3RiskTitle">Dấu hiệu thiếu nước có thể gặp</h3><p data-i18n="v3RiskBody">Khát nước, khô miệng, mệt, đau đầu hoặc nước tiểu sẫm màu có thể là dấu hiệu mất nước. Những dấu hiệu này cũng có thể có nguyên nhân khác.</p></div></article>
+          <article class="guidance-row"><span aria-hidden="true">↗</span><div><h3 data-i18n="v3AdviceTitle">Uống đều đặn, không uống bù vội</h3><p data-i18n="v3AdviceBody">Uống khi khát, xen kẽ nước trong ngày và trong bữa ăn. Nhu cầu nước khác nhau theo vận động, nhiệt độ và sức khỏe; thức ăn và đồ uống khác cũng góp phần cung cấp nước.</p></div></article>
+          <article class="guidance-row"><span aria-hidden="true">◌</span><div><h3 data-i18n="v3ORSAdviceTitle">Khi mất nhiều nước</h3><p data-i18n="v3ORSAdviceBody">Nếu nôn ói hoặc tiêu chảy, hỏi dược sĩ về dung dịch bù nước điện giải. Nếu chóng mặt kéo dài, lú lẫn, khó thở hoặc rất ít tiểu, hãy tìm hỗ trợ y tế.</p></div></article>
+          <p class="education-note" data-i18n="v3NotDiagnosis">Water phân tích lượng nước đã GHI, không đo lượng nước trong cơ thể hay chẩn đoán mất nước. Nếu bác sĩ yêu cầu hạn chế dịch, hãy làm theo hướng dẫn riêng.</p>
+          <div class="evidence-links"><a href="https://www.nhs.uk/conditions/dehydration/" target="_blank" rel="noopener noreferrer">NHS ↗</a><a href="https://medlineplus.gov/ency/article/002471.htm" target="_blank" rel="noopener noreferrer">MedlinePlus ↗</a></div>
+        </section>
+        <details class="journal-archive"><summary data-i18n="v3ShowRecentList">Xem danh sách 14 ngày gần đây</summary><div id="history-days" class="history-days"></div></details>
       </section>
 
       <section id="screen-couple" class="screen" aria-labelledby="couple-heading" hidden>
@@ -111,7 +166,7 @@
 
     <nav class="tabbar" aria-label="Điều hướng chính" data-i18n-aria-label="navAria">
       <button type="button" class="tab active" data-tab="today" aria-current="page"><svg viewBox="0 0 24 24"><path d="M12 3C9 7.6 5 11.4 5 16a7 7 0 0 0 14 0c0-4.6-4-8.4-7-13Z"/></svg><span data-i18n="tabToday">Hôm nay</span></button>
-      <button type="button" class="tab" data-tab="history"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15l4-5 4 2 4-6"/></svg><span data-i18n="tabHistory">Lịch sử</span></button>
+      <button type="button" class="tab" data-tab="history"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15l4-5 4 2 4-6"/></svg><span data-i18n="tabHistory">Nhật ký</span></button>
       <button type="button" class="tab couple-nav" data-tab="couple"><svg viewBox="0 0 24 24"><path d="M20.5 8.2c0 4.6-8.5 10.4-8.5 10.4S3.5 12.8 3.5 8.2a4.6 4.6 0 0 1 8.5-2.4 4.6 4.6 0 0 1 8.5 2.4Z"/></svg><span data-i18n="v2TabCouple">Hai đứa</span></button>
       <button type="button" class="tab" data-tab="settings"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M9 3v8M15 13v8"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg><span data-i18n="tabSettings">Cài đặt</span></button>
     </nav>
