@@ -90,6 +90,7 @@ export function animateScreenEntry(screen) {
 }
 
 export function animateWeekChange(direction) {
+  if (!motionEnabled()) return false;
   const name = direction > 0 ? 'beo-slide-right' : 'beo-slide-left';
   const done = replay(document.getElementById('home-week-days'), name, 420);
   replay(document.getElementById('week-range'), 'beo-label-in', 420);
@@ -97,6 +98,7 @@ export function animateWeekChange(direction) {
 }
 
 export function animateCalendarChange(direction) {
+  if (!motionEnabled()) return false;
   const name = direction > 0 ? 'beo-slide-right' : 'beo-slide-left';
   const done = replay(document.getElementById('calendar-grid'), name, 410);
   replay(document.getElementById('calendar-month'), 'beo-label-in', 410);
@@ -104,6 +106,7 @@ export function animateCalendarChange(direction) {
 }
 
 export function animateDaySelection() {
+  if (!motionEnabled()) return false;
   const screen = document.getElementById('screen-history');
   if (!screen || screen.hidden) return false;
   return replay(document.querySelector('.day-journal-card'), 'beo-day-in', 450);
