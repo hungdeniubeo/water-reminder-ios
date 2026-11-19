@@ -55,14 +55,14 @@
       <text x="829" y="63" font-size="13" font-weight="700" fill="#162C37">9:41</text>
       <g fill="#163746"><rect x="1037" y="54" width="4" height="9" rx="1"/><rect x="1043" y="51" width="4" height="12" rx="1"/><rect x="1049" y="48" width="4" height="15" rx="1"/></g>
       <rect x="902" y="46" width="92" height="23" rx="11.5" fill="#092334"/>
-      <text x="831" y="118" font-size="14" font-weight="580" fill="#5D7B81">THURSDAY, NOV 19</text>
+      <text x="831" y="118" font-size="14" font-weight="580" fill="#5D7B81">TODAY</text>
       <text x="831" y="150" font-size="26" font-weight="750" letter-spacing="-.7" fill="#173440">Your hydration</text>
       <text x="831" y="173" font-size="14" fill="#718E95">You're making progress today</text>
       <circle cx="948" cy="280" r="80" fill="none" stroke="#DCEEEF" stroke-width="16"/>
       <circle cx="948" cy="280" r="80" fill="none" stroke="url(#aqua)" stroke-width="16" stroke-linecap="round" stroke-dasharray="314 503" transform="rotate(-90 948 280)"/>
       <text x="948" y="274" text-anchor="middle" font-size="38" font-weight="800" letter-spacing="-1.2" fill="#173B46">1,250</text>
       <text x="948" y="302" text-anchor="middle" font-size="15" font-weight="550" fill="#678790">of 2,000 mL</text>
-      <text x="948" y="340" text-anchor="middle" font-size="12" font-weight="700" fill="#10999E">63% OF DAILY GOAL</text>
+      <text x="948" y="329" text-anchor="middle" font-size="12" font-weight="700" fill="#10999E">63% COMPLETE</text>
       <rect x="831" y="386" width="235" height="54" rx="17" fill="#0FA6AB"/>
       <text x="948" y="421" text-anchor="middle" font-size="17" font-weight="700" fill="#FFFFFF">+ Add water</text>
     </g>
