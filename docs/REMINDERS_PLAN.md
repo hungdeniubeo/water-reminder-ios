@@ -15,7 +15,7 @@ Deliver opt-in iPhone lock-screen reminders at user-configured times, including 
 - iOS or iPadOS **16.4+** and a Home Screen-installed web app.
 - HTTPS origin, a valid web app manifest, and a working service worker.
 - The user explicitly taps **Enable notifications** (permission request must follow user interaction).
-- Service worker handling for \`push\` and \`notificationclick\`.
+- Service worker handling for `push` and `notificationclick`.
 - Push API subscription and a backend holding VAPID signing keys.
 - A sender outside GitHub Pages. GitHub Pages can host a static frontend but cannot periodically send push notifications.
 
@@ -23,7 +23,7 @@ Reference: [WebKit: Web Push for Web Apps on iOS and iPadOS](https://webkit.org/
 
 ### Proposed free-tier architecture
 
-\`\`\`text
+```text
 iPhone Home Screen PWA (GitHub Pages)
     ├── saves water logs and goals locally
     └── subscribes to Web Push (explicit user action)
@@ -44,7 +44,7 @@ iPhone Home Screen PWA (GitHub Pages)
                     |
                     v
       iPhone lock screen / Notification Center
-\`\`\`
+```
 
 Use a dedicated Cloudflare account's free tier for experimentation. Pricing, quotas, scheduled execution, and delivery times are **not guaranteed forever**. Inspect current free-tier quotas before enabling deployment. Do not store VAPID private keys or push subscriptions in a public GitHub repo.
 
@@ -52,9 +52,9 @@ Use a dedicated Cloudflare account's free tier for experimentation. Pricing, quo
 
 1. **Backend proof of concept:** Create VAPID keys; store the private key only as a backend secret. Send one manual encrypted test push to a subscribed test iPhone.
 2. **Opt-in experience:** Show a clear explanation of why notifications are requested; only ask permission after the user taps Enable. Offer Disable and Re-enable actions.
-3. **Subscription persistence:** Create a minimal Worker endpoint to register/update/delete a subscription, schedule, and IANA timezone (for example, \`Asia/Ho_Chi_Minh\`). Authenticate each installation with an unpredictable per-device secret, store only its hash server-side, and add rate limits / abuse controls.
-4. **Scheduler:** Add a Cron Trigger that checks due reminders. Calculate times in each user's configured timezone, handle daylight saving changes, and deduplicate a \`subscription_id + local_time_slot\` before sending. Use delivery intervals compatible with scheduler resolution.
-5. **Clean-up:** Delete subscriptions after push endpoint \`404\` or \`410\` responses and when a user disables reminders. Avoid sending repeated missed reminders after the device was offline.
+3. **Subscription persistence:** Create a minimal Worker endpoint to register/update/delete a subscription, schedule, and IANA timezone (for example, `Asia/Ho_Chi_Minh`). Authenticate each installation with an unpredictable per-device secret, store only its hash server-side, and add rate limits / abuse controls.
+4. **Scheduler:** Add a Cron Trigger that checks due reminders. Calculate times in each user's configured timezone, handle daylight saving changes, and deduplicate a `subscription_id + local_time_slot` before sending. Use delivery intervals compatible with scheduler resolution.
+5. **Clean-up:** Delete subscriptions after push endpoint `404` or `410` responses and when a user disables reminders. Avoid sending repeated missed reminders after the device was offline.
 6. **iPhone verification:** Test app closed, screen locked, offline/online transitions, iOS Focus, permission denied, reinstall, service-worker updates, and timezone changes.
 
 ### User privacy and security

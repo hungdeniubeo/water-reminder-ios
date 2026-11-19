@@ -24,7 +24,7 @@ A lightweight hydration tracker you can add to your iPhone Home Screen. No accou
 
 **[Open Water Reminder ↗](https://hungdeniubeo.github.io/water-reminder-ios/)**
 
-> **Publishing note:** The link works after GitHub Pages has been enabled for this repository under **Settings → Pages**. The project is built and committed to \`main\`; Pages activation is a separate repository setting.
+> **Publishing note:** The link works after GitHub Pages has been enabled for this repository under **Settings → Pages**. The project is built and committed to `main`; Pages activation is a separate repository setting.
 
 ## Features
 
@@ -59,33 +59,33 @@ See **[Background notification plan](./docs/REMINDERS_PLAN.md)** for a proposed 
 
 No package install, server-side code or frontend build tool is required for the static app.
 
-\`\`\`bash
+```bash
 git clone https://github.com/hungdeniubeo/water-reminder-ios.git
 cd water-reminder-ios
 python3 -m http.server 8000
-\`\`\`
+```
 
 Visit [http://localhost:8000](http://localhost:8000). Service workers work on localhost or over HTTPS.
 
 To run the pure logic tests, install Node.js 20+ and run:
 
-\`\`\`bash
+```bash
 npm test
-\`\`\`
+```
 
 ### Publish with GitHub Pages
 
 1. Make sure the GitHub repository is **public** (GitHub Pages is included for public repositories on GitHub Free).
 2. Open **Settings → Pages** for this repository.
 3. Under **Build and deployment**, select **Deploy from a branch**.
-4. Select **\`main\`** and **\`/(root)\`**, then click **Save**.
+4. Select **`main`** and **`/(root)`**, then click **Save**.
 5. Once GitHub finishes publishing, visit **https://hungdeniubeo.github.io/water-reminder-ios/**.
 
 The app uses relative asset paths so it works at the GitHub Pages project URL. No custom domain is required.
 
 ## Project structure
 
-\`\`\`text
+```text
 index.html               Interface
 styles.css               iPhone-first styling
 app.js                   UI and browser persistence
@@ -96,7 +96,7 @@ assets/                  App icons and README banner
 tests/                   Node.js logic tests
 docs/REMINDERS_PLAN.md   Background Web Push proposal
 PRIVACY.md               Local storage and privacy details
-\`\`\`
+```
 
 ## Roadmap
 
