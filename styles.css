@@ -345,3 +345,147 @@ h2,
 }
 .week-day.is-picked:not(.is-today){background:#fff6f9;box-shadow:inset 0 0 0 1px #f0d6e0}
 .week-day:disabled{opacity:.3;cursor:default}
+
+
+/* Beo floating ambience — subtle, GPU-friendly and independent of layout. */
+.app-shell{position:relative;isolation:isolate}
+.ambient-motion{
+  position:absolute;inset:0;overflow:hidden;
+  pointer-events:none;z-index:0;
+}
+.app-shell>.topbar,.app-shell>main{position:relative;z-index:1}
+.ambient-orb{
+  position:absolute;display:block;aspect-ratio:1;border-radius:50%;
+  pointer-events:none;opacity:.6;filter:blur(8px);
+  animation:beo-orb-drift 18s ease-in-out infinite alternate;
+}
+.ambient-orb-one{
+  width:225px;top:85px;right:-116px;
+  background:radial-gradient(circle at 35% 40%,#f7c7db9a 0%,#f9ddeb4d 46%,#f9ddeb00 73%);
+}
+.ambient-orb-two{
+  width:205px;top:690px;left:-118px;opacity:.42;
+  background:radial-gradient(circle at 55% 45%,#e9dafaab 0%,#fce6ee65 45%,#fce6ee00 74%);
+  animation-duration:23s;animation-delay:-7s;animation-direction:alternate-reverse;
+}
+.ambient-orb-three{
+  width:230px;top:1550px;right:-140px;opacity:.45;
+  background:radial-gradient(circle at 38% 48%,#ffdbbe9c 0%,#f7dbe86c 43%,#ffe3ee00 72%);
+  animation-duration:25s;animation-delay:-4s;
+}
+.ambient-heart{
+  position:absolute;display:block;pointer-events:none;
+  font-family:Georgia,serif;line-height:1;color:#c47c9e;
+  opacity:.15;animation:beo-heart-drift 8s ease-in-out infinite alternate;
+}
+.ambient-heart-one{top:255px;right:17px;font-size:26px}
+.ambient-heart-two{top:1020px;left:12px;font-size:20px;animation-delay:-3s;animation-duration:11s}
+@keyframes beo-orb-drift{
+  from{transform:translate3d(-9px,12px,0) scale(.97)}
+  to{transform:translate3d(17px,-24px,0) scale(1.08)}
+}
+@keyframes beo-heart-drift{
+  from{transform:translate3d(0,8px,0) rotate(-9deg)}
+  to{transform:translate3d(5px,-13px,0) rotate(9deg)}
+}
+
+/* A tiny reward each time a drink is saved — no layout shift or sound. */
+.progress-card.water-card-pop{animation:beo-card-pop .72s cubic-bezier(.2,.85,.28,1)}
+.progress-card.water-card-glow{box-shadow:0 12px 32px #c47c9a13}
+.progress-card.water-card-glow:after{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;box-shadow:inset 0 0 0 1px #f3bdd4aa;
+  animation:beo-card-light 1.1s ease-out both;
+}
+.progress-graphic.water-ring-bob .ring-center{
+  animation:beo-ring-bob .82s cubic-bezier(.2,.85,.28,1);
+}
+#today-total.water-number-bounce,
+#progress-percent.water-number-bounce{
+  display:inline-block;animation:beo-number-pop .64s cubic-bezier(.2,.85,.28,1);
+}
+.water-burst{
+  position:absolute;inset:0;pointer-events:none;z-index:3;
+}
+.water-particle{
+  position:absolute;top:50%;left:50%;opacity:0;
+  animation:beo-water-sprinkle 1.05s cubic-bezier(.15,.7,.2,1) var(--particle-delay,0ms) both;
+}
+.water-drop{
+  width:10px;height:13px;border-radius:65% 65% 72% 72%;
+  background:radial-gradient(circle at 35% 22%,#fffafc 0 15%,#f1b2c9 28%,#d9759e 100%);
+  box-shadow:0 2px 5px #c46a9328;
+}
+.water-heart{
+  font-family:Georgia,serif;font-size:19px;line-height:1;color:#c16a8d;
+}
+.water-float-label{
+  position:absolute;top:-3px;right:6px;z-index:4;pointer-events:none;
+  font-family:var(--beo-display-font),sans-serif;
+  color:#a45278;background:#fff9fcef;border:1px solid #f2d6e2;
+  border-radius:999px;padding:6px 10px;font-size:.72rem;font-weight:700;
+  box-shadow:0 6px 16px #a55f8218;white-space:nowrap;
+  animation:beo-water-label 1.12s ease-out both;
+}
+.quick-add,.custom-add,.dialog-presets button,.button-primary{
+  transition:transform .19s cubic-bezier(.2,.85,.28,1),
+    box-shadow .2s ease,border-color .2s ease,background-color .2s ease;
+}
+.quick-add:active,.custom-add:active,.dialog-presets button:active,.button-primary:active{
+  transform:scale(.965);
+}
+.bottom-dialog[open]{
+  animation:beo-dialog-in .3s cubic-bezier(.2,.85,.28,1);
+}
+.card-foot:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(110deg,transparent 27%,#ffffff4d 50%,transparent 72%);
+  transform:translateX(-120%);
+  animation:beo-footer-glint 11s ease-in-out infinite;
+}
+@keyframes beo-card-pop{
+  0%,100%{transform:scale(1)}
+  37%{transform:scale(1.014)}
+  66%{transform:scale(.997)}
+}
+@keyframes beo-card-light{
+  0%{opacity:0}
+  35%{opacity:.9}
+  100%{opacity:0}
+}
+@keyframes beo-ring-bob{
+  0%,100%{transform:translateY(0) scale(1)}
+  45%{transform:translateY(-3px) scale(1.055)}
+}
+@keyframes beo-number-pop{
+  0%,100%{transform:translateY(0) scale(1)}
+  40%{transform:translateY(-3px) scale(1.075)}
+}
+@keyframes beo-water-sprinkle{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}
+  22%{opacity:.95}
+  100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1)}
+}
+@keyframes beo-water-label{
+  0%{opacity:0;transform:translateY(10px) scale(.92)}
+  18%{opacity:1}
+  77%{opacity:1}
+  100%{opacity:0;transform:translateY(-23px) scale(1)}
+}
+@keyframes beo-dialog-in{
+  from{opacity:0;transform:translateY(15px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes beo-footer-glint{
+  0%,74%,100%{transform:translateX(-120%)}
+  86%{transform:translateX(120%)}
+}
+/* Reduce Motion: nothing floats or bursts; normal logging/toasts still work. */
+@media(prefers-reduced-motion:reduce){
+  .ambient-orb,.ambient-heart,.card-foot:after,
+  .progress-card.water-card-pop,.progress-card.water-card-glow:after,
+  .progress-graphic.water-ring-bob .ring-center,
+  #today-total.water-number-bounce,#progress-percent.water-number-bounce,
+  .water-particle,.water-float-label,.bottom-dialog[open]{animation:none!important}
+  .quick-add,.custom-add,.dialog-presets button,.button-primary{transition:none!important}
+}

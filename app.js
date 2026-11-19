@@ -3,6 +3,7 @@ import { getLanguage, setLanguage, translate, applyTranslations, formatDate, for
 import { configured, session, clearSession, publicConfig, decodeVapidPublicKey, activateDevice, getDevice, updateSchedule, updateMessage, subscribe, unsubscribe, testPush, disconnect } from './solo.js';
 import { createJournal } from './journal-ui.js';
 import { getDailySlogan } from './daily-slogans.js';
+import { animateHydrationSuccess } from './motion.js';
 
 const el = id => document.getElementById(id);
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh';
@@ -44,10 +45,16 @@ function addWater(value) {
   const amount = Number(value);
   if (!Number.isInteger(amount) || amount < 20 || amount > 2000) { toast(t('amountInvalid')); return false; }
   const now = new Date();
-  state.logs.push({ id: id(), at: now.toISOString(), day: localDayKey(now), amount });
+  const day = localDayKey(now);
+  const before = totalForDay(state.logs, day);
+  state.logs.push({ id: id(), at: now.toISOString(), day, amount });
   persistState();
   renderToday();
   if (currentScreen === 'history') renderHistory();
+  // Run after the custom-amount sheet has closed and the updated ring is painted.
+  if (currentScreen === 'today') requestAnimationFrame(() => {
+    if (currentScreen === 'today') animateHydrationSuccess(amount, before < state.goal && before + amount >= state.goal);
+  });
   toast(t('waterAdded', { amount: number(amount) }));
   return true;
 }
