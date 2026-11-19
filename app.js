@@ -100,6 +100,7 @@ function renderToday() {
   el('progress-ring').style.setProperty('--progress', shownPercent + '%');
   el('progress-ring').setAttribute('aria-valuenow', String(shownPercent));
   el('progress-ring').setAttribute('aria-valuetext', ml(total) + ' of ' + ml(state.goal));
+  el('progress-status-label').textContent = percent >= 100 ? 'GOAL REACHED' : 'ON YOUR WAY';
   el('progress-message').textContent = percent >= 100 ? 'Goal reached. Well done!' : percent >= 50 ? 'You are doing great.' : total > 0 ? 'A lovely start.' : 'A fresh start.';
   el('progress-remaining').textContent = percent >= 100 ? 'You have met your goal today.' : ml(state.goal - total) + ' to your goal';
   el('today-count').textContent = String(logs.length) + (logs.length === 1 ? ' ENTRY' : ' ENTRIES');
@@ -245,7 +246,7 @@ function changeScreen(screen) {
   });
   if (screen === 'settings') renderSettings();
   if (screen === 'history') renderHistory();
-  window.scrollTo({ top: 0, behavior: 'instant' });
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 function showDialog(dialog) {
