@@ -4,6 +4,7 @@ import { configured, session, clearSession, publicConfig, decodeVapidPublicKey, 
 import { createJournal } from './journal-ui.js';
 import { getDailySlogan } from './daily-slogans.js';
 import { animateHydrationSuccess, animateScreenEntry, animateToast, animateBarChart, animateSave, animateEntry } from './motion.js';
+import { setupReminderIntervalPicker } from './reminder-picker.js';
 
 const el = id => document.getElementById(id);
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh';
@@ -11,6 +12,7 @@ const circleLength = 2 * Math.PI * 72;
 const t = (key, vars) => translate(key, lang, vars);
 const number = value => formatNumber(value, lang);
 const amountLabel = amount => number(amount) + ' ml';
+const intervalPicker = setupReminderIntervalPicker();
 
 function loadState() {
   try { return normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')); }
@@ -192,6 +194,7 @@ function renderSettings() {
   el('remind-start').value = state.reminder.start;
   el('remind-end').value = state.reminder.end;
   el('remind-interval').value = String(state.reminder.interval);
+  intervalPicker.sync();
   previewSchedule();
   el('reminder-mode-note').textContent = notificationState?.pushEnabled ? t('soloPushActiveNote') : t('v2ReminderFallback');
 }
@@ -212,6 +215,7 @@ function renderPushSettings() {
 function changeScreen(screen) {
   if (!['today','history','settings'].includes(screen)) return;
   const changed = currentScreen !== screen;
+  if (changed) intervalPicker.close();
   currentScreen = screen;
   for (const name of ['today','history','settings']) el('screen-'+name).hidden = name !== screen;
   document.querySelectorAll('[data-tab]').forEach(button => {

@@ -31,7 +31,7 @@ test('reduced motion is respected and repeated effects get cleaned up',()=>{
   assert.match(motion,/burst\.remove\(\); label\.remove\(\)/);
 });
 test('offline cache includes optional motion module without changing push handling',()=>{
-  assert.match(sw,/water-reminder-static-v14-all-screens-motion/);
+  assert.match(sw,/water-reminder-static-v15-interval-menu-motion/);
   assert.match(sw,/'\.\/motion\.js'/);
   assert.match(sw,/self\.addEventListener\('push'/);
 });

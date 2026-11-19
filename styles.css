@@ -641,3 +641,96 @@ input:not([type=checkbox]):focus,textarea:focus,select:focus{
     transition-duration:.01ms!important;
   }
 }
+
+
+/* Custom reminder interval selector: the iOS system picker itself is not animatable. */
+#reminder-form.beo-interval-layer{position:relative;z-index:8}
+.beo-interval-picker{position:relative;width:100%;margin-top:0}
+.beo-interval-picker.beo-enhanced > #remind-interval{display:none!important}
+.beo-interval-picker:not(.beo-enhanced) .beo-interval-menu{display:none}
+.beo-interval-trigger{
+  width:100%;min-height:52px;display:flex;align-items:center;gap:12px;
+  padding:11px 13px;background:linear-gradient(115deg,#fffafc,#fff1f6);
+  border:1px solid #edd4df;border-radius:16px;color:#7c405c;
+  box-shadow:0 3px 12px #a9587a0c;
+  font:600 16px var(--beo-display-font);
+  text-align:left;line-height:1.3;
+  transition:border-color .22s ease,box-shadow .3s ease,background-color .3s ease;
+}
+.beo-interval-trigger:focus-visible{outline:3px solid #e9a8bf;outline-offset:3px}
+.beo-interval-picker.is-open .beo-interval-trigger{
+  border-color:#d88fad;box-shadow:0 0 0 4px #f9dce788,0 7px 18px #af688a1c;
+}
+.beo-interval-spark{
+  display:grid;place-items:center;flex:0 0 31px;width:31px;height:31px;
+  border-radius:11px;background:#ffe5ee;color:#bc5c84;font:23px Georgia,serif;
+  transition:transform .27s ease,background-color .27s ease;
+}
+.beo-interval-picker.is-open .beo-interval-spark{
+  transform:rotate(-15deg) scale(1.08);background:#fbd6e4;
+}
+.beo-interval-value{flex:1;min-width:0;font-weight:650;letter-spacing:.005em}
+.beo-interval-chevron{
+  width:19px;height:19px;flex:0 0 19px;fill:none;stroke:#ad6a89;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  transition:transform .32s cubic-bezier(.2,.8,.2,1);
+}
+.beo-interval-picker.is-open .beo-interval-chevron{transform:rotate(180deg)}
+.beo-interval-menu{
+  position:absolute;top:calc(100% + 9px);left:0;right:0;
+  z-index:80;padding:8px;border:1px solid #efd2df;border-radius:20px;
+  background:rgba(255,250,253,.98);box-shadow:0 18px 38px #74344e2c,0 3px 8px #a862821a;
+  -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+  max-height:min(338px,58dvh);overflow-y:auto;overscroll-behavior:contain;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transform:translate3d(0,-9px,0) scale(.975);transform-origin:top center;
+  transition:opacity .22s ease,transform .32s cubic-bezier(.2,.85,.25,1),visibility .32s;
+}
+.beo-interval-picker.drop-up .beo-interval-menu{
+  top:auto;bottom:calc(100% + 9px);transform-origin:bottom center;
+  transform:translate3d(0,9px,0) scale(.975);
+}
+.beo-interval-picker.is-open .beo-interval-menu{
+  opacity:1;visibility:visible;pointer-events:auto;
+  transform:translate3d(0,0,0) scale(1);transition:opacity .22s ease,
+    transform .32s cubic-bezier(.2,.85,.25,1),visibility 0s;
+}
+.beo-interval-menu:focus{outline:none}
+.beo-interval-option{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  width:100%;min-height:47px;margin:2px 0;padding:9px 14px;
+  border:1px solid transparent;border-radius:13px;background:transparent;
+  color:#785167;text-align:left;font:600 16px var(--beo-display-font);line-height:1.35;
+  opacity:0;transform:translate3d(0,7px,0);
+  transition:opacity .23s ease,transform .29s cubic-bezier(.2,.85,.25,1),
+    background-color .2s ease,color .2s ease;
+}
+.beo-interval-picker.is-open .beo-interval-option{
+  opacity:1;transform:translate3d(0,0,0);
+  transition-delay:var(--beo-option-delay,0ms);
+}
+.beo-interval-option.is-highlighted:not([aria-selected="true"]){background:#fff0f5;color:#a64c75}
+.beo-interval-option[aria-selected="true"]{
+  background:linear-gradient(100deg,#dc75a0,#bd5381);color:white;
+  border-color:#d86e9b;box-shadow:0 5px 13px #a849772b;
+}
+.beo-option-check{
+  opacity:0;transform:scale(.5) rotate(-20deg);
+  font:700 17px -apple-system,BlinkMacSystemFont,sans-serif;
+  transition:opacity .22s ease,transform .28s cubic-bezier(.2,.85,.25,1);
+}
+.beo-interval-option[aria-selected="true"] .beo-option-check{
+  opacity:1;transform:scale(1) rotate(0deg);
+}
+.beo-interval-picker.is-open .beo-interval-option:active{transform:scale(.98)}
+.beo-interval-option.beo-confirmed{animation:beo-interval-confirm .27s ease-out}
+@keyframes beo-interval-confirm{
+  0%,100%{filter:brightness(1);transform:scale(1)}
+  42%{filter:brightness(1.09);transform:scale(1.025)}
+}
+@media (prefers-reduced-motion:reduce){
+  .beo-interval-trigger,.beo-interval-spark,.beo-interval-chevron,
+  .beo-interval-menu,.beo-interval-option,.beo-option-check{
+    transition:none!important;animation:none!important;
+  }
+}
