@@ -1,53 +1,46 @@
-<p align="center"><img src="./assets/water-reminder-hero.svg" alt="Water — Dành cho Beo" width="100%"></p>
-
-<div align="center">
-
 # Water ♡ — Dành cho Beo
 
-*A little sip, a little love.*
+A private notification app with **one receiver, Beo**, and a separate admin page for the owner.
 
-**A personal, offline-first hydration journal designed for one iPhone 12 Pro Max.**
+- **iPhone app:** a small personal home screen, a Classic Pink drop button, the latest message and one-time notification setup.
+- **Admin:** sign in, edit the recipient name/home text, set a reminder schedule, write a custom notification and send it.
+- **No daily water totals, intake forms, journal or settings tabs in the receiving app.**
 
-[Open the app](https://hungdeniubeo.github.io/water-reminder-ios/) · [Install](#install-on-iphone) · [Enable push reminders](./docs/SETUP_PUSH.md)
+The iPhone app stays at `https://hungdeniubeo.github.io/water-reminder-ios/`. The admin page is `admin.html` on the same site. Access to all admin data and actions is checked by the backend, not by hiding the URL.
 
-</div>
+## Setup and update
 
-## What it does
+Follow [the admin and iPhone setup guide](docs/ADMIN_SETUP.md). **Upgrade the database and deploy the Worker before publishing the new receiving app.** The old server exposes `mode: "single-device"`; the replacement exposes `apiVersion: 2` and `mode: "admin-receiver"`.
 
-- **Today:** Add 150, 250, 500 ml or a custom amount, and review daily progress.
-- **Journal:** Calendar, past-day logs, seven completed-day summaries and local symptom check-ins.
-- **Gentle reminders:** Foreground nudges, or optional lock-screen Web Push after Cloudflare setup.
-- **Just one device:** No couple pairing, no accounts, no sign-in forms, no second phone.
-- **VI / EN:** Language switch remains available.
-- **Private history:** All drink entries and self-reported symptoms remain on the iPhone. Export/restore a local JSON backup.
+Existing `OWNER_SETUP_CODE`, VAPID keys, D1 binding, manifest identity and an existing sole device session are preserved. Beo never needs the admin secret: the owner creates an eight-digit, ten-minute, one-use pairing code. Explicit replacement disconnects the old receiver only after a new iPhone has successfully paired.
 
-The wellness notes are educational and describe logged habits, **not a diagnosis of dehydration**.
+## How notifications work
 
-## Install on iPhone
+The owner sends a message from the admin page, or the server's cron sends the configured reminder. Cloudflare encrypts it with Web Push and delivers it to the phone's push service. The same-origin service worker displays it while the app is closed. There is no foreground timer used as a substitute for push.
 
-Open [the app](https://hungdeniubeo.github.io/water-reminder-ios/) in **Safari**, tap **Share → Add to Home Screen → Add**, then launch Water from its Home Screen icon. This PWA does not require an App Store developer membership.
+The admin distinguishes:
 
-The layout is tailored to the iPhone 12 Pro Max **428 × 926 CSS-pixel portrait viewport**, with native font fallback and safe-area-aware bottom navigation. Browser pinch-zoom/double-tap zoom is suppressed for this dedicated one-device experience; the iPhone's system accessibility Zoom is separate.
+- **Đã chuyển đi:** the push provider accepted the request.
+- **iPhone đã nhận:** the service worker processed the message, completed `showNotification()` and returned a receipt. This does not prove a person read it or that Focus allowed a banner.
+- **Đã mở:** the notification was tapped.
+- **Gửi chưa được / Sẽ thử lại:** a failed attempt, with its reason and retry state.
 
-## Enable real notifications
+Receipts are best-effort: loss of a receipt does not mean the notification was not displayed. Notifications use stable per-message tags so a retry replaces its own message; separate messages do not all replace one shared notification. Manual requests use an idempotency key. Transient failures retry at most three times within 15 minutes. The cron can catch up a reminder missed by up to 14 minutes. Schedules are interpreted in the selected IANA time zone.
 
-The GitHub Pages frontend cannot send scheduled notifications while closed. A separate Cloudflare Worker + D1 backend is included under [`backend/`](./backend). The existing D1 database named `water-couple` can be reused; **do not create another database**.
+## Development
 
-See [setup guide](./docs/SETUP_PUSH.md). Once configured, open **Settings → Reminders for Beo**, enter your private activation code, enable notifications and send a test notification.
-
-## Development and tests
+Requires Node.js 22.18+ (CI uses Node 24).
 
 ```bash
-python3 -m http.server 8000
 npm test
+npm run check
+cd backend
+npm ci
+npx wrangler deploy --dry-run
 ```
 
-The app uses plain HTML/CSS/JavaScript with no frontend build dependency. Node.js 22+ is recommended for the tests and Cloudflare tooling.
+The active entry points are `index.html` / `receiver.js` / `receiver.css` and `admin.html` / `admin.js` / `admin.css`. The supplied Classic Pink design is in `classic-pink-button.css` and `classic-pink-button.js`.
 
-## Privacy
+The active test command covers the new receiver, admin, service worker and backend. Older tracker modules/tests remain as migration reference and are not loaded by the new app; the pre-redesign version is also retained in Git history. Existing local tracker data is not erased by the redesign.
 
-No analytics, no sign-in and no cloud sync of water history or health notes. Cloudflare D1 stores only an opaque device identifier, a hash of its access token, notification schedule, message and Web Push subscription. Read [PRIVACY.md](./PRIVACY.md).
-
-## Notes
-
-This is an original visual design inspired by gentle wellness journaling patterns, not a reproduction of Flo branding or screens. No license has been granted for redistribution.
+The integration suite uses real SQLite semantics and mocked push transport. It covers permissions, migration, pairing races, idempotency, receipt progression, retry recovery and receiver flows. A real iPhone remains necessary to verify actual iOS notification delivery.

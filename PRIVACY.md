@@ -1,23 +1,21 @@
-# Privacy — Water ♡ (Beo Edition)
+# Quyền riêng tư — Water ♡
 
-Last updated: November 19, 2026
+Water là app riêng cho một người nhận (Beo) và một người quản trị. App dùng để nhận lời nhắc/lời nhắn. Phiên bản hiện tại không yêu cầu nhập lượng nước, cân nặng hay nhật ký sức khoẻ.
 
-Water is a one-person, installable hydration journal designed for a single iPhone 12 Pro Max.
+## Trên iPhone
 
-## Data stored on the iPhone
+App lưu mã xác thực thiết bị, một bản tên/lời nhắn gần nhất để xem ngoại tuyến và các tệp giao diện. Quyền thông báo do iPhone quản lý. Dữ liệu theo dõi nước từ phiên bản cũ, nếu còn trên thiết bị, không được đọc hoặc tự xoá bởi giao diện mới.
 
-Water logs, chosen daily goal, check-in notes about symptoms, and local display/language settings are stored in this iPhone's browser storage. They are not sent to Cloudflare. You can export or import a local JSON backup. Deleting the app or clearing website data may delete your local history; keep a backup before doing so.
+## Trên máy chủ
 
-## Optional lock-screen notifications
+Cloudflare lưu cấu hình app, tên người nhận, nội dung/lịch nhắc, đăng ký Web Push của một thiết bị và lịch sử gửi/nhận/mở thông báo. Lịch sử thông báo được dọn sau 30 ngày bởi tác vụ định kỳ. Trạng thái “đã mở” ghi nhận lần chạm thông báo, không suy ra việc đọc hoặc uống nước.
 
-Only after you voluntarily activate Web Push does the Cloudflare Worker store a random device ID, a hash of its access token, subscription endpoint and encryption public keys, the notification message, language, time zone, and reminder schedule. The Worker can then send an encrypted, user-visible push through your browser's push service. It does not need or collect water-log entries, symptom notes, or daily totals.
+Mã admin được đặt trong bí mật máy chủ. Phiên admin lưu dạng băm trên máy chủ, hết hạn sau 12 giờ; trình duyệt admin giữ mã phiên trong sessionStorage. Mã ghép thiết bị chỉ dùng một lần và hết hạn sau 10 phút. Hệ thống giới hạn số lần thử đăng nhập/kết nối bằng dữ liệu tạm thời, gồm băm địa chỉ IP. Mã admin không được gửi cho Beo hoặc nhúng vào mã nguồn công khai.
 
-The private activation code and VAPID private key are stored as Cloudflare Worker Secrets and must never be committed or pasted into chat. Disable notifications from the app to remove its subscription, or disconnect the iPhone to delete its Cloudflare device row. The existing D1 database name is `water-couple` but only one device is supported by this app.
+Thông báo được mã hoá theo Web Push và đi qua dịch vụ thông báo của trình duyệt/hệ điều hành (Apple trên iPhone). Biên nhận gửi về máy chủ dùng mã kiểm chứng riêng cho từng lời nhắn. Kết quả gửi tới dịch vụ không đồng nghĩa người nhận đã đọc.
 
-## Other requests
+## Quyền kiểm soát
 
-GitHub Pages handles standard requests for static application files. There are no analytics or ad integrations. The service worker caches assets for offline use.
+Beo có thể tắt quyền thông báo trong Cài đặt iPhone. Admin quản lý nội dung, tắt lịch nhắc và ghép lại đúng một iPhone. Khi điện thoại mới ghép thành công bằng mã thay thế, thông tin xác thực của điện thoại cũ không còn quyền truy cập.
 
-## Contact
-
-Please use the repository Issues page for feedback: https://github.com/hungdeniubeo/water-reminder-ios/issues
+Không dùng quảng cáo, mã theo dõi hay phân tích người dùng của bên thứ ba.

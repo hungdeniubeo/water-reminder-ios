@@ -1,9 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { REMINDER_MESSAGES, selectReminderMessage } from './reminder-messages.js';
 
-const worker = readFileSync(new URL('./worker.js', import.meta.url), 'utf8');
 const setup = {timezone:'Asia/Ho_Chi_Minh', start_time:'09:00', end_time:'21:00', interval_minutes:120,lang:'vi',note_to_partner:''};
 
 test('24 concise, gentle and unique notifications exist in both languages', () => {
@@ -56,10 +54,4 @@ test('English copy is translated and timezone fallback is safe',()=>{
   assert.ok(REMINDER_MESSAGES.vi.includes(local));
 });
 
-test('Worker sends rotated scheduled notes and respects device custom text',()=>{
-  assert.match(worker,/import \{ selectReminderMessage \} from '\.\/reminder-messages\.js'/);
-  assert.match(worker,/const body = selectReminderMessage\(device, context\)/);
-  assert.match(worker,/notify\(env,device,\{slot\}\)/);
-  assert.match(worker,/notify\(env,device,\{testAt:last\}\)/);
-  assert.match(worker,/const title = 'Water ♡'/);
-});
+// Active admin-controlled delivery is covered by admin-receiver.test.js.

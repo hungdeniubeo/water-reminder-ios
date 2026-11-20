@@ -2,216 +2,65 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#fffaf9">
-  <meta name="description" content="Nhật ký uống nước dịu dàng cho Beo, theo dõi từng ngày và chăm sóc thói quen.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Water ♡">
+  <meta name="description" content="Một lời nhắc uống nước, một chút thương dành riêng cho Beo.">
+  <title>Water ♡ — Dành cho Beo</title>
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" type="image/svg+xml" href="./assets/icon.svg">
-  <!-- Be Vietnam Pro is OFL-licensed; UTM Neutra is used only if already locally available. -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css">
-  <title>Water ♡ — Cho những ngày dịu dàng</title>
-  <script type="module" src="./app.js"></script>
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./assets/icon.svg">
+  <link rel="stylesheet" href="./classic-pink-button.css">
+  <link rel="stylesheet" href="./receiver.css">
+  <script type="module" src="./receiver.js"></script>
 </head>
 <body>
-  <div class="app-shell">
-    <div class="ambient-motion" aria-hidden="true">
-      <span class="ambient-wave"></span>
-    </div>
+  <div class="ambient-wave" aria-hidden="true"></div>
+  <main class="receiver-shell">
     <header class="topbar">
-      <div class="identity" aria-label="Water, nhật ký riêng cho Beo">
-        <span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 5C15 13 10 19 10 25a10 10 0 0 0 20 0c0-6-5-12-10-20Z" fill="currentColor"/><path d="m16 22 4 4 4-4" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <span class="identity-copy"><strong>water<span class="brand-dot">.</span></strong><small data-i18n="brandTagline">Dành cho Beo ♡</small></span>
-      </div>
-      <div class="top-actions">
-        <div class="language-switch" role="group" aria-label="Chọn ngôn ngữ" data-i18n-aria-label="languageLabel">
-          <button type="button" data-lang="vi" class="selected" aria-pressed="true">VI</button>
-          <button type="button" data-lang="en" aria-pressed="false">EN</button>
-        </div>
-      </div>
+      <a class="brand" href="./" aria-label="Water — Trang chủ"><span id="app-title">Water ♡</span></a>
+      <span id="connection-state" class="connection-pill" data-state="loading" role="status"><span class="status-dot" aria-hidden="true"></span><span id="connection-label">Đang kết nối</span></span>
     </header>
-
-    <main>
-      <section id="screen-today" class="screen" aria-labelledby="today-heading">
-        <div class="hero-intro">
-          <div class="eyebrow-row"><span class="eyebrow" id="today-date">HÔM NAY</span><span class="tiny-heart" aria-hidden="true">♡</span></div>
-          <h1 id="today-heading">Beo iu,<br><em>uống nước chưa?</em></h1>
-          <p class="subtitle" data-i18n="v2TodaySubtitle">Thương bản thân từ những điều bé xíu.</p>
-        </div>
-
-        <section class="week-peek" aria-label="Nhật ký 7 ngày gần đây" data-i18n-aria-label="v3WeekNavAria">
-          <div class="week-peek-heading"><span data-i18n="v3WeeklyTiny">BẢY NGÀY CỦA BEO</span><button id="open-journal" type="button" data-i18n="v3SeeJournal">Xem nhật ký ↗</button></div>
-          <div class="week-peek-controls" role="group" data-i18n-aria-label="v3WeekNavAria" aria-label="Chọn khoảng 7 ngày">
-            <button id="week-prev" type="button" aria-label="Xem 7 ngày trước" data-i18n-aria-label="v3WeekPrevious">‹</button>
-            <span id="week-range" aria-live="polite"></span>
-            <button id="week-next" type="button" aria-label="Xem 7 ngày tiếp theo" data-i18n-aria-label="v3WeekNext" disabled>›</button>
-          </div>
-          <div id="home-week-days" class="week-peek-days" aria-live="polite"></div>
-        </section>
-
-        <section class="progress-card" data-i18n-aria-label="progressAria" aria-label="Tiến độ uống nước hôm nay">
-          <div class="card-topline"><span class="micro-label" data-i18n="todayWater">LƯỢNG NƯỚC HÔM NAY</span><span class="rose-tag" id="progress-status-label">BẮT ĐẦU THÔI ♡</span></div>
-          <div class="progress-main">
-            <div class="progress-figure">
-              <div class="count-line"><strong id="today-total">0</strong><span>ml</span></div>
-              <span class="progress-unit" data-i18n="consumedUnit">ml đã uống</span>
-              <div class="progress-divider"></div>
-              <span class="goal-meta" id="today-goal-label">mục tiêu 2.000 ml</span>
-              <span class="goal-remaining" id="progress-remaining">Còn 2.000 ml để đạt mục tiêu</span>
-            </div>
-            <div class="progress-graphic" id="progress-ring" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-i18n-aria-label="progressAria" aria-label="Tiến độ uống nước hôm nay">
-              <svg class="ring-svg" viewBox="0 0 180 180" aria-hidden="true">
-                <circle class="ring-back" cx="90" cy="90" r="72"></circle>
-                <circle class="ring-front" id="ring-front" cx="90" cy="90" r="72" stroke-dasharray="452.39" stroke-dashoffset="452.39"></circle>
-              </svg>
-              <span class="ring-center" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 5C18 15 12 21 12 28a12 12 0 0 0 24 0c0-7-6-13-12-23Z" fill="currentColor"/><path d="m19 27 5 5 5-5" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><small id="progress-percent">0%</small></span>
-            </div>
-          </div>
-          <div class="card-foot"><span class="rose-sparkle" aria-hidden="true">✦</span><span id="progress-message">Bắt đầu một ngày mới nhé, cục zàng ♡</span></div>
-        </section>
-
-        <div class="section-title-row quick-title"><h2 data-i18n="v2QuickTitle">Thêm một ly nước</h2><span data-i18n="v2QuickEyebrow">CHỌN NHANH</span></div>
-        <div class="quick-actions" aria-label="Thêm nước nhanh" data-i18n-aria-label="quickAdd">
-          <button class="quick-add" type="button" data-add="150"><span class="glass-icon" aria-hidden="true">◡</span><strong>150 <small>ml</small></strong><span class="quick-plus">+</span></button>
-          <button class="quick-add" type="button" data-add="250"><span class="glass-icon" aria-hidden="true">◡</span><strong>250 <small>ml</small></strong><span class="quick-plus">+</span></button>
-          <button class="quick-add" type="button" data-add="500"><span class="glass-icon" aria-hidden="true">◡</span><strong>500 <small>ml</small></strong><span class="quick-plus">+</span></button>
-        </div>
-        <button class="custom-add" id="open-log" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="v2CustomAdd">Nhập lượng nước khác</span><span aria-hidden="true">↗</span></button>
-
-        <section class="daily-story" aria-labelledby="daily-story-title">
-          <span class="story-glyph" aria-hidden="true">✦</span>
-          <div class="daily-story-content"><span class="story-eyebrow" data-i18n="v3DailyStoryLabel">MỘT CHÚT ĐỂ Ý</span><h2 id="daily-story-title" data-i18n="v3DailyStoryTitle">Một ngày dễ thương đang bắt đầu.</h2><p id="daily-story-text" data-i18n="v3DailyStoryIntro">Ghi lại từng ly nước để mình nhìn thấy thói quen rõ hơn nhé.</p></div>
-          <button type="button" id="daily-story-link" aria-label="Xem phân tích" data-i18n-aria-label="v3GoInsights" class="story-arrow">↗</button>
-        </section>
-
-        <section class="reminder-peek" aria-label="Lời nhắc tiếp theo">
-          <span class="peek-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
-          <span class="peek-copy"><small data-i18n="v2NextReminder">LỜI NHẮC TIẾP THEO</small><strong id="next-reminder">Chưa bật nhắc nhở</strong></span>
-          <button type="button" class="peek-arrow" data-go="settings" data-i18n-aria-label="v2EditReminder" aria-label="Chỉnh giờ nhắc"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
-        </section>
-
-        <section class="activity-section">
-          <div class="section-title-row"><h2 data-i18n="todaySips">Đã uống hôm nay</h2><span id="today-count">0 LẦN</span></div>
-          <ul id="today-entries" class="entry-list" aria-live="polite"></ul>
-        </section>
-        <div class="bottom-quote"><span aria-hidden="true">♡</span><span data-i18n="v2LoveQuote">Đừng quên chăm sóc mình, nha.</span></div>
-      </section>
-
-      <section id="screen-history" class="screen" aria-labelledby="history-heading" hidden>
-        <div class="hero-intro slim journal-intro">
-          <span class="eyebrow" data-i18n="v3JournalEyebrow">NHẬT KÝ CỦA BEO</span>
-          <h1 id="history-heading" data-i18n-heading="v3JournalTitle">Mỗi ngày một chút,|đủ đầy yêu thương.</h1>
-          <p class="subtitle" data-i18n="v3JournalSubtitle">Chọn một ngày để xem, ghi thêm nước và lắng nghe cơ thể.</p>
-        </div>
-        <section class="white-card calendar-card" aria-labelledby="calendar-title">
-          <div class="calendar-header"><div><span class="story-eyebrow" data-i18n="v3CalendarEyebrow">NHÌN LẠI THÓI QUEN</span><h2 id="calendar-title" data-i18n="v3CalendarTitle">Lịch uống nước</h2></div>
-            <div class="calendar-controls"><button type="button" id="calendar-prev" aria-label="Tháng trước" data-i18n-aria-label="v3PreviousMonth">‹</button><span id="calendar-month"></span><button type="button" id="calendar-next" aria-label="Tháng sau" data-i18n-aria-label="v3NextMonth">›</button></div>
-          </div>
-          <div id="calendar-weekdays" class="calendar-weekdays"></div>
-          <div id="calendar-grid" class="calendar-grid"></div>
-          <div class="calendar-legend"><span><i class="legend-dot has-log"></i><span data-i18n="v3LegendRecorded">Có ghi nhận</span></span><span><i class="legend-dot goal-met"></i><span data-i18n="v3LegendGoal">Đạt mục tiêu</span></span><span data-i18n="v3LegendEmpty">Chấm rỗng = chưa ghi</span></div>
-        </section>
-        <section class="white-card day-journal-card" aria-labelledby="journal-day-title">
-          <div class="day-journal-top"><div><span class="story-eyebrow" data-i18n="v3DaySummaryLabel">NGÀY ĐÃ CHỌN</span><h2 id="journal-day-title"></h2></div><span class="day-total-pill" id="journal-day-total">0 ml</span></div>
-          <p class="day-journal-copy" id="journal-day-message"></p>
-          <form class="journal-add-row" id="journal-add-form"><label class="sr-only" for="journal-amount" data-i18n="v3AddPastLabel">Nhập số ml của ngày này</label><input id="journal-amount" type="number" inputmode="numeric" min="20" max="2000" step="1" value="250" required><button type="submit" class="button button-primary" data-i18n="v3AddOnDate">+ Ghi cho ngày này</button></form>
-          <p class="day-journal-footnote" data-i18n="v3BackfillNote">Ghi bổ sung là ước lượng theo trí nhớ. Không cần cố nhớ chính xác từng ngụm.</p>
-          <div class="journal-presets" role="group" data-i18n-aria-label="v3QuickDayAmounts" aria-label="Lượng nước thường dùng"><button type="button" data-journal-preset="150">150 ml</button><button type="button" data-journal-preset="250" class="selected">250 ml</button><button type="button" data-journal-preset="500">500 ml</button></div>
-          <div id="journal-day-entries" class="journal-day-entries"></div>
-        </section>
-        <section class="insights-block" aria-labelledby="insights-heading">
-          <div class="section-title-row"><h2 id="insights-heading" data-i18n="v3InsightsHeading">Nhìn lại 7 ngày</h2><span data-i18n="v3FullDays">7 NGÀY ĐÃ KẾT THÚC</span></div>
-          <div class="insight-metrics">
-            <article class="insight-metric"><span data-i18n="v3AvgTitle">TRUNG BÌNH KHI CÓ GHI</span><strong id="insight-average">—</strong><small data-i18n="v3AvgUnit">ml / ngày có ghi</small></article>
-            <article class="insight-metric alt"><span data-i18n="v3GoalTitle">NGÀY ĐẠT MỤC TIÊU</span><strong id="insight-goals">—</strong><small id="insight-log-days">0 ngày có ghi</small></article>
-          </div>
-          <div id="insight-pattern" class="pattern-card" role="status"></div>
-          <p class="insights-disclaimer" data-i18n="v3MissingExplanation">Ngày không có nhật ký không được tính là ngày uống ít. Chỉ tính trung bình từ những ngày đã ghi.</p>
-        </section>
-        <section class="white-card chart-card" data-i18n-aria-label="sevenDays" aria-label="Lịch sử 7 ngày"><div class="section-title-row"><h2 data-i18n="sevenDays">7 ngày gần đây</h2><span data-i18n="dailyTotals">TỔNG THEO NGÀY</span></div><div class="week-bars" id="week-bars"></div><div class="history-summary"><span><small data-i18n="averagePerDay">TRUNG BÌNH / NGÀY</small><strong id="week-average">0 ml</strong></span><span><small data-i18n="goalDays">ĐẠT MỤC TIÊU</small><strong id="days-reached">0 ngày</strong></span></div></section>
-        <section class="white-card body-checkin" aria-labelledby="body-check-title">
-          <div class="checkin-title"><span class="settings-icon" aria-hidden="true">♡</span><div><span class="story-eyebrow" data-i18n="v3CheckinEyebrow">KHÔNG BẮT BUỘC</span><h2 id="body-check-title" data-i18n="v3CheckinHeading">Cơ thể Beo thế nào?</h2><p data-i18n="v3CheckinDescription">Chọn những gì bạn thực sự cảm thấy trong ngày đã chọn.</p></div></div>
-          <div class="checkin-section-label" data-i18n="v3SymptomsLabel">DẤU HIỆU NHẬN THẤY</div><div id="body-symptoms" class="checkin-chips"></div>
-          <div class="checkin-section-label" data-i18n="v3ContextLabel">HOẠT ĐỘNG / THỜI TIẾT</div><div id="body-contexts" class="checkin-chips"></div>
-          <div id="body-feedback" class="body-feedback" role="status"></div>
-          <button type="button" id="save-body-checkin" class="button button-outline body-save" data-i18n="v3SaveBodyCheckin">Lưu ghi chú hôm nay</button><p class="checkin-note" data-i18n="v3PrivateSymptoms">Ghi chú cơ thể chỉ lưu trên iPhone này, không gửi lên Cloudflare.</p>
-        </section>
-        <section class="body-guidance" aria-labelledby="body-guidance-heading">
-          <div class="section-title-row"><h2 id="body-guidance-heading" data-i18n="v3GuidanceHeading">Một chút kiến thức</h2><span data-i18n="v3GuidanceTag">THAM KHẢO</span></div>
-          <article class="guidance-feature"><span class="guidance-icon" aria-hidden="true">✿</span><div><span class="story-eyebrow" data-i18n="v3GuidanceQuestion">UỐNG ÍT NƯỚC CÓ SAO KHÔNG?</span><h3 data-i18n="v3RiskTitle">Dấu hiệu thiếu nước có thể gặp</h3><p data-i18n="v3RiskBody">Khát nước, khô miệng, mệt, đau đầu hoặc nước tiểu sẫm màu có thể là dấu hiệu mất nước. Những dấu hiệu này cũng có thể có nguyên nhân khác.</p></div></article>
-          <article class="guidance-row"><span aria-hidden="true">↗</span><div><h3 data-i18n="v3AdviceTitle">Uống đều đặn, không uống bù vội</h3><p data-i18n="v3AdviceBody">Uống khi khát, xen kẽ nước trong ngày và trong bữa ăn. Nhu cầu nước khác nhau theo vận động, nhiệt độ và sức khỏe; thức ăn và đồ uống khác cũng góp phần cung cấp nước.</p></div></article>
-          <article class="guidance-row"><span aria-hidden="true">◌</span><div><h3 data-i18n="v3ORSAdviceTitle">Khi mất nhiều nước</h3><p data-i18n="v3ORSAdviceBody">Nếu nôn ói hoặc tiêu chảy, hỏi dược sĩ về dung dịch bù nước điện giải. Nếu chóng mặt kéo dài, lú lẫn, khó thở hoặc rất ít tiểu, hãy tìm hỗ trợ y tế.</p></div></article>
-          <p class="education-note" data-i18n="v3NotDiagnosis">Water phân tích lượng nước đã GHI, không đo lượng nước trong cơ thể hay chẩn đoán mất nước. Nếu bác sĩ yêu cầu hạn chế dịch, hãy làm theo hướng dẫn riêng.</p>
-          <div class="evidence-links"><a href="https://www.nhs.uk/conditions/dehydration/" target="_blank" rel="noopener noreferrer">NHS ↗</a><a href="https://medlineplus.gov/ency/article/002471.htm" target="_blank" rel="noopener noreferrer">MedlinePlus ↗</a></div>
-        </section>
-        <details class="journal-archive"><summary data-i18n="v3ShowRecentList">Xem danh sách 14 ngày gần đây</summary><div id="history-days" class="history-days"></div></details>
-      </section>
-
-      <section id="screen-settings" class="screen" aria-labelledby="settings-heading" hidden>
-        <div class="hero-intro slim"><span class="eyebrow" data-i18n="settingsEyebrow">CHỈ DÀNH CHO BẠN</span><h1 id="settings-heading" data-i18n-heading="v2SettingsTitle">Những điều nhỏ,<br><em>theo ý mình.</em></h1><p class="subtitle" data-i18n="settingsSubtitle">Điều chỉnh một chút cho vừa với ngày của bạn.</p></div>
-        <form class="white-card form-card" id="goal-form"><div class="settings-heading"><span class="settings-icon">◎</span><span><h2 data-i18n="dailyGoal">Mục tiêu mỗi ngày</h2><p data-i18n="dailyGoalDescription">Chọn lượng nước bạn muốn theo dõi.</p></span></div><label class="field-label" for="goal-input" data-i18n="goalField">Mục tiêu (ml)</label><div class="goal-edit"><input id="goal-input" name="goal" inputmode="numeric" type="number" min="500" max="6000" step="50" required><button type="submit" class="button button-primary" data-i18n="saveGoal">Lưu mục tiêu</button></div><p class="field-note" data-i18n="goalNote">Từ 500 đến 6.000 ml. Đây là mục tiêu cá nhân, không phải tư vấn y tế.</p></form>
-        <form class="white-card form-card" id="reminder-form"><div class="settings-heading"><span class="settings-icon">◷</span><span><h2 data-i18n="reminders">Nhắc uống nước</h2><p data-i18n="v2ReminderDescription">Đặt lịch để không quên một ngụm nào.</p></span></div><label class="switch-row" for="remind-enabled"><span data-i18n="enableReminders">Bật nhắc nhở</span><span class="switch"><input id="remind-enabled" name="enabled" type="checkbox"><span class="switch-track"></span></span></label><div class="reminder-fields"><div><label class="field-label" for="remind-start" data-i18n="from">Từ</label><input id="remind-start" type="time" required></div><div><label class="field-label" for="remind-end" data-i18n="until">Đến</label><input id="remind-end" type="time" required></div></div><span class="field-label" id="beo-interval-label" data-i18n="every">Nhắc sau mỗi</span>
-<div id="beo-interval-picker" class="beo-interval-picker">
-  <select id="remind-interval" aria-labelledby="beo-interval-label"><option value="60" data-i18n="interval60">1 giờ</option><option value="90" data-i18n="interval90">1 giờ 30 phút</option><option value="120" data-i18n="interval120">2 giờ</option><option value="180" data-i18n="interval180">3 giờ</option></select>
-  <button type="button" id="beo-interval-trigger" class="beo-interval-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="beo-interval-menu" aria-labelledby="beo-interval-label beo-interval-value" hidden>
-    <span class="beo-interval-spark" aria-hidden="true">♡</span>
-    <span id="beo-interval-value" class="beo-interval-value">1 giờ</span>
-    <svg class="beo-interval-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-  </button>
-  <div class="beo-interval-menu" id="beo-interval-menu" role="listbox" tabindex="-1" aria-labelledby="beo-interval-label" aria-hidden="true" inert>
-    <button type="button" class="beo-interval-option" role="option" id="beo-interval-opt-60" data-interval="60" aria-selected="false" tabindex="-1" style="--beo-option-delay:0ms"><span class="beo-option-text" data-i18n="interval60">1 giờ</span><span class="beo-option-check" aria-hidden="true">✓</span></button>
-    <button type="button" class="beo-interval-option" role="option" id="beo-interval-opt-90" data-interval="90" aria-selected="false" tabindex="-1" style="--beo-option-delay:37ms"><span class="beo-option-text" data-i18n="interval90">1 giờ 30 phút</span><span class="beo-option-check" aria-hidden="true">✓</span></button>
-    <button type="button" class="beo-interval-option" role="option" id="beo-interval-opt-120" data-interval="120" aria-selected="false" tabindex="-1" style="--beo-option-delay:74ms"><span class="beo-option-text" data-i18n="interval120">2 giờ</span><span class="beo-option-check" aria-hidden="true">✓</span></button>
-    <button type="button" class="beo-interval-option" role="option" id="beo-interval-opt-180" data-interval="180" aria-selected="false" tabindex="-1" style="--beo-option-delay:111ms"><span class="beo-option-text" data-i18n="interval180">3 giờ</span><span class="beo-option-check" aria-hidden="true">✓</span></button>
-  </div>
-</div><p id="reminder-preview" class="reminder-preview"></p><button type="submit" class="button button-outline" data-i18n="saveReminders">Lưu lịch nhắc</button><p id="reminder-mode-note" class="soft-note" data-i18n="v2ReminderFallback">Khi chưa bật thông báo push, app chỉ nhắc khi đang mở.</p></form>
-        <section class="white-card form-card solo-push-card" aria-labelledby="solo-push-title">
-          <div class="settings-heading"><span class="settings-icon" aria-hidden="true">♡</span><span><h2 id="solo-push-title" data-i18n="soloTitle">Thông báo cho Beo</h2><p data-i18n="soloSubtitle">Nhắc uống nước ngay cả khi khóa màn hình.</p></span></div>
-          <p id="solo-status" class="soft-note" role="status">Đang kiểm tra dịch vụ...</p>
-          <p id="solo-setup-help" class="helper" hidden><a class="setup-link" href="https://github.com/hungdeniubeo/water-reminder-ios/blob/main/docs/SETUP_PUSH.md" target="_blank" rel="noopener noreferrer" data-i18n="soloSetupHelp">Xem hướng dẫn bật Cloudflare</a></p>
-          <div id="solo-activation" hidden>
-            <label for="solo-code" class="field-label" data-i18n="soloCodeLabel">Mã kích hoạt riêng</label>
-            <input id="solo-code" type="password" autocomplete="off" minlength="16" placeholder="Nhập mã chỉ mình bạn biết" data-i18n-placeholder="soloCodePlaceholder">
-            <button type="button" class="button button-primary full-button" id="solo-activate" data-i18n="soloActivate">Kích hoạt iPhone này</button>
-          </div>
-          <div id="solo-controls" hidden>
-            <label for="solo-message" class="field-label" data-i18n="soloMessageLabel">Lời nhắc dành cho Beo</label>
-            <textarea id="solo-message" maxlength="150" rows="2" data-i18n-placeholder="soloMessagePlaceholder" placeholder="Beo ơi, uống nước nha ♡"></textarea>
-            <p class="field-note" data-i18n="soloMessageHint">Để trống để mỗi lần nhắc có một lời yêu thương khác nhau ♡. Nhập câu riêng nếu muốn cố định lời nhắn.</p>
-            <button type="button" class="button button-outline full-button" id="solo-save-message" data-i18n="soloSaveMessage">Lưu lời nhắc</button>
-            <button type="button" class="button button-primary full-button solo-main-button" id="enable-push" disabled data-i18n="soloEnablePush">Bật thông báo iPhone</button>
-            <button type="button" class="button button-outline full-button solo-main-button" id="test-push" disabled data-i18n="soloTestPush">Gửi thông báo thử</button>
-            <button type="button" class="text-button" id="disable-push" hidden data-i18n="soloDisablePush">Tắt thông báo</button>
-            <button type="button" class="text-button" id="solo-disconnect" data-i18n="soloDisconnect">Ngắt kích hoạt iPhone</button>
-          </div>
-          <p class="field-note" data-i18n="soloPushHint">Thêm app vào Màn hình chính, bật lịch nhắc và cho phép thông báo để nhận lời nhắc khi màn hình khóa.</p>
-        </section>
-        <section class="white-card form-card"><div class="settings-heading"><span class="settings-icon">⇩</span><span><h2 data-i18n="backupTitle">Giữ lại kỷ niệm nhỏ</h2><p data-i18n="backupDescription">Lưu một bản dữ liệu phòng khi cần.</p></span></div><div class="backup-actions"><button type="button" class="button button-primary" id="export-backup" data-i18n="exportData">Xuất dữ liệu</button><button type="button" class="button button-outline" id="import-backup" data-i18n="restoreFile">Khôi phục</button></div><input id="backup-file" type="file" accept=".json,application/json" hidden aria-label="Chọn tệp sao lưu JSON" data-i18n-aria-label="backupAria">
-          <div class="clear-water-row">
-            <span class="clear-water-copy">
-              <strong data-i18n="clearWaterTitle">Lịch sử uống nước</strong>
-              <small data-i18n="clearWaterDescription">Xoá tất cả những lần uống đã ghi.</small>
-            </span>
-            <button type="button" id="clear-water-all" class="clear-water-button" data-i18n="clearWaterButton" data-i18n-aria-label="clearWaterAria" aria-label="Xoá toàn bộ lịch sử uống nước" disabled>Xoá</button>
-          </div>
-          <p class="field-note" data-i18n="v2PrivacyNote">Nhật ký và ghi chú cơ thể chỉ lưu trên iPhone này, không đồng bộ lên Cloudflare.</p></section>
-        <p class="version" data-i18n="v2Version">WATER ♡ · BEO EDITION</p>
-      </section>
-    </main>
-
-    <nav class="tabbar" aria-label="Điều hướng chính" data-i18n-aria-label="navAria">
-      <button type="button" class="tab active" data-tab="today" aria-current="page"><svg viewBox="0 0 24 24"><path d="M12 3C9 7.6 5 11.4 5 16a7 7 0 0 0 14 0c0-4.6-4-8.4-7-13Z"/></svg><span data-i18n="tabToday">Hôm nay</span></button>
-      <button type="button" class="tab" data-tab="history"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15l4-5 4 2 4-6"/></svg><span data-i18n="tabHistory">Nhật ký</span></button>
-      <button type="button" class="tab" data-tab="settings"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M9 3v8M15 13v8"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg><span data-i18n="tabSettings">Cài đặt</span></button>
-    </nav>
-  </div>
-
-  <dialog id="log-dialog" class="bottom-dialog" aria-labelledby="log-title"><form id="drink-form"><div class="dialog-handle"></div><div class="dialog-top"><span class="eyebrow" data-i18n="dialogEyebrow">NHỚ UỐNG NƯỚC NHÉ ♡</span><button type="button" class="dialog-close" id="close-dialog" data-i18n-aria-label="close" aria-label="Đóng">×</button></div><h2 id="log-title" data-i18n="drinkTitle">Bạn vừa uống bao nhiêu?</h2><p data-i18n="drinkSubtitle">Dù một ngụm nhỏ cũng đáng nhớ.</p><div class="dialog-presets" role="group" aria-label="Chọn lượng nước" data-i18n-aria-label="presetAria"><button type="button" data-preset="150">150 <small>ml</small></button><button type="button" data-preset="250" class="selected">250 <small>ml</small></button><button type="button" data-preset="500">500 <small>ml</small></button></div><label for="amount-input" class="field-label" data-i18n="customAmount">Hoặc nhập số ml</label><input id="amount-input" type="number" inputmode="numeric" required min="20" max="2000" step="1" value="250"><button type="submit" class="button button-primary"><span data-i18n="addToday">Thêm vào hôm nay</span><span aria-hidden="true">↗</span></button></form></dialog>
-  <div id="toast" class="toast" role="status" aria-live="polite" hidden><span id="toast-message"></span><button type="button" id="toast-action" data-i18n="undo" hidden>Hoàn tác</button></div>
+    <section class="home" aria-labelledby="greeting">
+      <div class="home-copy">
+        <p class="eyebrow">DÀNH RIÊNG CHO EM</p>
+        <h1 id="greeting">Beo ơi,</h1>
+        <p class="home-message" id="home-message">Một chút nước, một chút thương.<br>Anh luôn nhớ em ♡</p>
+      </div>
+      <div class="drop-stage">
+        <span class="drop-halo" aria-hidden="true"></span>
+        <button id="letter-button" class="drop-btn big" type="button" aria-label="Mở lời nhắn dành cho em" aria-haspopup="dialog">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z"/><path class="hl" d="M8.5 14.3c-.3 1.9.6 3.5 2 4.3"/></svg>
+        </button>
+      </div>
+      <p class="button-caption">Chạm để mở lời nhắn</p>
+      <p class="quiet-note" id="quiet-note">Một lời nhắc nhỏ, gửi từ anh ♡</p>
+    </section>
+    <section class="setup-card" id="setup-panel" aria-labelledby="setup-title" hidden>
+      <div class="setup-heading"><span class="setup-heart" aria-hidden="true">♡</span><h2 id="setup-title">Kết nối một lần thôi</h2></div>
+      <p id="setup-copy"></p>
+      <form id="pair-form" hidden>
+        <label for="pair-code">Mã anh gửi cho em</label>
+        <div class="pair-fields"><input id="pair-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="19" placeholder="1234 5678" aria-describedby="pair-hint" required><button class="soft-button" id="pair-button" type="submit">Kết nối</button></div>
+        <p id="pair-hint" class="field-hint">Mã gồm 8 chữ số, chỉ dùng một lần.</p>
+      </form>
+      <button id="enable-button" class="primary-button" type="button" hidden>Bật thông báo</button>
+      <button id="refresh-button" class="text-button" type="button" hidden>Kiểm tra lại</button>
+      <p class="action-feedback" id="action-feedback" role="status" aria-live="polite" hidden></p>
+    </section>
+    <footer class="footer"><span aria-hidden="true">♡</span><span>Nhớ chăm sóc mình, em nhé.</span></footer>
+  </main>
+  <dialog class="letter-dialog" id="letter-dialog" aria-labelledby="letter-title" aria-describedby="letter-body">
+    <button class="close-button" id="close-letter" type="button" aria-label="Đóng lời nhắn">×</button>
+    <span class="letter-heart" aria-hidden="true">♡</span>
+    <p class="eyebrow">MỘT CHÚT THƯƠNG TỪ ANH</p>
+    <h2 id="letter-title">Gửi Beo ♡</h2>
+    <p id="letter-body">Một chút nước, một chút thương. Anh luôn nhớ em ♡</p>
+    <p id="letter-time" class="letter-time" hidden></p>
+    <button class="primary-button" id="letter-done" type="button">Đóng lời nhắn ♡</button>
+  </dialog>
+  <noscript><p class="noscript">Em bật JavaScript trong trình duyệt để kết nối nhận lời nhắc nhé.</p></noscript>
 </body>
 </html>
