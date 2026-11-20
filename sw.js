@@ -1,8 +1,8 @@
-const CACHE_NAME = 'water-reminder-static-v21-notification-sound';
+const CACHE_NAME = 'water-reminder-static-v22-notification-sound';
 const APP_ROOT = new URL('./', self.registration.scope);
 const API_URL = 'https://water-beo-push.hungdeniubeo-water.workers.dev';
 const ASSETS = [
-  './', './index.html', './receiver.css', './receiver.js',
+  './', './index.html', './receiver.css?v=20261120-notification', './receiver.js',
   './classic-pink-button.css', './classic-pink-button.js', './push-config.js',
   './manifest.webmanifest', './assets/icon.svg', './assets/icon-maskable.svg'
 ];

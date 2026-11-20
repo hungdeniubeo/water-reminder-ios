@@ -24,7 +24,7 @@ test('receiver and admin have distinct entry points, with all active assets pres
   assert.ok(admin.includes('admin.js'));
   assert.ok(admin.includes('type="password"'));
   for (const source of [home,admin]) {
-    for(const match of source.matchAll(/(?:src|href)="(\.\/[^"?#]+\.(?:js|css|svg|webmanifest))"/g)) {
+    for(const match of source.matchAll(/(?:src|href)="(\.\/[^"?#]+\.(?:js|css|svg|webmanifest))(?:[?#][^"]*)?"/g)) {
       assert.ok((await readFile(new URL('../'+match[1].slice(2),import.meta.url))).length,match[1]);
     }
   }
