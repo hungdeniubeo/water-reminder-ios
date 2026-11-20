@@ -1,5 +1,5 @@
 import { PUSH_API_URL } from './push-config.js';
-import { createAdminFeatures } from './admin-features.js?v=20261120-control-center';
+import { previewScheduleTimes } from './admin-features.js?v=20261120-simple-v1';
 import { HOME_COPIES } from './water-notes.js?v=20261120-home-copy-v1';
 
 const COMPACT_NOTIFICATION = {
@@ -40,7 +40,8 @@ let pendingSend = null;
 let pairingCode = '';
 let pairingExpiry = 0;
 let refreshBusy = false;
-let features = null;
+let copyMode = 'auto';
+let fixedDraft = { title: '', body: '' };
 
 
 function feedback(id, text = '', tone = '') {
@@ -64,7 +65,6 @@ function lockDashboard() {
   pendingSend = null;
   draftLoaded = false;
   settingsDirty = false;
-  features?.reset();
   $('send-form').reset();
   $('settings-form').reset();
 }
@@ -113,7 +113,7 @@ function renderHistory(messages) {
     item.textContent = 'Chưa có thông báo nào.';
     fragment.append(item);
   }
-  for (const message of messages.slice(0, 12)) {
+  for (const message of messages.slice(0, 5)) {
     const item = document.createElement('li'); item.className = 'message-item';
     const row = document.createElement('div'); row.className = 'message-row';
     const title = document.createElement('strong'); title.textContent = message.title;
@@ -170,7 +170,13 @@ function renderState(state) {
     renderPreview();
   }
   renderHistory(state.messages || []);
-  features?.onStateChange(state,settingsDirty);
+  if (!settingsDirty) {
+    copyMode = isAutomaticCopy(settings) ? 'auto' : 'fixed';
+    $('reminder-mode').value = copyMode;
+    $('custom-copy-fields').hidden = copyMode !== 'fixed';
+    if (copyMode === 'fixed') fixedDraft = {title:settings.notificationTitle,body:settings.reminderMessage};
+  }
+  updateSchedulePreview();
   syncSendButton();
 }
 async function refreshState({silent = false} = {}) {
@@ -206,12 +212,55 @@ $('use-send-template')?.addEventListener('click', () => {
   $('send-body').value = draft.body;
   draftChanged();
 });
-$('use-reminder-template')?.addEventListener('click', () => {
-  $('reminder-title').value = COMPACT_NOTIFICATION.title;
-  $('reminder-body').value = COMPACT_NOTIFICATION.body;
+const isAutomaticCopy = settings =>
+  (settings.notificationTitle === 'Water ♡' && [
+    'Beo ơi, nhớ nhấp một chút nước nha em ♡', 'Beo ơi, nhớ uống nước nha em ♡'
+  ].includes(settings.reminderMessage)) ||
+  (settings.notificationTitle === 'Beo ơi 💧' && settings.reminderMessage === 'Đến giờ uống nước rồi nè em.');
+
+function updateSchedulePreview() {
+  const times = previewScheduleTimes($('schedule-start').value, $('schedule-end').value, $('schedule-interval').value);
+  const box = $('schedule-preview');
+  if (!times.length) box.textContent = 'Chọn giờ hợp lệ và nhập từ 5 đến 720 phút.';
+  else {
+    box.textContent = times.length + ' lần/ngày · ' + times.slice(0,4).join(' · ') +
+      (times.length > 4 ? ' …' : '');
+  }
+  box.classList.toggle('warning',times.length>40);
+  if (times.length>40) box.textContent += ' (hơi nhiều thông báo)';
+  for (const button of (document.querySelectorAll?.('[data-interval]') || [])) {
+    button.classList.toggle('selected', Number(button.dataset.interval) === Number($('schedule-interval').value));
+  }
+}
+$('reminder-mode').addEventListener('change', () => {
+  const next = $('reminder-mode').value;
+  if (copyMode === 'fixed') fixedDraft={title:$('reminder-title').value,body:$('reminder-body').value};
+  copyMode = next === 'fixed' ? 'fixed' : 'auto';
+  if (copyMode === 'fixed') {
+    $('reminder-title').value = fixedDraft.title || 'Nhắc Beo uống nước ♡';
+    $('reminder-body').value = fixedDraft.body || 'Nhớ uống nước đầy đủ nha em ♡';
+  }
+  $('custom-copy-fields').hidden = copyMode !== 'fixed';
   settingsDirty = true;
-  feedback('settings-status', 'Đã điền mẫu. Chọn Lưu thay đổi để áp dụng.');
+  feedback('settings-status');
 });
+$('use-home-auto').addEventListener('click', () => {
+  $('home-message').value = 'Nhắc uống nước mỗi ngày.';
+  settingsDirty = true;
+  feedback('settings-status','Đã chọn lời chào tự đổi. Nhấn Lưu lịch nhắc để áp dụng.');
+});
+for (const button of (document.querySelectorAll?.('[data-interval]') || [])) {
+  button.addEventListener('click', () => {
+    $('schedule-interval').value = button.dataset.interval;
+    settingsDirty = true;
+    updateSchedulePreview();
+    feedback('settings-status');
+  });
+}
+for (const id of ['schedule-start','schedule-end','schedule-interval']) {
+  $(id).addEventListener('input',updateSchedulePreview);
+  $(id).addEventListener('change',updateSchedulePreview);
+}
 async function checkService() {
   $('login-button').disabled = true;
   $('login-button').textContent = 'Đang kiểm tra kết nối…';
@@ -290,6 +339,16 @@ $('settings-form').addEventListener('submit', async event => {
   if (!Number.isInteger(data.interval) || data.interval < 5 || data.interval > 720) {
     feedback('settings-status', 'Nhập số phút nguyên từ 5 đến 720.', 'error'); return;
   }
+  if (copyMode === 'auto') {
+    data.notificationTitle = COMPACT_NOTIFICATION.title;
+    data.reminderMessage = COMPACT_NOTIFICATION.body;
+  } else {
+    data.notificationTitle = String(data.notificationTitle || '').trim();
+    data.reminderMessage = String(data.reminderMessage || '').trim();
+    if (!data.notificationTitle || !data.reminderMessage || isAutomaticCopy(data)) {
+      feedback('settings-status','Nhập một lời nhắc riêng khác mẫu tự đổi.','error'); return;
+    }
+  }
   if (data.start >= data.end) { feedback('settings-status', 'Giờ kết thúc cần muộn hơn giờ bắt đầu trong cùng ngày.', 'error'); return; }
   $('save-settings').disabled = true;
   try {
@@ -332,15 +391,7 @@ setInterval(() => {
     $('pair-code').textContent = '···· ····';
   }
 }, 15000);
-features = createAdminFeatures({
-  $, api, getState:()=>current,
-  markDirty:()=>{ settingsDirty = true; feedback('settings-status'); },
-  setSendDraft:({title,body})=>{
-    $('send-title').value = title; $('send-body').value = body;
-    draftChanged();
-  },
-  dateLabel, messageState, refreshState
-});
+updateSchedulePreview();
 renderPreview();
 checkService();
 

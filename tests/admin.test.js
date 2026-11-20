@@ -223,14 +223,14 @@ test('notification templates only edit drafts and preserve pending edits during 
     assert.equal(nodes['send-body'].value, copy.body);
     assert.equal(nodes['preview-title'].textContent, nodes['send-title'].value);
     assert.equal(nodes['preview-body'].textContent, nodes['send-body'].value);
-    await emit('use-reminder-template', 'click');
+    nodes['reminder-mode'].value = 'auto';
+    await emit('reminder-mode', 'change');
     await app.refreshState({ silent: true });
-    assert.equal(nodes['reminder-title'].value, 'Water ♡');
-    assert.equal(nodes['reminder-body'].value, 'Beo ơi, nhớ uống nước nha em ♡');
-    assert.deepEqual(state.settings, savedSettings, 'templates do not silently change saved schedules');
+    assert.equal(nodes['custom-copy-fields'].hidden, true);
+    assert.equal(nodes['reminder-mode'].value, 'auto');
+    assert.deepEqual(state.settings, savedSettings, 'switching mode does not silently change saved schedules');
     assert.equal(calls.some(call => ['/api/admin/send', '/api/admin/settings'].includes(call.path)), false,
-      'choosing a template must not send or save automatically');
-    assert.match(nodes['settings-status'].textContent, /Lưu thay đổi/);
+      'choosing a template or auto mode must not send or save automatically');
   });
 });
 
