@@ -1,5 +1,5 @@
 import { PUSH_API_URL } from './push-config.js';
-import { attachClassicPinkButton } from './classic-pink-button.js?v=20261120-50-notes';
+import { attachClassicPinkButton } from './classic-pink-button.js?v=20261120-50-notes-final';
 import { createWaterNotePicker } from './water-notes.js';
 
 export const SESSION_KEY = 'water-beo-device-session-v1';
