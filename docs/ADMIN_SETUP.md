@@ -1,5 +1,33 @@
 # Admin và app iPhone của Beo
 
+## Nâng cấp trang Admin mới (20/11/2026)
+
+Bản mới hỗ trợ **lịch nhắc cách nhau từ 5 đến 720 phút** (cả các số tùy chọn như 7 hoặc 13 phút), mẫu câu thay đổi tự động hoặc lời nhắn cố định, xem trước thời gian gửi, tìm kiếm/lọc/xuất lịch sử, xem trạng thái iPhone, thay hoặc ngắt thiết bị với xác nhận.
+
+**GitHub Pages và Cloudflare Worker là hai phần độc lập.** Sau khi code Admin được cập nhật trên GitHub, cần deploy Worker để nút lưu lịch 5/10/15 phút, lọc lịch sử và ngắt thiết bị hoạt động. Nếu Worker còn cũ, Admin hiện cảnh báo ở đầu dashboard.
+
+Trong bản sao repository đã clone, đăng nhập tài khoản Cloudflare đang quản lý Worker rồi chạy:
+
+```bash
+git pull --ff-only
+cd backend
+npm ci
+npx wrangler whoami
+npm run deploy
+```
+
+Bản cập nhật này **không thay đổi cấu trúc D1**, không yêu cầu tạo lại cơ sở dữ liệu hoặc thay VAPID, và không buộc ghép lại iPhone hiện có. Nếu lần đầu triển khai hệ thống mới, vẫn thực hiện migration v2 theo hướng dẫn bên dưới.
+
+Kiểm tra endpoint công khai `https://water-beo-push.hungdeniubeo-water.workers.dev/api/config`: cần có `apiVersion: 2`, `ready: true`, `capabilities.customMinutes.min: 5`, `capabilities.customMinutes.max: 720`, `capabilities.history: true` và `capabilities.disconnect: true`.
+
+**Thiết lập lịch:** chọn bật/tắt, nhập giờ bắt đầu/kết thúc và múi giờ, chọn mốc nhanh hoặc điền số phút nguyên bất kỳ từ 5 đến 720. Xem trước số lượt gửi và nhấn **Lưu cài đặt**. Mốc 5 phút trong khung 09:00–21:00 tương đương **145 thông báo/ngày**; màn hình sẽ cảnh báo khi chọn mật độ quá cao. Chỉ có giờ phù hợp khung giờ được gửi, iPhone có thể trì hoãn hoặc ẩn thông báo do mạng và cài đặt hệ thống.
+
+**Lời nhắc:** chọn **Đổi câu tự động** để đổi tiêu đề và nội dung theo mỗi lần gửi, hoặc **Tự viết lời nhắc** để cố định câu chữ. Nút **Dùng nội dung này để gửi thử** chỉ chuyển câu sang khu vực Gửi ngay; vẫn phải bấm **Gửi tới iPhone** để gửi, tránh gửi nhầm.
+
+**Quản lý:** có trang Gửi ngay, Cá nhân hóa (tên, lời chào), Thiết bị (mã ghép, thay iPhone và ngắt kết nối), Lịch sử (tìm kiếm, lọc theo nguồn/trạng thái, phân trang 30 mục và xuất CSV của trang đang xem). Không chia sẻ khóa admin với người nhận.
+
+---
+
 ## Hai trang, hai vai trò
 
 | Trang | Ai dùng | Việc chính |
@@ -57,7 +85,7 @@ Nếu iPhone đã dùng app cũ và còn mã thiết bị hợp lệ, app giữ 
 
 ## Gửi thông báo
 
-Trong **Gửi thông báo**, nhập tiêu đề và nội dung (tối đa 70 và 150 ký tự), xem trước rồi bấm **Gửi thông báo**. Nút **Dùng mẫu gọn** điền tiêu đề “Water ♡” và nội dung “Beo ơi, nhớ uống nước nha em ♡”; có thể sửa trước khi gửi. Nút dùng mẫu chỉ điền nội dung, không tự gửi.
+Trong **Gửi thông báo**, nhập tiêu đề và nội dung (tối đa 70 và 150 ký tự), xem trước rồi bấm **Gửi thông báo**. Nút **Đổi câu mẫu** tạo mẫu lời nhắn mới với tiêu đề “Water ♡” và nội dung “Beo ơi, nhớ uống nước nha em ♡”; có thể sửa trước khi gửi. Nút đổi câu mẫu chỉ điền nội dung, không tự gửi.
 
 Mẫu tương tự có ở phần **Lịch nhắc**. Sau khi chọn mẫu cho lịch, bấm **Lưu thay đổi** để cập nhật nội dung nhắc tự động. Nội dung lịch đã lưu không tự đổi chỉ vì cập nhật giao diện. iOS tự thêm dòng “from Water” vào thông báo PWA; JavaScript không thể ẩn. Web Push không hỗ trợ âm thanh tuỳ chỉnh riêng khi máy khoá. Âm báo hệ thống có thể đổi tại Cài đặt iPhone → Âm thanh & Cảm ứng → Cảnh báo mặc định, nhưng có thể ảnh hưởng các ứng dụng khác.
 
@@ -84,9 +112,9 @@ Sau khi cập nhật giao diện, mở app Water từ màn hình chính khi có 
 
 ## Lịch và giao diện
 
-Admin chọn bật/tắt nhắc tự động, giờ bắt đầu/kết thúc trong cùng ngày, khoảng cách 60/90/120/180 phút và múi giờ. Máy chủ chạy lịch kể cả khi app đóng. Lịch có thể gửi ở giờ kết thúc nếu giờ đó khớp khoảng cách; một lần chạy trễ có thể gửi bù trong 14 phút.
+Admin chọn bật/tắt nhắc tự động, giờ bắt đầu/kết thúc trong cùng ngày, khoảng cách **5–720 phút** (số nguyên tùy ý) và múi giờ. Máy chủ chạy lịch kể cả khi app đóng. Lịch có thể gửi ở giờ kết thúc nếu giờ đó khớp khoảng cách; một lần chạy trễ có thể gửi bù trong 14 phút.
 
-Lời nhắc tự động dùng đúng tiêu đề/nội dung đã lưu trong admin. Tại **Chỉnh tên và trang chủ của Beo**, có thể đổi tên người nhận, tên hiển thị trong app và lời nhắn trang chủ. App lấy thay đổi khi được mở và có mạng. Tên biểu tượng app đã cài và kiểu banner vẫn do iPhone quản lý.
+Lời nhắc tự động có thể dùng mẫu tự đổi sau mỗi lần gửi hoặc một tiêu đề/nội dung cố định do admin nhập. Tại **Chỉnh tên và trang chủ của Beo**, có thể đổi tên người nhận, tên hiển thị trong app và lời nhắn trang chủ. App lấy thay đổi khi được mở và có mạng. Tên biểu tượng app đã cài và kiểu banner vẫn do iPhone quản lý.
 
 ## Nếu chưa thấy thông báo
 
