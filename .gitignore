@@ -9,3 +9,4 @@ backend/.dev.vars
 backend/.wrangler/
 .DS_Store
 *.log
+worker-build/

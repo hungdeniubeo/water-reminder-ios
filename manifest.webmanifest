@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Water ♡ — Dành cho Beo",
   "short_name": "Water ♡",
-  "description": "Nhật ký uống nước, phân tích thói quen và ghi chú riêng cho Beo.",
+  "description": "Một lời nhắc uống nước, một chút thương dành riêng cho Beo.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

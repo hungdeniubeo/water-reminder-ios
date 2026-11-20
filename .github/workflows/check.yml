@@ -12,18 +12,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
       - name: Check JavaScript syntax
-        run: |
-          node --check app.js
-          node --check logic.js
-          node --check i18n.js
-          node --check journal-ui.js
-          node --check hydration-insights.js
-          node --check solo.js
-          node --check sw.js
-          node --check push-config.js
-          node --check backend/worker.js
-          node --check backend/lib.js
+        run: npm run check
       - name: Test browser and backend logic
         run: npm test
