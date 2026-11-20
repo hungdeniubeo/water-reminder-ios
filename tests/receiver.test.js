@@ -224,7 +224,7 @@ test('50 gentle water reminders are unique and cycle without repeats when tappin
   const next = createWaterNotePicker(() => 0.42);
   const firstRound = Array.from({ length: 50 }, next);
   assert.equal(new Set(firstRound).size, 50, 'no duplicate note until all 50 appear');
-  assert.equal(firstRound[0] !== next(), true, 'first note next round must not equal previous');
+  assert.notEqual(firstRound[49], next(), 'first note of a new round must differ from the last note');
   const another = createWaterNotePicker(() => 0.9);
   const rounds = Array.from({ length: 101 }, another);
   assert.ok(rounds.every((message, index) => index === 0 || message !== rounds[index - 1]));
