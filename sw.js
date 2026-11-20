@@ -1,9 +1,9 @@
-const CACHE_NAME = 'water-reminder-static-v24-water-beo-reminder';
+const CACHE_NAME = 'water-reminder-static-v25-rosy-water-splash';
 const APP_ROOT = new URL('./', self.registration.scope);
 const API_URL = 'https://water-beo-push.hungdeniubeo-water.workers.dev';
 const ASSETS = [
-  './', './index.html', './receiver.css?v=20261120-notification', './receiver.js',
-  './classic-pink-button.css', './classic-pink-button.js', './push-config.js',
+  './', './index.html', './receiver.css?v=20261120-rosy-splash', './receiver.js?v=20261120-rosy-splash',
+  './classic-pink-button.css?v=20261120-rosy-splash', './classic-pink-button.js?v=20261120-rosy-splash', './push-config.js',
   './manifest.webmanifest', './assets/icon.svg', './assets/icon-maskable.svg'
 ];
 const assetPaths = new Set(ASSETS.map(path => new URL(path, APP_ROOT).pathname));

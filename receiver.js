@@ -1,5 +1,5 @@
 import { PUSH_API_URL } from './push-config.js';
-import { attachClassicPinkButton } from './classic-pink-button.js';
+import { attachClassicPinkButton } from './classic-pink-button.js?v=20261120-rosy-splash';
 
 export const SESSION_KEY = 'water-beo-device-session-v1';
 const VIEW_KEY = 'water-beo-view-v2';
@@ -155,7 +155,7 @@ export function startReceiver() {
     $('refresh-button').hidden = !['offline', 'denied', 'error', 'server-pending', 'unsupported', 'install'].includes(screen);
     $('refresh-button').disabled = !!state.busy;
     const copy = {
-      offline: ['Không có kết nối mạng', 'Kết nối mạng để nhận thông báo mới. Vẫn có thể xem thông báo đã lưu bằng nút giọt nước.'],
+      offline: ['Không có kết nối mạng', 'Kết nối mạng để cập nhật lời nhắc. Chạm thông báo từ iPhone để xem nội dung.'],
       install: ['Thêm vào màn hình chính', 'Trong Safari, chọn Chia sẻ → Thêm vào MH chính. Sau đó mở app từ biểu tượng mới để bật thông báo.'],
       unsupported: ['Trình duyệt chưa hỗ trợ', 'Trên iPhone, cần iOS 16.4 trở lên. Thêm app vào màn hình chính rồi mở lại từ biểu tượng Water.'],
       'server-pending': ['Hệ thống chưa sẵn sàng', 'Hệ thống thông báo cần được cập nhật. Thử kiểm tra lại sau.'],
@@ -300,7 +300,7 @@ export function startReceiver() {
   });
 
   attachClassicPinkButton($('letter-button'));
-  $('letter-button').addEventListener('click', () => openLetter());
+  // The droplet is a playful animation only. Only an actual iPhone push opens a letter.
   $('close-letter').addEventListener('click', () => $('letter-dialog').close());
   $('letter-done').addEventListener('click', () => $('letter-dialog').close());
   $('letter-dialog').addEventListener('click', event => {

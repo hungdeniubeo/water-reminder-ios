@@ -1,44 +1,65 @@
-/** The user's Classic Pink button, with bounded particles and keyboard support. */
+/** A gentle water-drop interaction: tap to splash, hold to keep splashing. Never sends a push. */
 export function attachClassicPinkButton(button) {
-  const reducedMotion = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  function fire() {
+  const reducedMotion = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches === true;
+  const MAX_PARTICLES = 64;
+  const HOLD_INTERVAL_MS = 130;
+  let holdTimer = null;
+  let pointerTriggered = false;
+
+  const stop = () => {
+    if (holdTimer !== null) clearInterval(holdTimer);
+    holdTimer = null;
+  };
+  const add = node => {
+    node.setAttribute('aria-hidden', 'true');
+    button.append(node);
+    node.addEventListener('animationend', () => node.remove(), { once: true });
+    // Also clean up if the device pauses CSS animations.
+    setTimeout(() => node.remove(), 1100);
+  };
+  function splash() {
     if (button.disabled || reducedMotion()) return;
-    button.querySelectorAll('.ring, .spark').forEach(node => node.remove());
-    const add = (node) => {
-      node.setAttribute('aria-hidden', 'true');
-      button.append(node);
-      node.addEventListener('animationend', () => node.remove(), { once: true });
-      setTimeout(() => node.remove(), 1400);
-    };
-    for (const name of ['r1', 'r2', 'r3']) {
-      const ring = document.createElement('span');
-      ring.className = `ring ${name}`;
-      add(ring);
-    }
+    const existing = button.querySelectorAll('.ring, .spark');
+    const overflow = Math.max(0, existing.length - (MAX_PARTICLES - 7));
+    for (let i = 0; i < overflow; i++) existing[i].remove();
+
+    const ring = document.createElement('span');
+    ring.className = 'ring r1';
+    add(ring);
     button.classList.remove('pop');
     void button.offsetWidth;
     button.classList.add('pop');
-    const radius = button.offsetWidth * .95;
-    for (let i = 0; i < 8; i++) {
-      const angle = (Math.PI * 2 / 8) * i + (Math.random() - .5) * .5;
-      const distance = radius * (.85 + Math.random() * .45);
-      const spark = document.createElement('span');
-      spark.className = `spark${i % 2 ? ' alt' : ''}`;
-      spark.style.setProperty('--dx', `${(Math.cos(angle) * distance).toFixed(1)}px`);
-      spark.style.setProperty('--dy', `${(Math.sin(angle) * distance).toFixed(1)}px`);
-      add(spark);
+
+    const radius = button.offsetWidth * .76;
+    for (let i = 0; i < 6; i++) {
+      const angle = (Math.PI * 2 / 6) * i + (Math.random() - .5) * .35;
+      const distance = radius * (.78 + Math.random() * .38);
+      const drop = document.createElement('span');
+      drop.className = i % 2 ? 'spark alt' : 'spark';
+      drop.style.setProperty('--dx', (Math.cos(angle) * distance).toFixed(1) + 'px');
+      drop.style.setProperty('--dy', (Math.sin(angle) * distance).toFixed(1) + 'px');
+      add(drop);
     }
   }
-  let pointerFired = false;
+
   button.addEventListener('pointerdown', event => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
-    fire();
-    pointerFired = true;
+    if (button.disabled) return;
+    stop();
+    pointerTriggered = true;
+    splash();
+    if (!reducedMotion()) holdTimer = setInterval(splash, HOLD_INTERVAL_MS);
+    try { button.setPointerCapture?.(event.pointerId); } catch { /* Safe without capture. */ }
   });
-  button.addEventListener('pointercancel', () => { pointerFired = false; });
+  button.addEventListener('pointerup', stop);
+  button.addEventListener('pointercancel', stop);
+  button.addEventListener('lostpointercapture', stop);
   button.addEventListener('click', event => {
-    if (!pointerFired || event.detail === 0) fire();
-    pointerFired = false;
+    if (!pointerTriggered || event.detail === 0) splash(); // Keyboard and assistive technology.
+    pointerTriggered = false;
+    stop();
   });
-  return fire;
+  globalThis.addEventListener?.('blur', stop);
+  globalThis.document?.addEventListener?.('visibilitychange', () => { if (document.hidden) stop(); });
+  return splash;
 }

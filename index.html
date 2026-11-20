@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f7f7f5">
+  <meta name="theme-color" content="#fff3f8">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Water">
@@ -12,9 +12,9 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/icon.svg">
-  <link rel="stylesheet" href="./classic-pink-button.css">
-  <link rel="stylesheet" href="./receiver.css?v=20261120-notification">
-  <script type="module" src="./receiver.js"></script>
+  <link rel="stylesheet" href="./classic-pink-button.css?v=20261120-rosy-splash">
+  <link rel="stylesheet" href="./receiver.css?v=20261120-rosy-splash">
+  <script type="module" src="./receiver.js?v=20261120-rosy-splash"></script>
 </head>
 <body>
   <main class="receiver-shell">
@@ -29,11 +29,10 @@
         <p class="home-message" id="home-message">Nhắc uống nước mỗi ngày.</p>
       </div>
       <div class="drop-stage">
-        <button id="letter-button" class="drop-btn big" type="button" aria-label="Xem thông báo" aria-haspopup="dialog">
+        <button id="letter-button" class="drop-btn big" type="button" aria-label="Chạm hoặc giữ để tạo hiệu ứng giọt nước">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z"/><path class="hl" d="M8.5 14.3c-.3 1.9.6 3.5 2 4.3"/></svg>
         </button>
       </div>
-      <p class="button-caption">Xem thông báo</p>
       <p class="quiet-note" id="quiet-note">Bật thông báo để nhận lời nhắc.</p>
     </section>
     <section class="setup-card" id="setup-panel" aria-labelledby="setup-title" hidden>

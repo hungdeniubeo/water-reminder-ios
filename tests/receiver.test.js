@@ -127,6 +127,8 @@ test('real receiver flow clears stale registration, requests permission in the c
     await tickUntil(() => !receiver.state.busy);
     assert.deepEqual(order, ['permission', 'subscribe']);
     assert.equal(nodes['connection-state'].dataset.state, 'ready');
+    nodes['letter-button'].listeners.click[0]({ detail: 0 });
+    assert.equal(nodes['letter-dialog'].open, false, 'tapping the drop must never open a dialog');
     blockMe = true;
     const refresh = receiver.refresh();
     await tickUntil(() => !!finishMe);
@@ -142,6 +144,49 @@ test('real receiver flow clears stale registration, requests permission in the c
     for (const [key, descriptor] of originals) {
       if (descriptor) Object.defineProperty(globalThis, key, descriptor);
       else delete globalThis[key];
+    }
+  }
+});
+
+
+test('holding the water drop repeats tiny splashes but stops immediately on release', async () => {
+  const { attachClassicPinkButton } = await import('../classic-pink-button.js');
+  const previousDocument = Object.getOwnPropertyDescriptor(globalThis, 'document');
+  const previousMatchMedia = Object.getOwnPropertyDescriptor(globalThis, 'matchMedia');
+  const previousAddListener = Object.getOwnPropertyDescriptor(globalThis, 'addEventListener');
+  const particles = [];
+  let appended = 0;
+  const makeParticle = () => ({
+    style: { setProperty() {} },
+    setAttribute() {}, addEventListener() {},
+    remove() { const index = particles.indexOf(this); if (index >= 0) particles.splice(index, 1); }
+  });
+  const button = {
+    disabled: false, offsetWidth: 92, classList: { add() {}, remove() {} },
+    listeners: {}, addEventListener(type, listener) { (this.listeners[type] ||= []).push(listener); },
+    querySelectorAll() { return particles.slice(); },
+    append(node) { appended++; particles.push(node); },
+    setPointerCapture() {}
+  };
+  try {
+    Object.defineProperty(globalThis, 'document', { value: { hidden: false, addEventListener() {}, createElement: makeParticle }, configurable: true });
+    Object.defineProperty(globalThis, 'matchMedia', { value: () => ({ matches: false }), configurable: true });
+    Object.defineProperty(globalThis, 'addEventListener', { value: () => {}, configurable: true });
+    attachClassicPinkButton(button);
+    button.listeners.pointerdown[0]({ pointerType: 'touch', pointerId: 1 });
+    const first = appended;
+    await new Promise(resolve => setTimeout(resolve, 300));
+    assert.ok(appended > first, 'holding should create multiple splash waves');
+    assert.ok(particles.length <= 64, 'particles stay bounded for mobile performance');
+    button.listeners.pointerup[0]();
+    button.listeners.click[0]({ detail: 1 });
+    const stopped = appended;
+    await new Promise(resolve => setTimeout(resolve, 180));
+    assert.equal(appended, stopped, 'no new droplets appear after release');
+  } finally {
+    for (const [name, descriptor] of [['document', previousDocument], ['matchMedia', previousMatchMedia], ['addEventListener', previousAddListener]]) {
+      if (descriptor) Object.defineProperty(globalThis, name, descriptor);
+      else delete globalThis[name];
     }
   }
 });
