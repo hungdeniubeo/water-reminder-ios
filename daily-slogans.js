@@ -10,7 +10,7 @@ export const DAILY_SLOGANS = Object.freeze([
   Object.freeze({ vi: "Anh nhắc Beo nè,|đừng quên nước nhé ♡", en: "Just checking in,|did you drink water?" }),
   Object.freeze({ vi: "Cục zàng ơi,|đến giờ uống nước rồi", en: "Darling Beo,|it's water time ♡" }),
   Object.freeze({ vi: "Beo ơi,|cho mình nghỉ xíu nha", en: "Beo, let's take|a tiny break together" }),
-  Object.freeze({ vi: "Uống nước đi nè,|anh thương Beo ♡", en: "Have some water,|love you, Beo ♡" }),
+  Object.freeze({ vi: "Uống nước chút nha,|anh thương Beo ♡", en: "Have some water,|love you, Beo ♡" }),
   Object.freeze({ vi: "Có ai đó đang|nhắc bé uống nước ♡", en: "Someone is here|to remind you ♡" }),
   Object.freeze({ vi: "Bé yêu của anh,|uống nước chưa nè?", en: "My sweet Beo,|have you had a sip?" }),
   Object.freeze({ vi: "Beo ngoan ơi,|uống thêm chút nhé", en: "One more sip|for my sweetheart" }),
