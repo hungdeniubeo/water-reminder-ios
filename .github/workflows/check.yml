@@ -13,6 +13,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Install backend and Workers runtime dependencies
+        run: npm ci --prefix backend
       - name: Check JavaScript syntax
         run: npm run check
       - name: Test browser and backend logic

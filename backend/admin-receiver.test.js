@@ -268,6 +268,26 @@ test('404/410 clears the expired push subscription and records an actionable fai
   }
 });
 
+test('a redirect is a failed delivery, never accepted or retried, and does not remove the subscription', async t => {
+  const f = await fixture(t);
+  const { admin, device } = await f.connect();
+  let attempts = 0;
+  f.setDeliver(async () => {
+    attempts++;
+    return new Response(null, { status: 302, headers: { Location: 'https://redirect.invalid/' } });
+  });
+  const sent = await f.api('/api/admin/send', { method: 'POST', token: admin, data: sendData() });
+  assert.equal(sent.body.ok, false);
+  assert.equal(sent.body.message.status, 'failed');
+  assert.equal(sent.body.message.acceptedAt, null);
+  assert.equal(sent.body.message.retryAt, null);
+  assert.match(sent.body.message.error, /302/);
+  assert.equal((await f.api('/api/device/me', { token: device })).body.pushEnabled, true);
+  f.clock.ms += 60000;
+  await f.worker.scheduled({ scheduledTime: f.clock.ms }, f.env);
+  assert.equal(attempts, 1);
+});
+
 test('an expired response for an old endpoint cannot clear a newly refreshed subscription', async t => {
   const f = await fixture(t);
   const { admin, device } = await f.connect();
