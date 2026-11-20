@@ -1,8 +1,8 @@
 import { PUSH_API_URL } from './push-config.js';
 
 const COMPACT_NOTIFICATION = {
-  title: 'Đến giờ uống nước',
-  body: 'Nghỉ một chút và uống vài ngụm nước.'
+  title: 'Beo ơi 💧',
+  body: 'Đến giờ uống nước rồi nè em.'
 };
 
 export function messageState(message) {

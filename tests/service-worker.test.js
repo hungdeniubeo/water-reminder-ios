@@ -48,6 +48,9 @@ test('receipt network failure and malformed old payload cannot suppress notifica
   await sw.fire('push',{data:{json:() => ({id,title:'Water ♡',body:'Hello',receiptToken})}});
   await sw.fire('push',{data:{json:() => {throw new Error('Bad JSON');}}});
   assert.equal(sw.calls.filter(call => call[0] === 'show').length,2);
+  assert.equal(sw.calls[1][1],'Beo ơi 💧');
+  assert.equal(sw.calls[1][2].body,'Đến giờ uống nước rồi nè em.');
+  assert.equal(sw.calls[1][2].silent,false);
   assert.equal(sw.calls.filter(call => call[0] === 'fetch').length,1);
   const tags = sw.calls.filter(call => call[0] === 'show').map(call => call[2].tag);
   assert.notEqual(tags[0],tags[1]);
