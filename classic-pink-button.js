@@ -53,10 +53,10 @@ export function attachClassicPinkButton(button, onPress = () => {}) {
     try { button.setPointerCapture?.(event.pointerId); } catch { /* Safe without capture. */ }
   });
   button.addEventListener('pointerup', stop);
-  button.addEventListener('pointercancel', stop);
+  button.addEventListener('pointercancel', () => { stop(); pointerTriggered = false; });
   button.addEventListener('lostpointercapture', stop);
   button.addEventListener('click', event => {
-    if (!pointerTriggered || event.detail === 0) {
+    if (!pointerTriggered) {
       if (!button.disabled) { onPress(); splash(); } // Keyboard and assistive technology.
     }
     pointerTriggered = false;
