@@ -4,9 +4,28 @@
  */
 import { localClock } from './lib.js';
 
+export const REMINDER_TITLES = Object.freeze([
+  'NHẮC BEO UỐNG NƯỚC MỖI NGÀY ♡',
+  'CỤC CƯNG ƠI, EM UỐNG NƯỚC CHƯA?',
+  'BÉ ƠI, TỚI GIỜ UỐNG NƯỚC RỒI ♡',
+  'MỘT CHÚT NƯỚC CHO BEO NÈ',
+  'BEO YÊU, NGHỈ TAY CHÚT NHA ♡',
+  'ANH NHẮC BÉ UỐNG NƯỚC NÈ',
+  'HÔM NAY BEO UỐNG NƯỚC CHƯA?',
+  'UỐNG NƯỚC CÙNG ANH NHA ♡',
+  'THƯƠNG BEO, NHỚ UỐNG NƯỚC',
+  'ĐẾN GIỜ CHĂM BẢN THÂN RỒI ♡',
+  'LẠI LÀ ANH NHẮC BEO NÈ',
+  'MỘT NGỤM NƯỚC CHO CỤC CƯNG ♡'
+]);
+export function selectReminderTitle(slot = '') {
+  let hash = 0;
+  for (const char of String(slot)) hash = ((hash * 31) + char.charCodeAt(0)) >>> 0;
+  return REMINDER_TITLES[hash % REMINDER_TITLES.length];
+}
 export const REMINDER_MESSAGES = Object.freeze({
   vi: Object.freeze([
-    "Beo ơi, nhớ nhấp một chút nước nha em ♡",
+    "Nhớ uống nước đầy đủ nha em ♡",
     "Cục zàng ơi, mình uống nước cùng anh nha ♡",
     "Beo yêu ơi, đến giờ uống chút nước rồi nè ♡",
     "Anh nhắc nhẹ thôi, Beo nhớ uống nước đó nha ♡",

@@ -1,4 +1,5 @@
 import { dueSlot, goodName, goodSchedule, randomSecret, safeCompare, sha256, validPushSubscription } from './lib.js';
+import { selectReminderMessage, selectReminderTitle } from './reminder-messages.js';
 
 export const ORIGIN = 'https://hungdeniubeo.github.io';
 export const ROOM_ID = 'water-beo-single-device';
@@ -381,7 +382,13 @@ export function createWorker({ now = () => Date.now(), sendPush = sendWebPush } 
     if (device?.push_json) {
       const slot = latestDueSlot(settings, device, date);
       if (slot && slot !== device.last_sent_slot) {
-        const message = await createMessage(env, device, { title: settings.notification_title, body: settings.reminder_message,
+        const defaults = settings.notification_title === 'Water ♡' &&
+          ['Beo ơi, nhớ nhấp một chút nước nha em ♡', 'Beo ơi, nhớ uống nước nha em ♡', 'Đến giờ uống nước rồi nè em.'].includes(settings.reminder_message);
+        // Saved personalized copy remains untouched; only shipped defaults rotate.
+        const copy = defaults
+          ? { title: selectReminderTitle(slot), body: selectReminderMessage({ ...device, note_to_partner: '' }, { slot }) }
+          : { title: settings.notification_title, body: settings.reminder_message };
+        const message = await createMessage(env, device, { ...copy,
           source: 'scheduled', dedupeKey: `scheduled:${device.id}:${slot}` }, timestamp);
         await deliver(env, device, message, timestamp);
       }
