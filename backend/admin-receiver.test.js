@@ -467,3 +467,85 @@ test('default scheduled copy rotates with the configured one-hour interval, whil
   assert.equal(f.sent[2].payload.body,customized.reminderMessage);
   assert.equal(f.sent[2].payload.title,customized.notificationTitle);
 });
+
+
+test('admin accepts arbitrary whole-minute reminder intervals from 5 to 720 without resetting existing settings', async t => {
+  const f = await fixture(t);
+  const {admin} = await f.connect();
+  const original = (await f.api('/api/admin/state',{token:admin})).body.settings;
+  for(const interval of [5,7,10,13,15,30,45,90,120,180,720]) {
+    const value = {...original,interval,enabled:true};
+    const result = await f.api('/api/admin/settings',{method:'POST',token:admin,data:value});
+    assert.equal(result.status,200,'interval='+interval);
+    assert.equal(result.body.settings.interval,interval);
+  }
+  for(const interval of [0,1,4,5.5,721,900,-10]) {
+    const value = {...original,interval,enabled:true};
+    const result = await f.api('/api/admin/settings',{method:'POST',token:admin,data:value});
+    assert.equal(result.status,400,'reject invalid interval='+interval);
+  }
+  const current = (await f.api('/api/admin/state',{token:admin})).body.settings;
+  assert.equal(current.interval,720,'invalid input cannot overwrite a saved interval');
+});
+
+test('5-minute scheduled reminders deliver alternating titles and bodies without duplicate cron deliveries', async t => {
+  const f = await fixture(t);
+  const {admin} = await f.connect();
+  const state = (await f.api('/api/admin/state',{token:admin})).body.settings;
+  const update = {...state,enabled:true,start:'09:00',end:'09:20',interval:5};
+  assert.equal((await f.api('/api/admin/settings',{method:'POST',token:admin,data:update})).status,200);
+  for(const minute of [0,5,10,15]) {
+    f.clock.ms=Date.UTC(2026,10,20,2,minute);
+    await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  }
+  assert.equal(f.sent.length,4);
+  for(let i=1;i<f.sent.length;i++) {
+    assert.notEqual(f.sent[i-1].payload.title,f.sent[i].payload.title);
+    assert.notEqual(f.sent[i-1].payload.body,f.sent[i].payload.body);
+  }
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  assert.equal(f.sent.length,4,'same cron minute must not push twice');
+});
+
+test('admin history supports authorized search, pagination and validated filters', async t => {
+  const f = await fixture(t);
+  const {admin} = await f.connect();
+  assert.equal((await f.api('/api/admin/history')).status,401,'history is admin-only');
+  for(let i=0;i<5;i++) {
+    const response=await f.api('/api/admin/send',{method:'POST',token:admin,
+      data:{title:'Lời gửi số '+i,body:'Beo uống nước nhé, số '+i,requestId:crypto.randomUUID()}});
+    assert.equal(response.status,200);
+    f.clock.ms+=7000;
+  }
+  const first=await f.api('/api/admin/history?limit=2&offset=0&source=manual&status=accepted',{token:admin});
+  assert.equal(first.status,200);
+  assert.equal(first.body.total,5);
+  assert.equal(first.body.messages.length,2);
+  const second=await f.api('/api/admin/history?limit=2&offset=2',{token:admin});
+  assert.equal(second.status,200);
+  assert.equal(second.body.messages.length,2);
+  assert.notEqual(first.body.messages[0].id,second.body.messages[0].id);
+  const matched=await f.api('/api/admin/history?q='+encodeURIComponent('số 3'),{token:admin});
+  assert.equal(matched.status,200);
+  assert.equal(matched.body.total,1);
+  assert.equal(matched.body.messages[0].title,'Lời gửi số 3');
+  for(const query of ['limit=101','limit=-1','offset=-5','status=invalid','source=other']) {
+    assert.equal((await f.api('/api/admin/history?'+query,{token:admin})).status,400,query);
+  }
+});
+
+test('only authenticated admin can unlink the sole receiving iPhone with explicit confirmation', async t => {
+  const f = await fixture(t);
+  const {admin,device} = await f.connect();
+  assert.equal((await f.api('/api/admin/device/disconnect',{method:'POST',data:{confirm:true}})).status,401);
+  assert.equal((await f.api('/api/admin/device/disconnect',{method:'POST',token:admin,data:{confirm:false}})).status,400);
+  assert.equal((await f.api('/api/device/me',{token:device})).status,200);
+  const result=await f.api('/api/admin/device/disconnect',{method:'POST',token:admin,data:{confirm:true}});
+  assert.equal(result.status,200);
+  assert.equal(result.body.paired,false);
+  assert.equal((await f.api('/api/device/me',{token:device})).status,401,'old device credential is revoked');
+  const state=(await f.api('/api/admin/state',{token:admin})).body;
+  assert.equal(state.device.paired,false);
+  assert.equal(state.device.pushEnabled,false);
+  assert.equal((await f.api('/api/admin/device/disconnect',{method:'POST',token:admin,data:{confirm:true}})).status,200);
+});
