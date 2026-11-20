@@ -190,3 +190,18 @@ test('holding the water drop repeats tiny splashes but stops immediately on rele
     }
   }
 });
+
+
+test('receiver home keeps the water button as the only decorative interaction and preserves real notification dialog', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const css = await readFile(new URL('../receiver.css', import.meta.url), 'utf8');
+  assert.match(html, /class="water-card"/);
+  assert.match(html, /class="water-surface" aria-hidden="true"/);
+  assert.match(html, /class="floating-drop floating-drop-one" aria-hidden="true"/);
+  assert.match(html, /id="letter-button"[^>]*aria-label="Chạm hoặc giữ/);
+  assert.doesNotMatch(html, /id="letter-button"[^>]*aria-haspopup/);
+  assert.match(html, /id="letter-dialog"/);
+  assert.match(css, /prefers-reduced-motion:reduce/);
+  assert.doesNotMatch(html, /(?:href|src)="\.\/admin\.html"/);
+});
