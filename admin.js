@@ -122,7 +122,7 @@ function syncSendButton() {
   const canSend = !!(token && current?.device?.pushEnabled && current?.service?.ready !== false);
   $('send-button').disabled = !canSend || sendBusy;
   $('send-button').textContent = sendBusy ? 'Đang gửi…' : 'Gửi thông báo ↗';
-  $('use-send-template').disabled = sendBusy;
+  if ($('use-send-template')) $('use-send-template').disabled = sendBusy;
 }
 function fillSettings(settings) {
   const form = $('settings-form');
@@ -182,12 +182,12 @@ function draftChanged() {
   renderPreview();
   feedback('send-status');
 }
-$('use-send-template').addEventListener('click', () => {
+$('use-send-template')?.addEventListener('click', () => {
   $('send-title').value = COMPACT_NOTIFICATION.title;
   $('send-body').value = COMPACT_NOTIFICATION.body;
   draftChanged();
 });
-$('use-reminder-template').addEventListener('click', () => {
+$('use-reminder-template')?.addEventListener('click', () => {
   $('reminder-title').value = COMPACT_NOTIFICATION.title;
   $('reminder-body').value = COMPACT_NOTIFICATION.body;
   settingsDirty = true;
