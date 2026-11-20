@@ -1,4 +1,5 @@
 import { PUSH_API_URL } from './push-config.js';
+import { createAdminFeatures } from './admin-features.js?v=20261120-control-center';
 import { HOME_COPIES } from './water-notes.js?v=20261120-home-copy-v1';
 
 const COMPACT_NOTIFICATION = {
@@ -39,6 +40,7 @@ let pendingSend = null;
 let pairingCode = '';
 let pairingExpiry = 0;
 let refreshBusy = false;
+let features = null;
 
 
 function feedback(id, text = '', tone = '') {
@@ -62,6 +64,7 @@ function lockDashboard() {
   pendingSend = null;
   draftLoaded = false;
   settingsDirty = false;
+  features?.reset();
   $('send-form').reset();
   $('settings-form').reset();
 }
@@ -167,6 +170,7 @@ function renderState(state) {
     renderPreview();
   }
   renderHistory(state.messages || []);
+  features?.onStateChange(state,settingsDirty);
   syncSendButton();
 }
 async function refreshState({silent = false} = {}) {
@@ -282,6 +286,9 @@ $('settings-form').addEventListener('submit', async event => {
   const data = Object.fromEntries(new FormData(form));
   data.enabled = $('schedule-enabled').checked;
   data.interval = Number(data.interval);
+  if (!Number.isInteger(data.interval) || data.interval < 5 || data.interval > 720) {
+    feedback('settings-status', 'Nhập số phút nguyên từ 5 đến 720.', 'error'); return;
+  }
   if (data.start >= data.end) { feedback('settings-status', 'Giờ kết thúc cần muộn hơn giờ bắt đầu trong cùng ngày.', 'error'); return; }
   $('save-settings').disabled = true;
   try {
@@ -324,6 +331,15 @@ setInterval(() => {
     $('pair-code').textContent = '···· ····';
   }
 }, 15000);
+features = createAdminFeatures({
+  $, api, getState:()=>current,
+  markDirty:()=>{ settingsDirty = true; feedback('settings-status'); },
+  setSendDraft:({title,body})=>{
+    $('send-title').value = title; $('send-body').value = body;
+    draftChanged();
+  },
+  dateLabel, messageState, refreshState
+});
 renderPreview();
 checkService();
 
