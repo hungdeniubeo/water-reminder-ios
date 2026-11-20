@@ -29,7 +29,7 @@ function csvCell(value) {
     .replaceAll('"','""').replaceAll(/\r?\n/g,' ') + '"';
 }
 
-export function createAdminFeatures({ $, api, getState, markDirty, setSendDraft, dateLabel, messageState }) {
+export function createAdminFeatures({ $, api, getState, markDirty, setSendDraft, dateLabel, messageState, refreshState }) {
   let mode = 'auto';
   let fixedDraft = {title:'',body:''};
   let hasHistory = false;
@@ -37,6 +37,8 @@ export function createAdminFeatures({ $, api, getState, markDirty, setSendDraft,
   let historyTotal = 0;
   let historyOffset = 0;
   let historyBusy = false;
+  let historyReloadPending = false;
+  let historyUnavailable = false;
   let sequence = 0;
   let historyTimer = null;
   const HISTORY_LIMIT = 30;
@@ -144,8 +146,10 @@ export function createAdminFeatures({ $, api, getState, markDirty, setSendDraft,
   }
 
   async function loadHistory({ reset=false } = {}) {
-    if (!getState() || historyBusy) return;
+    if (!getState()) return;
     if (reset) historyOffset = 0;
+    if (historyBusy) { historyReloadPending = true; return; }
+    historyUnavailable = false;
     const number = ++sequence;
     historyBusy = true;
     historyControls();
@@ -167,13 +171,17 @@ export function createAdminFeatures({ $, api, getState, markDirty, setSendDraft,
       if (!getState() || number !== sequence) return;
       const fallback = getState().messages || [];
       if (!hasHistory) renderHistory(fallback);
+      historyUnavailable = error.status === 404;
       $('history-feedback').textContent = error.status === 404
         ? 'Cần cập nhật máy chủ để lọc và xuất lịch sử chi tiết.'
         : 'Chưa tải được lịch sử chi tiết. Bạn có thể thử lại.';
       $('history-feedback').dataset.tone = 'error';
     } finally {
       historyBusy = false;
-      if (getState() && number === sequence) historyControls();
+      if (getState() && number === sequence) {
+        historyControls();
+        if (historyReloadPending) { historyReloadPending = false; void loadHistory(); }
+      }
     }
   }
 
@@ -186,12 +194,13 @@ export function createAdminFeatures({ $, api, getState, markDirty, setSendDraft,
     }
     renderMetrics(state);
     if (hasHistory) renderHistory(historyItems);
-    if (!hasHistory && !historyBusy) void loadHistory();
+    if (!hasHistory && !historyBusy && !historyUnavailable) void loadHistory();
   }
 
   function reset() {
     hasHistory = false;
     historyItems = []; historyTotal = 0; historyOffset = 0;
+    historyReloadPending = false; historyUnavailable = false;
     sequence++;
     clearTimeout(historyTimer); historyTimer = null;
     $('history-total').textContent = 'Đăng nhập để xem lịch sử.';
@@ -203,7 +212,7 @@ export function createAdminFeatures({ $, api, getState, markDirty, setSendDraft,
 
   $('mode-auto').addEventListener('click',()=>showMode('auto',true));
   $('mode-fixed').addEventListener('click',()=>showMode('fixed',true));
-  $('use-reminder-template').addEventListener('click',()=>showMode('auto',true));
+  $('use-reminder-template').addEventListener('click',()=>showMode('auto'));
   $('use-home-auto').addEventListener('click',()=>{
     $('home-message').value = 'Nhắc uống nước mỗi ngày.';
     markDirty();
@@ -241,9 +250,8 @@ export function createAdminFeatures({ $, api, getState, markDirty, setSendDraft,
       $('pair-result').hidden = true;
       $('device-feedback').textContent = 'Đã ngắt kết nối. Bạn có thể tạo mã mới để ghép lại.';
       $('device-feedback').dataset.tone = 'success';
-      // Update the display from server truth, not from an optimistic local assumption.
-      await api('/api/admin/state').then(result => onStateChange(result,false));
-      $('device-status').textContent = 'Chưa có iPhone kết nối.';
+      // Update through the authenticated state flow, which also refreshes other controls.
+      await refreshState({silent:true});
     } catch (error) {
       $('device-feedback').textContent = error.message || 'Chưa thể ngắt thiết bị. Thử lại nhé.';
       $('device-feedback').dataset.tone = 'error';
