@@ -57,9 +57,9 @@ Nếu iPhone đã dùng app cũ và còn mã thiết bị hợp lệ, app giữ 
 
 ## Gửi thông báo
 
-Trong **Gửi thông báo**, nhập tiêu đề và nội dung (tối đa 70 và 150 ký tự), xem trước rồi bấm **Gửi thông báo**. Nút **Dùng mẫu gọn** điền tiêu đề “Đến giờ uống nước” và nội dung “Nghỉ một chút và uống vài ngụm nước.”; có thể sửa trước khi gửi. Nút dùng mẫu chỉ điền nội dung, không tự gửi.
+Trong **Gửi thông báo**, nhập tiêu đề và nội dung (tối đa 70 và 150 ký tự), xem trước rồi bấm **Gửi thông báo**. Nút **Dùng mẫu gọn** điền tiêu đề “Water ♡” và nội dung “Beo ơi, nhớ uống nước nha em ♡”; có thể sửa trước khi gửi. Nút dùng mẫu chỉ điền nội dung, không tự gửi.
 
-Mẫu tương tự có ở phần **Lịch nhắc**. Sau khi chọn mẫu cho lịch, bấm **Lưu thay đổi** để cập nhật nội dung nhắc tự động. Nội dung lịch đã lưu không tự đổi chỉ vì cập nhật giao diện.
+Mẫu tương tự có ở phần **Lịch nhắc**. Sau khi chọn mẫu cho lịch, bấm **Lưu thay đổi** để cập nhật nội dung nhắc tự động. Nội dung lịch đã lưu không tự đổi chỉ vì cập nhật giao diện. iOS tự thêm dòng “from Water” vào thông báo PWA; JavaScript không thể ẩn. Web Push không hỗ trợ âm thanh tuỳ chỉnh riêng khi máy khoá. Âm báo hệ thống có thể đổi tại Cài đặt iPhone → Âm thanh & Cảm ứng → Cảnh báo mặc định, nhưng có thể ảnh hưởng các ứng dụng khác.
 
 Trạng thái trong mục **Lịch sử gửi**:
 

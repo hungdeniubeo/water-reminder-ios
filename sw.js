@@ -1,4 +1,4 @@
-const CACHE_NAME = 'water-reminder-static-v23-beo-short-reminder';
+const CACHE_NAME = 'water-reminder-static-v24-water-beo-reminder';
 const APP_ROOT = new URL('./', self.registration.scope);
 const API_URL = 'https://water-beo-push.hungdeniubeo-water.workers.dev';
 const ASSETS = [
@@ -70,8 +70,8 @@ self.addEventListener('push', event => {
   event.waitUntil((async () => {
     let payload = {};
     try { payload = event.data?.json() || {}; } catch {}
-    const title = typeof payload.title === 'string' && payload.title.trim() ? payload.title.slice(0,70) : 'Beo ơi 💧';
-    const body = typeof payload.body === 'string' && payload.body.trim() ? payload.body.slice(0,150) : 'Đến giờ uống nước rồi nè em.';
+    const title = typeof payload.title === 'string' && payload.title.trim() ? payload.title.slice(0,70) : 'Water ♡';
+    const body = typeof payload.body === 'string' && payload.body.trim() ? payload.body.slice(0,150) : 'Beo ơi, nhớ uống nước nha em ♡';
     const id = validMessageId(payload.id) ? payload.id : null;
     const data = {id, receiptToken:payload.receiptToken};
     // iOS requires visible notifications; network work happens only after this.

@@ -217,14 +217,14 @@ test('notification templates only edit drafts and preserve pending edits during 
     await login();
     const savedSettings = structuredClone(state.settings);
     await emit('use-send-template', 'click');
-    assert.equal(nodes['send-title'].value, 'Beo ơi 💧');
-    assert.equal(nodes['send-body'].value, 'Đến giờ uống nước rồi nè em.');
+    assert.equal(nodes['send-title'].value, 'Water ♡');
+    assert.equal(nodes['send-body'].value, 'Beo ơi, nhớ uống nước nha em ♡');
     assert.equal(nodes['preview-title'].textContent, nodes['send-title'].value);
     assert.equal(nodes['preview-body'].textContent, nodes['send-body'].value);
     await emit('use-reminder-template', 'click');
     await app.refreshState({ silent: true });
-    assert.equal(nodes['reminder-title'].value, 'Beo ơi 💧');
-    assert.equal(nodes['reminder-body'].value, 'Đến giờ uống nước rồi nè em.');
+    assert.equal(nodes['reminder-title'].value, 'Water ♡');
+    assert.equal(nodes['reminder-body'].value, 'Beo ơi, nhớ uống nước nha em ♡');
     assert.deepEqual(state.settings, savedSettings, 'templates do not silently change saved schedules');
     assert.equal(calls.some(call => ['/api/admin/send', '/api/admin/settings'].includes(call.path)), false,
       'choosing a template must not send or save automatically');
@@ -239,8 +239,8 @@ test('only the exact shipped notification pair is refreshed in the initial send 
       state.settings.reminderMessage = body;
       await login();
       const builtIn = body === 'Beo ơi, nhớ nhấp một chút nước nha em ♡';
-      assert.equal(nodes['send-title'].value, builtIn ? 'Beo ơi 💧' : 'Water ♡');
-      assert.equal(nodes['send-body'].value, builtIn ? 'Đến giờ uống nước rồi nè em.' : body);
+      assert.equal(nodes['send-title'].value, builtIn ? 'Water ♡' : 'Water ♡');
+      assert.equal(nodes['send-body'].value, builtIn ? 'Beo ơi, nhớ uống nước nha em ♡' : body);
       assert.equal(nodes['reminder-title'].value, 'Water ♡', 'stored schedule stays visible as saved');
       assert.equal(nodes['reminder-body'].value, body);
     });

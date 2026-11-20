@@ -1,8 +1,8 @@
 import { PUSH_API_URL } from './push-config.js';
 
 const COMPACT_NOTIFICATION = {
-  title: 'Beo ơi 💧',
-  body: 'Đến giờ uống nước rồi nè em.'
+  title: 'Water ♡',
+  body: 'Beo ơi, nhớ uống nước nha em ♡'
 };
 
 export function messageState(message) {
@@ -146,7 +146,8 @@ function renderState(state) {
   $('pair-button').textContent = device.paired ? 'Kết nối iPhone khác' : 'Tạo mã kết nối';
   if (!settingsDirty) fillSettings(settings);
   if (!draftLoaded) {
-    const isShippedDefault = settings.notificationTitle === 'Water ♡' && settings.reminderMessage === 'Beo ơi, nhớ nhấp một chút nước nha em ♡';
+    const isShippedDefault = (settings.notificationTitle === 'Water ♡' && settings.reminderMessage === 'Beo ơi, nhớ nhấp một chút nước nha em ♡') ||
+      (settings.notificationTitle === 'Beo ơi 💧' && settings.reminderMessage === 'Đến giờ uống nước rồi nè em.');
     $('send-title').value = isShippedDefault ? COMPACT_NOTIFICATION.title : settings.notificationTitle;
     $('send-body').value = isShippedDefault ? COMPACT_NOTIFICATION.body : settings.reminderMessage;
     draftLoaded = true;
