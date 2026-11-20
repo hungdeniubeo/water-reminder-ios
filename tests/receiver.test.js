@@ -127,7 +127,17 @@ test('real receiver flow clears stale registration, requests permission in the c
     await tickUntil(() => !receiver.state.busy);
     assert.deepEqual(order, ['permission', 'subscribe']);
     assert.equal(nodes['connection-state'].dataset.state, 'ready');
+    const firstNote = nodes['quiet-note'].textContent;
+    assert.ok(firstNote.length > 6);
     nodes['letter-button'].listeners.click[0]({ detail: 0 });
+    assert.notEqual(nodes['quiet-note'].textContent, firstNote, 'keyboard activation changes the note');
+    const secondNote = nodes['quiet-note'].textContent;
+    nodes['letter-button'].listeners.pointerdown[0]({ pointerType: 'touch', pointerId: 1 });
+    assert.notEqual(nodes['quiet-note'].textContent, secondNote, 'touch changes note immediately');
+    const thirdNote = nodes['quiet-note'].textContent;
+    nodes['letter-button'].listeners.pointerup[0]();
+    nodes['letter-button'].listeners.click[0]({ detail: 1 });
+    assert.equal(nodes['quiet-note'].textContent, thirdNote, 'a touch plus click must change only once');
     assert.equal(nodes['letter-dialog'].open, false, 'tapping the drop must never open a dialog');
     blockMe = true;
     const refresh = receiver.refresh();
@@ -204,4 +214,50 @@ test('receiver home keeps the water button as the only decorative interaction an
   assert.match(html, /id="letter-dialog"/);
   assert.match(css, /prefers-reduced-motion:reduce/);
   assert.doesNotMatch(html, /(?:href|src)="\.\/admin\.html"/);
+});
+
+test('50 gentle water reminders are unique and cycle without repeats when tapping rapidly', async () => {
+  const { WATER_NOTES, createWaterNotePicker } = await import('../water-notes.js');
+  assert.equal(WATER_NOTES.length, 50);
+  assert.equal(new Set(WATER_NOTES).size, 50);
+  assert.ok(WATER_NOTES.every(note => note.length > 8 && note.length < 100 && !note.includes('\n')));
+  const next = createWaterNotePicker(() => 0.42);
+  const firstRound = Array.from({ length: 50 }, next);
+  assert.equal(new Set(firstRound).size, 50, 'no duplicate note until all 50 appear');
+  assert.equal(firstRound[0] !== next(), true, 'first note next round must not equal previous');
+  const another = createWaterNotePicker(() => 0.9);
+  const rounds = Array.from({ length: 101 }, another);
+  assert.ok(rounds.every((message, index) => index === 0 || message !== rounds[index - 1]));
+});
+
+test('touching the drop invokes note change once, holding does not flood the text', async () => {
+  const { attachClassicPinkButton } = await import('../classic-pink-button.js');
+  const button = { disabled: false, listeners: {},
+    addEventListener(type, listener) { (this.listeners[type] ||= []).push(listener); },
+    setPointerCapture() {}
+  };
+  const oldMatch = Object.getOwnPropertyDescriptor(globalThis, 'matchMedia');
+  const oldWindowListener = Object.getOwnPropertyDescriptor(globalThis, 'addEventListener');
+  const oldDocument = Object.getOwnPropertyDescriptor(globalThis, 'document');
+  try {
+    Object.defineProperty(globalThis, 'matchMedia', { configurable: true, value: () => ({matches: true}) });
+    Object.defineProperty(globalThis, 'addEventListener', { configurable: true, value: () => {} });
+    Object.defineProperty(globalThis, 'document', { configurable: true, value: {hidden: false, addEventListener() {}} });
+    let count = 0;
+    attachClassicPinkButton(button, () => count++);
+    button.listeners.pointerdown[0]({pointerType:'touch',pointerId:1});
+    assert.equal(count,1,'touch starts one note');
+    button.listeners.pointerup[0]();
+    button.listeners.click[0]({detail:1});
+    assert.equal(count,1,'touch-generated click should not double-fire');
+    button.listeners.click[0]({detail:0});
+    assert.equal(count,2,'keyboard click changes the note');
+    button.listeners.pointerdown[0]({pointerType:'touch',pointerId:2});
+    assert.equal(count,3,'another touch changes again');
+  } finally {
+    for (const [key, descriptor] of [['matchMedia',oldMatch],['addEventListener',oldWindowListener],['document',oldDocument]]) {
+      if (descriptor) Object.defineProperty(globalThis,key,descriptor);
+      else delete globalThis[key];
+    }
+  }
 });

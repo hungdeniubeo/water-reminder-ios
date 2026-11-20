@@ -173,7 +173,8 @@ h1, h2, p { margin: 0; }
 .floating-drop-three {width:6px;height:6px;bottom:38px;left:45px;animation-delay:-3.2s;}
 .quiet-note {
   position:relative;z-index:2;margin-top:0;max-width:310px;
-  color:#967888;font-size:11.5px;font-weight:500;line-height:1.8;letter-spacing:-.1px;text-wrap:balance;
+  min-height:43px;display:flex;align-items:center;justify-content:center;
+  color:#967888;font-size:12px;font-weight:500;line-height:1.65;letter-spacing:-.1px;text-wrap:balance;
 }
 .card-footmark {
   display:flex;gap:5px;align-items:center;justify-content:center;margin-top:22px;

@@ -1,5 +1,6 @@
 import { PUSH_API_URL } from './push-config.js';
-import { attachClassicPinkButton } from './classic-pink-button.js?v=20261120-rosy-splash';
+import { attachClassicPinkButton } from './classic-pink-button.js?v=20261120-50-notes';
+import { createWaterNotePicker } from './water-notes.js';
 
 export const SESSION_KEY = 'water-beo-device-session-v1';
 const VIEW_KEY = 'water-beo-view-v2';
@@ -79,6 +80,8 @@ export function createReceiverClient({ baseUrl = PUSH_API_URL, fetchImpl = globa
 export function startReceiver() {
   const $ = id => document.getElementById(id);
   const client = createReceiverClient();
+  const pickWaterNote = createWaterNotePicker();
+  let currentWaterNote = pickWaterNote();
   const permission = () => typeof Notification === 'undefined' ? 'unavailable' : Notification.permission;
   const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -141,7 +144,7 @@ export function startReceiver() {
     $('connection-label').textContent = labels[screen];
     $('connection-state').dataset.state = screen;
     $('quiet-note').textContent = screen === 'ready'
-      ? 'Vẫn nhận thông báo khi đóng app.' : 'Bật thông báo để nhận lời nhắc.';
+      ? currentWaterNote : 'Bật thông báo để nhận lời nhắc.';
     const showSetup = !['ready', 'loading'].includes(screen);
     $('setup-panel').hidden = !showSetup;
     document.body.dataset.setup = String(showSetup);
@@ -299,8 +302,18 @@ export function startReceiver() {
     });
   });
 
-  attachClassicPinkButton($('letter-button'));
-  // The droplet is a playful animation only. Only an actual iPhone push opens a letter.
+  attachClassicPinkButton($('letter-button'), () => {
+    if (currentScreen() !== 'ready') return;
+    currentWaterNote = pickWaterNote();
+    const note = $('quiet-note');
+    note.textContent = currentWaterNote;
+    // A tiny text transition, independent of the splash animation.
+    if (typeof note.animate === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      note.animate([{opacity: .55, transform: 'translateY(3px)'}, {opacity: 1, transform: 'translateY(0)'}],
+        {duration: 190, easing: 'ease-out'});
+    }
+  });
+  // The droplet changes only this local line, never sends a push or opens a popup.
   $('close-letter').addEventListener('click', () => $('letter-dialog').close());
   $('letter-done').addEventListener('click', () => $('letter-dialog').close());
   $('letter-dialog').addEventListener('click', event => {

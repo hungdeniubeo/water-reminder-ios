@@ -1,5 +1,5 @@
 /** A gentle water-drop interaction: tap to splash, hold to keep splashing. Never sends a push. */
-export function attachClassicPinkButton(button) {
+export function attachClassicPinkButton(button, onPress = () => {}) {
   const reducedMotion = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches === true;
   const MAX_PARTICLES = 64;
   const HOLD_INTERVAL_MS = 130;
@@ -47,6 +47,7 @@ export function attachClassicPinkButton(button) {
     if (button.disabled) return;
     stop();
     pointerTriggered = true;
+    onPress();
     splash();
     if (!reducedMotion()) holdTimer = setInterval(splash, HOLD_INTERVAL_MS);
     try { button.setPointerCapture?.(event.pointerId); } catch { /* Safe without capture. */ }
@@ -55,7 +56,9 @@ export function attachClassicPinkButton(button) {
   button.addEventListener('pointercancel', stop);
   button.addEventListener('lostpointercapture', stop);
   button.addEventListener('click', event => {
-    if (!pointerTriggered || event.detail === 0) splash(); // Keyboard and assistive technology.
+    if (!pointerTriggered || event.detail === 0) {
+      if (!button.disabled) { onPress(); splash(); } // Keyboard and assistive technology.
+    }
     pointerTriggered = false;
     stop();
   });
