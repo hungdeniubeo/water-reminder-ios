@@ -78,8 +78,8 @@ test('worker caches only receiver assets and leaves admin and API data outside i
   await sw.fire('install');
   await sw.fire('activate');
   const assets=sw.calls.find(call => call[0] === 'assets')[1];
-  assert.ok(assets.includes('./receiver.js'));
-  assert.ok(assets.includes('./classic-pink-button.css'));
+  assert.ok(assets.some(path => path.startsWith('./receiver.js?v=')));
+  assert.ok(assets.some(path => path.startsWith('./classic-pink-button.css?v=')));
   assert.equal(assets.some(path => /admin|app\.js|logic\.js/.test(path)),false);
   for (const url of [scope+'admin.html',scope+'admin.js',PUSH_API_URL+'/api/admin/state']) {
     sw.handlers.get('fetch')({request:new Request(url),respondWith:() => assert.fail('Private admin data must never be cached')});
