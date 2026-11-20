@@ -18,10 +18,13 @@ export const REMINDER_TITLES = Object.freeze([
   'LẠI LÀ ANH NHẮC BEO NÈ',
   'MỘT NGỤM NƯỚC CHO CỤC CƯNG ♡'
 ]);
-export function selectReminderTitle(slot = '') {
-  let hash = 0;
-  for (const char of String(slot)) hash = ((hash * 31) + char.charCodeAt(0)) >>> 0;
-  return REMINDER_TITLES[hash % REMINDER_TITLES.length];
+export function selectReminderTitle(slot = '', interval = 120) {
+  const match = /^(\d{4}-\d{2}-\d{2}):(\d+)$/.exec(String(slot));
+  if (!match) return REMINDER_TITLES[0];
+  const day = Math.floor(Date.parse(match[1] + 'T00:00:00Z') / 86400000);
+  const frequency = Number.isInteger(Number(interval)) && Number(interval) >= 5 ? Number(interval) : 120;
+  const sequence = day * 7 + Math.floor(Number(match[2]) / frequency);
+  return REMINDER_TITLES[((sequence % REMINDER_TITLES.length) + REMINDER_TITLES.length) % REMINDER_TITLES.length];
 }
 export const REMINDER_MESSAGES = Object.freeze({
   vi: Object.freeze([
@@ -99,7 +102,7 @@ export function selectReminderMessage(device, { slot = '', testAt = null, now = 
       : localClock(now, device?.timezone || 'Asia/Ho_Chi_Minh');
     const start = asMinutes(device?.start_time) ?? 540;
     const end = asMinutes(device?.end_time) ?? 1260;
-    const interval = [60, 90, 120, 180].includes(Number(device?.interval_minutes))
+    const interval = Number.isInteger(Number(device?.interval_minutes)) && Number(device?.interval_minutes) >= 5 && Number(device?.interval_minutes) <= 720
       ? Number(device.interval_minutes) : 120;
     const slotsPerDay = Math.max(1, Math.floor((end - start) / interval) + 1);
     const slotIndex = Math.max(0, Math.min(slotsPerDay - 1, Math.floor((local.minutes - start) / interval)));

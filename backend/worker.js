@@ -279,6 +279,43 @@ export function createWorker({ now = () => Date.now(), sendPush = sendWebPush } 
             lastSeenAt: device?.last_seen_at || null },
           service: { ready: configured(env) }, messages: messages.results.map(exposeMessage) });
       }
+      if (path === '/api/admin/history' && method === 'GET') {
+        const params = new URL(request.url).searchParams;
+        const limit = Number(params.get('limit') ?? 30);
+        const offset = Number(params.get('offset') ?? 0);
+        const source = params.get('source') || 'all';
+        const status = params.get('status') || 'all';
+        const search = (params.get('q') || '').trim();
+        if (!Number.isInteger(limit) || limit < 1 || limit > 100 ||
+            !Number.isInteger(offset) || offset < 0 || offset > 10000 ||
+            !['all','manual','scheduled'].includes(source) ||
+            !['all','pending','sending','accepted','received','opened','failed'].includes(status) ||
+            search.length > 80) fail(400, 'Bộ lọc lịch sử không hợp lệ.');
+        const filters = [];
+        const args = [];
+        if (source !== 'all') { filters.push('source=?'); args.push(source); }
+        if (status !== 'all') { filters.push('status=?'); args.push(status); }
+        if (search) { filters.push('(title LIKE ? OR body LIKE ?)'); args.push('%'+search+'%', '%'+search+'%'); }
+        const where = filters.length ? ' WHERE '+filters.join(' AND ') : '';
+        const count = await env.DB.prepare('SELECT COUNT(*) AS n FROM beo_messages'+where).bind(...args).first();
+        const rows = await env.DB.prepare('SELECT * FROM beo_messages'+where+
+          ' ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?').bind(...args,limit,offset).all();
+        return json({ messages: rows.results.map(exposeMessage), total: count.n, offset, limit });
+      }
+      if (path === '/api/admin/device/disconnect' && method === 'POST') {
+        const data = await readJson(request);
+        if (data.confirm !== true) fail(400, 'Cần xác nhận ngắt kết nối iPhone.');
+        const device = await getReceiver(env);
+        if (!device) return json({ok:true,paired:false});
+        await env.DB.batch([
+          env.DB.prepare('UPDATE beo_receiver SET device_id=NULL,last_seen_at=0 WHERE id=1 AND device_id=?').bind(device.id),
+          env.DB.prepare('UPDATE devices SET push_json=NULL,push_endpoint=NULL WHERE id=?').bind(device.id),
+          env.DB.prepare('UPDATE beo_pairing SET expires_at=0 WHERE id=1 AND consumed_at IS NULL'),
+          env.DB.prepare(`UPDATE beo_messages SET status='failed',next_attempt_at=0,lease_until=0,
+            error='iPhone đã được ngắt kết nối.' WHERE device_id=? AND source='scheduled' AND status IN ('pending','sending')`).bind(device.id)
+        ]);
+        return json({ok:true,paired:false});
+      }
       if (path === '/api/admin/settings' && method === 'POST') {
         const data = await readJson(request);
         validateSettings(data);
@@ -387,7 +424,7 @@ export function createWorker({ now = () => Date.now(), sendPush = sendWebPush } 
           (settings.notification_title === 'Beo ơi 💧' && settings.reminder_message === 'Đến giờ uống nước rồi nè em.');
         // Saved personalized copy remains untouched; only shipped defaults rotate.
         const copy = defaults
-          ? { title: selectReminderTitle(slot), body: selectReminderMessage({ ...device, timezone: settings.timezone, start_time: settings.start_time, end_time: settings.end_time, interval_minutes: settings.interval_minutes, note_to_partner: '' }, { slot }) }
+          ? { title: selectReminderTitle(slot, settings.interval_minutes), body: selectReminderMessage({ ...device, timezone: settings.timezone, start_time: settings.start_time, end_time: settings.end_time, interval_minutes: settings.interval_minutes, note_to_partner: '' }, { slot }) }
           : { title: settings.notification_title, body: settings.reminder_message };
         const message = await createMessage(env, device, { ...copy,
           source: 'scheduled', dedupeKey: `scheduled:${device.id}:${slot}` }, timestamp);

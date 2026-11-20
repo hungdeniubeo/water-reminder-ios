@@ -1,4 +1,9 @@
-export const INTERVALS = [60, 90, 120, 180];
+export const MIN_REMINDER_MINUTES = 5;
+export const MAX_REMINDER_MINUTES = 720;
+/** The admin supports every whole minute between 5 minutes and 12 hours. */
+export const validInterval = value => value !== null && value !== undefined && value !== '' &&
+  Number.isInteger(Number(value)) && Number(value) >= MIN_REMINDER_MINUTES &&
+  Number(value) <= MAX_REMINDER_MINUTES;
 
 export function randomSecret(bytes = 32) {
   const raw = crypto.getRandomValues(new Uint8Array(bytes));
@@ -21,7 +26,7 @@ export const goodNote = value => typeof value === 'string' && value.length <= 15
 export function goodSchedule({ enabled, start, end, interval, timezone }) {
   if (typeof enabled !== 'boolean') return false;
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(start) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(end)) return false;
-  if (start >= end || !INTERVALS.includes(Number(interval))) return false;
+  if (start >= end || !validInterval(interval)) return false;
   if (typeof timezone !== 'string' || timezone.length > 64) return false;
   try { new Intl.DateTimeFormat('en-US', { timeZone: timezone }); return true; } catch { return false; }
 }
@@ -41,7 +46,7 @@ export function dueSlot(device, date) {
     const start = minutes(device.start_time);
     const end = minutes(device.end_time);
     const interval = Number(device.interval_minutes);
-    if (!INTERVALS.includes(interval) || current < start || current > end || (current - start) % interval !== 0) return null;
+    if (!validInterval(interval) || current < start || current > end || (current - start) % interval !== 0) return null;
     return day + ':' + String(current);
   } catch { return null; }
 }
