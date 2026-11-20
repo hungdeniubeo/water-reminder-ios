@@ -268,7 +268,6 @@ async function checkService() {
   feedback('login-status');
   try {
     const config = await api('/api/config', {authenticated:false});
-    $('server-feature-warning').hidden = Boolean(config.capabilities?.customMinutes?.min === 5 && config.capabilities?.history && config.capabilities?.disconnect);
     if (config.apiVersion !== 2) {
       $('upgrade-note').hidden = false;
       $('login-button').textContent = 'Cần cập nhật máy chủ';

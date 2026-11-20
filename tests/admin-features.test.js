@@ -22,4 +22,5 @@ test('minimal admin keeps only essential actions, not large dashboards or CSV co
   }
   assert.match(html,/min="5" max="720" step="1"/);
   assert.doesNotMatch(html,/history-export|history-search|disconnect-button|stat-grid|section-nav/);
+  assert.doesNotMatch(html,/server-feature-warning/, 'avoid speculative outdated-backend warning; save operation validates actual support');
 });
