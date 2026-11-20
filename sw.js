@@ -1,4 +1,4 @@
-const CACHE_NAME = 'water-reminder-static-v20-neutral';
+const CACHE_NAME = 'water-reminder-static-v21-notification-sound';
 const APP_ROOT = new URL('./', self.registration.scope);
 const API_URL = 'https://water-beo-push.hungdeniubeo-water.workers.dev';
 const ASSETS = [
@@ -70,14 +70,16 @@ self.addEventListener('push', event => {
   event.waitUntil((async () => {
     let payload = {};
     try { payload = event.data?.json() || {}; } catch {}
-    const title = typeof payload.title === 'string' && payload.title.trim() ? payload.title.slice(0,70) : 'Water';
-    const body = typeof payload.body === 'string' && payload.body.trim() ? payload.body.slice(0,150) : 'Đến giờ uống nước.';
+    const title = typeof payload.title === 'string' && payload.title.trim() ? payload.title.slice(0,70) : 'Đến giờ uống nước';
+    const body = typeof payload.body === 'string' && payload.body.trim() ? payload.body.slice(0,150) : 'Nghỉ một chút và uống vài ngụm nước.';
     const id = validMessageId(payload.id) ? payload.id : null;
     const data = {id, receiptToken:payload.receiptToken};
     // iOS requires visible notifications; network work happens only after this.
     await self.registration.showNotification(title, {
       body, icon:new URL('./assets/icon.svg', APP_ROOT).href,
       badge:new URL('./assets/icon.svg', APP_ROOT).href,
+      // Request the platform sound; iPhone notification, Silent and Focus settings still apply.
+      silent:false,
       tag:'water-' + (id || crypto.randomUUID()), data
     });
     await Promise.allSettled([receipt(data, 'received'), tellApp('PUSH_RECEIVED', id)]);

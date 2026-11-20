@@ -212,6 +212,41 @@ test('background polling updates device data without replacing unsaved settings 
   });
 });
 
+test('notification templates only edit drafts and preserve pending edits during refresh', async () => {
+  await withAdminHarness(async ({ nodes, state, calls, login, emit, app }) => {
+    await login();
+    const savedSettings = structuredClone(state.settings);
+    await emit('use-send-template', 'click');
+    assert.equal(nodes['send-title'].value, 'Đến giờ uống nước');
+    assert.equal(nodes['send-body'].value, 'Nghỉ một chút và uống vài ngụm nước.');
+    assert.equal(nodes['preview-title'].textContent, nodes['send-title'].value);
+    assert.equal(nodes['preview-body'].textContent, nodes['send-body'].value);
+    await emit('use-reminder-template', 'click');
+    await app.refreshState({ silent: true });
+    assert.equal(nodes['reminder-title'].value, 'Đến giờ uống nước');
+    assert.equal(nodes['reminder-body'].value, 'Nghỉ một chút và uống vài ngụm nước.');
+    assert.deepEqual(state.settings, savedSettings, 'templates do not silently change saved schedules');
+    assert.equal(calls.some(call => ['/api/admin/send', '/api/admin/settings'].includes(call.path)), false,
+      'choosing a template must not send or save automatically');
+    assert.match(nodes['settings-status'].textContent, /Lưu thay đổi/);
+  });
+});
+
+test('only the exact shipped notification pair is refreshed in the initial send draft', async () => {
+  for (const body of ['Beo ơi, nhớ nhấp một chút nước nha em ♡', 'Beo ơi, đây là lời nhắn riêng ♡']) {
+    await withAdminHarness(async ({ nodes, state, login }) => {
+      state.settings.notificationTitle = 'Water ♡';
+      state.settings.reminderMessage = body;
+      await login();
+      const builtIn = body === 'Beo ơi, nhớ nhấp một chút nước nha em ♡';
+      assert.equal(nodes['send-title'].value, builtIn ? 'Đến giờ uống nước' : 'Water ♡');
+      assert.equal(nodes['send-body'].value, builtIn ? 'Nghỉ một chút và uống vài ngụm nước.' : body);
+      assert.equal(nodes['reminder-title'].value, 'Water ♡', 'stored schedule stays visible as saved');
+      assert.equal(nodes['reminder-body'].value, body);
+    });
+  }
+});
+
 test('a state response arriving after logout cannot reopen the dashboard or restore credentials', async () => {
   await withAdminHarness(async ({ nodes, storage, app, login, emit, tickUntil, deferNextState }) => {
     await login();

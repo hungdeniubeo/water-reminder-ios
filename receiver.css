@@ -60,6 +60,13 @@ h1, h2, p { margin: 0; }
 .primary-button:active, .soft-button:active { transform: translateY(1px); }
 .text-button { min-height: 44px; margin-top: 6px; padding: 10px 4px; border: 0; background: transparent; color: #9b315d; font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
 .setup-card .action-feedback { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); color: #8c455f; font-size: 12px; line-height: 1.65; }
+.sound-help { margin-top: 14px; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.sound-help summary { min-height: 44px; padding: 12px 0; cursor: pointer; text-align: center; list-style-position: inside; }
+.sound-help summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+.sound-help[open] { padding-bottom: 10px; }
+.sound-help p { padding: 0 6px; }
+.sound-help p + p { margin-top: 8px; }
+.sound-help strong { color: var(--ink); font-weight: 600; }
 
 .letter-dialog { width: calc(100% - 40px); max-width: 380px; max-height: calc(100svh - 48px); margin: auto; padding: 28px 24px 22px; border: 1px solid var(--line); border-radius: 18px; background: #fff; color: var(--ink); text-align: left; box-shadow: 0 20px 70px #25252a26; overflow: auto; }
 .letter-dialog::backdrop { background: #25252a4d; }

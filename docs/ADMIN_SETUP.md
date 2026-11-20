@@ -55,11 +55,13 @@ Nhập trực tiếp tại lời nhắc an toàn của Wrangler. Không ghi giá
 
 Nếu iPhone đã dùng app cũ và còn mã thiết bị hợp lệ, app giữ kết nối đó. Không cần ghép lại chỉ vì cập nhật giao diện. Nếu trước đây đã ghép nhầm điện thoại của chủ app, chọn **Kết nối iPhone khác** và nhập mã mới trên máy Beo. Điện thoại cũ chỉ bị ngắt khi lần ghép mới thành công.
 
-## Gửi lời nhắn
+## Gửi thông báo
 
-Trong **Gửi ngay cho em**, nhập tiêu đề và nội dung (tối đa 70 và 150 ký tự), xem trước rồi bấm **Gửi thông báo**. Đây là thao tác gửi thật, không phải chỉ xem thử giao diện.
+Trong **Gửi thông báo**, nhập tiêu đề và nội dung (tối đa 70 và 150 ký tự), xem trước rồi bấm **Gửi thông báo**. Nút **Dùng mẫu gọn** điền tiêu đề “Đến giờ uống nước” và nội dung “Nghỉ một chút và uống vài ngụm nước.”; có thể sửa trước khi gửi. Nút dùng mẫu chỉ điền nội dung, không tự gửi.
 
-Trạng thái trong mục Gần đây:
+Mẫu tương tự có ở phần **Lịch nhắc**. Sau khi chọn mẫu cho lịch, bấm **Lưu thay đổi** để cập nhật nội dung nhắc tự động. Nội dung lịch đã lưu không tự đổi chỉ vì cập nhật giao diện.
+
+Trạng thái trong mục **Lịch sử gửi**:
 
 | Trạng thái | Ý nghĩa |
 | --- | --- |
@@ -71,6 +73,14 @@ Trạng thái trong mục Gần đây:
 | Gửi chưa được | Thất bại, hết lượt hoặc kết nối đã hết hạn |
 
 Biên nhận có thể mất do mạng. “Đã chuyển đi” không đủ để kết luận Beo đã thấy thông báo. “iPhone đã nhận” cũng không thay thế xác nhận trực tiếp rằng banner/âm thanh xuất hiện: iOS có thể áp dụng chế độ Tập trung và cài đặt thông báo.
+
+### Giao diện và âm thanh trên iPhone
+
+Tiêu đề và nội dung thông báo là văn bản có thể sửa trong admin. iOS quyết định kiểu khung, font, màu nền và dòng nguồn “from Water”; icon trong thông báo lấy từ app đã cài. Bản xem trước trong admin minh họa nội dung, không thay đổi giao diện hệ thống iOS.
+
+App yêu cầu âm báo hệ thống bằng `silent: false`. Theo [Apple WWDC23](https://developer.apple.com/videos/play/wwdc2023/10120/), âm báo iOS mặc định đã bật khi không chỉ định tùy chọn này, nên đặt `false` không thay thế cài đặt của người dùng. Trên iPhone, vào **Cài đặt → Thông báo → Water → Âm thanh**, kiểm tra chế độ im lặng, Tập trung và âm lượng chuông. Web Push không có tùy chọn file nhạc chuông riêng hay âm lượng cho từng thông báo; không dùng `sound: 'file.mp3'` hoặc `aps.sound` cho app web này.
+
+Sau khi cập nhật giao diện, mở app Water từ màn hình chính khi có mạng để tải service worker mới. Giữ nguyên app đã cài và kết nối hiện tại. Thay đổi âm báo ở service worker không cần deploy lại backend.
 
 ## Lịch và giao diện
 

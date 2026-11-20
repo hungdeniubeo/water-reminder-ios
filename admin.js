@@ -1,5 +1,10 @@
 import { PUSH_API_URL } from './push-config.js';
 
+const COMPACT_NOTIFICATION = {
+  title: 'Đến giờ uống nước',
+  body: 'Nghỉ một chút và uống vài ngụm nước.'
+};
+
 export function messageState(message) {
   if (message.openedAt || message.status === 'opened') return { label: 'Đã mở', tone: 'opened' };
   if (message.receivedAt || message.status === 'received') return { label: 'iPhone đã nhận', tone: 'received' };
@@ -117,6 +122,7 @@ function syncSendButton() {
   const canSend = !!(token && current?.device?.pushEnabled && current?.service?.ready !== false);
   $('send-button').disabled = !canSend || sendBusy;
   $('send-button').textContent = sendBusy ? 'Đang gửi…' : 'Gửi thông báo ↗';
+  $('use-send-template').disabled = sendBusy;
 }
 function fillSettings(settings) {
   const form = $('settings-form');
@@ -140,8 +146,9 @@ function renderState(state) {
   $('pair-button').textContent = device.paired ? 'Kết nối iPhone khác' : 'Tạo mã kết nối';
   if (!settingsDirty) fillSettings(settings);
   if (!draftLoaded) {
-    $('send-title').value = settings.notificationTitle;
-    $('send-body').value = settings.reminderMessage;
+    const isShippedDefault = settings.notificationTitle === 'Water ♡' && settings.reminderMessage === 'Beo ơi, nhớ nhấp một chút nước nha em ♡';
+    $('send-title').value = isShippedDefault ? COMPACT_NOTIFICATION.title : settings.notificationTitle;
+    $('send-body').value = isShippedDefault ? COMPACT_NOTIFICATION.body : settings.reminderMessage;
     draftLoaded = true;
     renderPreview();
   }
@@ -166,8 +173,8 @@ async function refreshState({silent = false} = {}) {
   } finally { refreshBusy = false; }
 }
 function renderPreview() {
-  $('preview-title').textContent = $('send-title').value.trim() || 'Water';
-  $('preview-body').textContent = $('send-body').value || 'Nội dung thông báo sẽ hiện ở đây.';
+  $('preview-title').textContent = $('send-title').value.trim() || COMPACT_NOTIFICATION.title;
+  $('preview-body').textContent = $('send-body').value || COMPACT_NOTIFICATION.body;
   $('send-count').textContent = $('send-body').value.length + ' / 150';
 }
 function draftChanged() {
@@ -175,6 +182,17 @@ function draftChanged() {
   renderPreview();
   feedback('send-status');
 }
+$('use-send-template').addEventListener('click', () => {
+  $('send-title').value = COMPACT_NOTIFICATION.title;
+  $('send-body').value = COMPACT_NOTIFICATION.body;
+  draftChanged();
+});
+$('use-reminder-template').addEventListener('click', () => {
+  $('reminder-title').value = COMPACT_NOTIFICATION.title;
+  $('reminder-body').value = COMPACT_NOTIFICATION.body;
+  settingsDirty = true;
+  feedback('settings-status', 'Đã điền mẫu. Chọn Lưu thay đổi để áp dụng.');
+});
 async function checkService() {
   $('login-button').disabled = true;
   $('login-button').textContent = 'Đang kiểm tra kết nối…';

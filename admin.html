@@ -50,17 +50,17 @@
 
       <div class="dashboard-grid">
         <section class="card compose-card" aria-labelledby="compose-title">
-          <div class="section-heading"><h2 id="compose-title">Gửi thông báo</h2></div>
+          <div class="section-heading compose-heading"><h2 id="compose-title">Gửi thông báo</h2><button id="use-send-template" class="button ghost template-button" type="button">Dùng mẫu gọn</button></div>
           <form id="send-form">
             <label for="send-title">Tiêu đề thông báo</label>
-            <input id="send-title" maxlength="70" required placeholder="Water">
+            <input id="send-title" maxlength="70" required placeholder="Đến giờ uống nước">
             <div class="label-row"><label for="send-body">Nội dung</label><span id="send-count" class="counter">0 / 150</span></div>
-            <textarea id="send-body" rows="4" maxlength="150" required placeholder="Đến giờ uống nước." aria-describedby="send-count"></textarea>
-            <div class="notification-preview" aria-label="Xem trước nội dung thông báo">
+            <textarea id="send-body" rows="3" maxlength="150" required placeholder="Nghỉ một chút và uống vài ngụm nước." aria-describedby="send-count"></textarea>
+            <div class="notification-preview" aria-label="Xem trước nội dung thông báo" aria-describedby="notification-preview-help">
               <div class="preview-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3C9 7 5.5 11 5.5 15a6.5 6.5 0 0 0 13 0C18.5 11 15 7 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
-              <div class="preview-copy"><div class="preview-meta"><span>WATER</span><span>bây giờ</span></div><strong id="preview-title">Water</strong><p id="preview-body">Nội dung thông báo sẽ hiện ở đây.</p></div>
+              <div class="preview-copy"><div class="preview-title-row"><strong id="preview-title">Đến giờ uống nước</strong><span class="preview-time">bây giờ</span></div><div class="preview-source" lang="en">from Water</div><p id="preview-body">Nghỉ một chút và uống vài ngụm nước.</p></div>
             </div>
-            <p class="help">Xem trước nội dung. Kiểu hiển thị thực tế theo cài đặt iPhone.</p>
+            <p id="notification-preview-help" class="help">Bản xem trước nội dung. iOS quyết định bố cục, dòng nguồn và biểu tượng. Âm thanh theo cài đặt iPhone.</p>
             <button id="send-button" class="button primary wide" type="submit" disabled>Gửi thông báo <span aria-hidden="true">↗</span></button>
             <p id="send-status" class="feedback" role="status" aria-live="polite"></p>
           </form>
@@ -72,8 +72,8 @@
             <label class="switch-row" for="schedule-enabled"><span><strong>Nhắc tự động</strong><small>Gửi trong khung giờ đã chọn</small></span><input id="schedule-enabled" name="enabled" type="checkbox" role="switch"></label>
             <div class="field-pair"><div><label for="schedule-start">Từ</label><input id="schedule-start" type="time" name="start" required></div><div><label for="schedule-end">Đến</label><input id="schedule-end" type="time" name="end" required></div></div>
             <div class="field-pair"><div><label for="schedule-interval">Khoảng cách</label><select id="schedule-interval" name="interval"><option value="60">Mỗi 1 giờ</option><option value="90">Mỗi 1 giờ 30</option><option value="120">Mỗi 2 giờ</option><option value="180">Mỗi 3 giờ</option></select></div><div><label for="schedule-timezone">Múi giờ</label><input id="schedule-timezone" name="timezone" required maxlength="64" list="timezones"><datalist id="timezones"><option value="Asia/Ho_Chi_Minh"><option value="Asia/Bangkok"><option value="Asia/Tokyo"><option value="Europe/Paris"><option value="America/Los_Angeles"><option value="America/New_York"></datalist></div></div>
-            <label for="reminder-title">Tiêu đề lời nhắc</label><input id="reminder-title" name="notificationTitle" maxlength="70" required>
-            <label for="reminder-body">Nội dung lời nhắc</label><textarea id="reminder-body" name="reminderMessage" rows="3" maxlength="150" required></textarea>
+            <div class="label-row reminder-label-row"><label for="reminder-title">Tiêu đề lời nhắc</label><button id="use-reminder-template" class="button ghost template-button" type="button">Dùng mẫu gọn</button></div><input id="reminder-title" name="notificationTitle" maxlength="70" required placeholder="Đến giờ uống nước">
+            <label for="reminder-body">Nội dung lời nhắc</label><textarea id="reminder-body" name="reminderMessage" rows="3" maxlength="150" required placeholder="Nghỉ một chút và uống vài ngụm nước."></textarea>
             <details class="personal-details"><summary>Tên và nội dung trang chủ</summary><div class="details-content">
               <label for="recipient-name">Tên người nhận</label><input id="recipient-name" name="recipientName" maxlength="32" required>
               <label for="app-title">Tên hiển thị trong app</label><input id="app-title" name="appTitle" maxlength="40" required>

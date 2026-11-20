@@ -30,13 +30,14 @@ function worker({windows = [], failReceipt = false} = {}) {
   }
   return {calls,handlers,fire};
 }
-test('push displays the exact custom text before requesting a device receipt', async () => {
+test('push displays the exact custom text with system sound requested before requesting a device receipt', async () => {
   const sw = worker();
   await sw.fire('push',{data:{json:() => ({id,title:'Nhớ em ♡',body:'Beo ơi, nghỉ tay một chút nha.',receiptToken})}});
   assert.equal(sw.calls[0][0],'show');
   assert.equal(sw.calls[0][1],'Nhớ em ♡');
   assert.equal(sw.calls[0][2].body,'Beo ơi, nghỉ tay một chút nha.');
   assert.equal(sw.calls[0][2].tag,'water-'+id);
+  assert.equal(sw.calls[0][2].silent,false);
   const sent = sw.calls.find(call => call[0] === 'fetch');
   assert.equal(sent[1],PUSH_API_URL+'/api/receipts');
   assert.deepEqual(JSON.parse(sent[2].body),{id,token:receiptToken,event:'received'});
