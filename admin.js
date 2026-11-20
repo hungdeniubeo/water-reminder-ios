@@ -50,12 +50,12 @@ function lockDashboard() {
   $('settings-form').reset();
 }
 function explainError(error) {
-  if (error.status === 401) return 'Phiên quản trị đã hết hạn. Anh đăng nhập lại nhé.';
-  if (error.status === 429) return 'Anh thao tác hơi nhanh. Đợi một lát rồi thử lại nhé.';
+  if (error.status === 401) return 'Phiên quản trị đã hết hạn. Đăng nhập lại để tiếp tục.';
+  if (error.status === 429) return 'Quá nhiều thao tác liên tiếp. Đợi một lát rồi thử lại.';
   if (error.status === 503) return 'Máy chủ chưa sẵn sàng. Kiểm tra cập nhật và cấu hình máy chủ.';
-  if (error.name === 'AbortError' || error.name === 'TimeoutError') return 'Kết nối đang chậm. Anh có thể thử lại; cùng lời nhắn sẽ không bị gửi lặp.';
-  if (!error.status) return 'Chưa kết nối được máy chủ. Kiểm tra mạng rồi thử lại nhé.';
-  return error.message || 'Thao tác chưa hoàn tất. Anh thử lại nhé.';
+  if (error.name === 'AbortError' || error.name === 'TimeoutError') return 'Kết nối đang chậm. Có thể thử gửi lại cùng nội dung mà không tạo thông báo trùng.';
+  if (!error.status) return 'Chưa kết nối được máy chủ. Kiểm tra mạng rồi thử lại.';
+  return error.message || 'Thao tác chưa hoàn tất. Thử lại sau.';
 }
 async function api(path, {method = 'GET', data, authenticated = true} = {}) {
   const sentToken = token;
@@ -74,7 +74,7 @@ async function api(path, {method = 'GET', data, authenticated = true} = {}) {
     error.status = response.status;
     if (response.status === 401 && authenticated && token === sentToken) {
       lockDashboard();
-      feedback('login-status', 'Phiên quản trị đã hết hạn. Anh đăng nhập lại nhé.', 'error');
+      feedback('login-status', 'Phiên quản trị đã hết hạn. Đăng nhập lại để tiếp tục.', 'error');
     }
     throw error;
   }
@@ -91,7 +91,7 @@ function renderHistory(messages) {
   if (!messages.length) {
     const item = document.createElement('li');
     item.className = 'empty-history';
-    item.textContent = 'Lời nhắn đầu tiên đang chờ anh ♡';
+    item.textContent = 'Chưa có thông báo nào.';
     fragment.append(item);
   }
   for (const message of messages.slice(0, 12)) {
@@ -104,7 +104,7 @@ function renderHistory(messages) {
     const body = document.createElement('p'); body.textContent = message.body;
     const time = document.createElement('time');
     if (message.createdAt) time.dateTime = new Date(message.createdAt * 1000).toISOString();
-    time.textContent = (message.source === 'scheduled' ? 'Tự động · ' : 'Anh gửi · ') + dateLabel(message.createdAt);
+    time.textContent = (message.source === 'scheduled' ? 'Theo lịch · ' : 'Gửi trực tiếp · ') + dateLabel(message.createdAt);
     item.append(row, body, time);
     if (message.error && state.tone === 'failed') {
       const detail = document.createElement('p'); detail.className = 'message-error'; detail.textContent = message.error; item.append(detail);
@@ -134,9 +134,9 @@ function renderState(state) {
   $('device-name').textContent = settings.recipientName;
   $('connection-dot').classList.toggle('connected', !!device.pushEnabled);
   const connected = device.pushEnabled;
-  $('connection-title').textContent = connected ? 'iPhone đã bật nhận thông báo' : device.paired ? 'iPhone đã kết nối, cần bật thông báo' : 'Chưa kết nối iPhone của Beo';
-  $('connection-detail').textContent = connected ? 'Anh có thể gửi ngay hoặc dùng lịch nhắc tự động.' : device.paired ? 'Mở app từ màn hình chính iPhone và chạm Bật thông báo.' : 'Tạo mã bên dưới để kết nối đúng điện thoại của em.';
-  $('device-status').textContent = connected ? 'Đã có một iPhone đăng ký nhận lời nhắn.' : device.paired ? 'Đã ghép một iPhone. Chưa có đăng ký nhận thông báo hoạt động.' : 'Chưa có iPhone nào được ghép với app.';
+  $('connection-title').textContent = connected ? 'iPhone đã bật nhận thông báo' : device.paired ? 'iPhone đã kết nối, cần bật thông báo' : 'Chưa kết nối iPhone';
+  $('connection-detail').textContent = connected ? 'Sẵn sàng gửi ngay hoặc gửi theo lịch.' : device.paired ? 'Mở app từ màn hình chính iPhone và chạm Bật thông báo.' : 'Tạo mã bên dưới để kết nối iPhone nhận thông báo.';
+  $('device-status').textContent = connected ? 'Một iPhone đã đăng ký nhận thông báo.' : device.paired ? 'Đã ghép một iPhone. Chưa bật nhận thông báo.' : 'Chưa có iPhone nào được ghép với app.';
   $('pair-button').textContent = device.paired ? 'Kết nối iPhone khác' : 'Tạo mã kết nối';
   if (!settingsDirty) fillSettings(settings);
   if (!draftLoaded) {
@@ -166,8 +166,8 @@ async function refreshState({silent = false} = {}) {
   } finally { refreshBusy = false; }
 }
 function renderPreview() {
-  $('preview-title').textContent = $('send-title').value.trim() || 'Water ♡';
-  $('preview-body').textContent = $('send-body').value || 'Lời nhắn của anh sẽ hiện ở đây.';
+  $('preview-title').textContent = $('send-title').value.trim() || 'Water';
+  $('preview-body').textContent = $('send-body').value || 'Nội dung thông báo sẽ hiện ở đây.';
   $('send-count').textContent = $('send-body').value.length + ' / 150';
 }
 function draftChanged() {
@@ -187,7 +187,7 @@ async function checkService() {
       $('login-button').textContent = 'Cần cập nhật máy chủ';
       return;
     }
-    if (!config.ready) feedback('login-status', 'Máy chủ chưa sẵn sàng gửi thông báo. Anh có thể đăng nhập để kiểm tra cấu hình.', 'error');
+    if (!config.ready) feedback('login-status', 'Máy chủ chưa sẵn sàng gửi thông báo. Đăng nhập để kiểm tra cấu hình.', 'error');
     $('login-button').textContent = 'Vào trang quản trị';
     $('login-button').disabled = false;
     if (token) await refreshState();
@@ -210,7 +210,7 @@ $('login-form').addEventListener('submit', async event => {
     rememberSession(result.token);
     $('admin-code').value = '';
     await refreshState();
-  } catch (error) { feedback('login-status', error.status === 403 || error.status === 401 ? 'Mã quản trị chưa đúng. Anh kiểm tra lại nhé.' : explainError(error), 'error'); }
+  } catch (error) { feedback('login-status', error.status === 403 || error.status === 401 ? 'Mã quản trị chưa đúng. Kiểm tra lại mã.' : explainError(error), 'error'); }
   finally { $('login-button').disabled = false; $('login-button').textContent = 'Vào trang quản trị'; }
 });
 $('logout').addEventListener('click', async () => {
@@ -226,15 +226,15 @@ $('send-form').addEventListener('submit', async event => {
   if (sendBusy || !current?.device?.pushEnabled || !$('send-form').reportValidity()) return;
   const title = $('send-title').value.trim();
   const body = $('send-body').value.trim();
-  if (!title || !body) { feedback('send-status', 'Anh nhập tiêu đề và nội dung trước nhé.', 'error'); return; }
+  if (!title || !body) { feedback('send-status', 'Nhập tiêu đề và nội dung thông báo.', 'error'); return; }
   if (!pendingSend || pendingSend.title !== title || pendingSend.body !== body) pendingSend = {title, body, requestId:crypto.randomUUID()};
   sendBusy = true; syncSendButton(); feedback('send-status');
   try {
     const result = await api('/api/admin/send', {method:'POST', data:pendingSend});
     const state = messageState(result.message || {});
     if (state.tone === 'failed') feedback('send-status', result.message?.error || 'Thông báo chưa gửi được. Xem trạng thái bên dưới.', 'error');
-    else if (state.tone === 'pending') feedback('send-status', 'Lời nhắn đang chờ gửi. Trạng thái sẽ cập nhật ở mục Gần đây.');
-    else feedback('send-status', state.tone === 'received' || state.tone === 'opened' ? state.label + ' ♡' : 'Đã chuyển lời nhắn tới dịch vụ thông báo. Đang chờ phản hồi từ iPhone.', 'success');
+    else if (state.tone === 'pending') feedback('send-status', 'Thông báo đang chờ gửi. Theo dõi trạng thái trong Lịch sử gửi.');
+    else feedback('send-status', state.tone === 'received' || state.tone === 'opened' ? state.label : 'Đã chuyển tới dịch vụ thông báo. Đang chờ phản hồi từ iPhone.', 'success');
     // Keep the same request ID while the server is retrying or still sending.
     if (state.tone !== 'pending' && !result.message?.retryAt) pendingSend = null;
     await refreshState({silent:true});
@@ -254,7 +254,7 @@ $('settings-form').addEventListener('submit', async event => {
   try {
     await api('/api/admin/settings', {method:'POST',data});
     settingsDirty = false;
-    feedback('settings-status', 'Đã lưu. Lịch nhắc và nội dung được quản lý từ đây ♡', 'success');
+    feedback('settings-status', 'Đã lưu thay đổi.', 'success');
     await refreshState({silent:true});
   } catch (error) { feedback('settings-status', explainError(error), 'error'); }
   finally { $('save-settings').disabled = false; }
@@ -271,13 +271,13 @@ $('pair-button').addEventListener('click', async () => {
     $('pair-code').textContent = pairingCode.slice(0,4) + ' ' + pairingCode.slice(4);
     $('pair-expiry').textContent = 'Hết hạn lúc ' + dateLabel(pairingExpiry) + ' · Chỉ dùng một lần';
     $('pair-result').hidden = false;
-    feedback('pair-status', 'Nhập mã này trong app trên iPhone của Beo. Không dùng mã quản trị.');
+    feedback('pair-status', 'Nhập mã kết nối này trong app trên iPhone cần nhận thông báo.');
   } catch (error) { feedback('pair-status', explainError(error), 'error'); }
   finally { $('pair-button').disabled = false; }
 });
 $('copy-code').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(pairingCode); feedback('pair-status', 'Đã sao chép mã kết nối.', 'success'); }
-  catch { feedback('pair-status', 'Anh chọn và sao chép mã phía trên nhé.'); }
+  catch { feedback('pair-status', 'Chọn và sao chép mã phía trên.'); }
 });
 $('refresh').addEventListener('click', () => refreshState());
 $('retry-service').addEventListener('click', checkService);
@@ -285,7 +285,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && to
 setInterval(() => {
   if (!document.hidden && token) refreshState({silent:true});
   if (pairingExpiry && Date.now() >= pairingExpiry * 1000) {
-    $('pair-expiry').textContent = 'Mã đã hết hạn. Anh tạo mã mới để kết nối nhé.';
+    $('pair-expiry').textContent = 'Mã đã hết hạn. Tạo mã mới để kết nối.';
     pairingExpiry = 0;
     pairingCode = '';
     $('pair-code').textContent = '···· ····';

@@ -2,5 +2,4 @@
 <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#f9dbe6"/><stop offset="1" stop-color="#e9a6bd"/></linearGradient></defs>
 <rect width="512" height="512" fill="url(#g)"/><circle cx="256" cy="256" r="171" fill="#fff8fa" opacity=".6"/>
 <path d="M256 129c-38 58-96 114-96 170a96 96 0 0 0 192 0c0-56-58-112-96-170Z" fill="#c85885"/>
-<path d="M256 321s-56-35-56-65c0-29 35-39 56-10 21-29 56-19 56 10 0 30-56 65-56 65Z" fill="#fff7fb"/>
 </svg>

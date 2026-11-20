@@ -4,9 +4,22 @@ import { attachClassicPinkButton } from './classic-pink-button.js';
 export const SESSION_KEY = 'water-beo-device-session-v1';
 const VIEW_KEY = 'water-beo-view-v2';
 export const DEFAULT_PROFILE = Object.freeze({
-  recipientName: 'Beo', appTitle: 'Water ♡',
-  homeMessage: 'Một chút nước, một chút thương.\nAnh luôn nhớ em ♡'
+  recipientName: 'Beo', appTitle: 'Water',
+  homeMessage: 'Nhắc uống nước mỗi ngày.'
 });
+
+// Update only the exact defaults shipped in earlier versions. Personal text stays as entered.
+const LEGACY_HOME_DEFAULTS = new Set([
+  'Một chút nước, một chút thương.\nAnh luôn nhớ em ♡',
+  'Một chút nước, một chút thương. Anh luôn nhớ em ♡',
+  'Anh gửi em một chút dịu dàng. Nhớ uống nước đều nhé ♡'
+]);
+export function normalizeReceiverProfile(profile = {}) {
+  const result = { ...DEFAULT_PROFILE, ...profile };
+  if (result.appTitle === 'Water ♡') result.appTitle = DEFAULT_PROFILE.appTitle;
+  if (LEGACY_HOME_DEFAULTS.has(result.homeMessage)) result.homeMessage = DEFAULT_PROFILE.homeMessage;
+  return result;
+}
 
 export function readDeviceSession(storage) {
   try {
@@ -79,7 +92,7 @@ export function startReceiver() {
 
   try {
     const cached = JSON.parse(localStorage.getItem(VIEW_KEY) || 'null');
-    if (cached?.profile && state.session) state.profile = { ...DEFAULT_PROFILE, ...cached.profile };
+    if (cached?.profile && state.session) state.profile = normalizeReceiverProfile(cached.profile);
     if (cached?.latestMessage && state.session) state.latestMessage = cached.latestMessage;
   } catch { /* The app still works without an offline copy. */ }
 
@@ -101,8 +114,8 @@ export function startReceiver() {
   }
   function renderLetter() {
     const message = selectedMessage || state.latestMessage;
-    $('letter-title').textContent = message?.title || `Gửi ${state.profile.recipientName} ♡`;
-    $('letter-body').textContent = message?.body || state.profile.homeMessage;
+    $('letter-title').textContent = message?.title || 'Thông báo';
+    $('letter-body').textContent = message?.body || 'Chưa có thông báo. Thông báo mới nhất sẽ hiện ở đây.';
     const rawTime = message?.createdAt;
     const date = rawTime ? new Date(typeof rawTime === 'number' && rawTime < 1e12 ? rawTime * 1000 : rawTime) : null;
     const validTime = date && Number.isFinite(date.getTime());
@@ -122,13 +135,13 @@ export function startReceiver() {
       install: 'Thêm vào iPhone', unsupported: 'Chưa hỗ trợ', 'server-pending': 'Chờ kết nối',
       error: 'Chưa kết nối', pair: 'Chưa kết nối', denied: 'Thông báo đang tắt', enable: 'Chưa bật thông báo' };
     $('app-title').textContent = state.profile.appTitle;
-    $('greeting').textContent = `${state.profile.recipientName} ơi,`;
+    $('greeting').textContent = state.profile.recipientName;
     $('home-message').textContent = state.profile.homeMessage;
-    document.title = `${state.profile.appTitle} — Dành cho ${state.profile.recipientName}`;
+    document.title = `${state.profile.appTitle} — ${state.profile.recipientName}`;
     $('connection-label').textContent = labels[screen];
     $('connection-state').dataset.state = screen;
     $('quiet-note').textContent = screen === 'ready'
-      ? 'Lời nhắc vẫn đến khi em đóng app.' : 'Một lời nhắc nhỏ, gửi từ anh ♡';
+      ? 'Vẫn nhận thông báo khi đóng app.' : 'Bật thông báo để nhận lời nhắc.';
     const showSetup = !['ready', 'loading'].includes(screen);
     $('setup-panel').hidden = !showSetup;
     document.body.dataset.setup = String(showSetup);
@@ -142,14 +155,14 @@ export function startReceiver() {
     $('refresh-button').hidden = !['offline', 'denied', 'error', 'server-pending', 'unsupported', 'install'].includes(screen);
     $('refresh-button').disabled = !!state.busy;
     const copy = {
-      offline: ['Em đang ngoại tuyến', 'Em kết nối mạng để nhận lời nhắc mới nhé. Lời nhắn đã lưu vẫn xem được ở nút giọt nước.'],
-      install: ['Mang Water ra màn hình chính', 'Trong Safari, chạm Chia sẻ → Thêm vào MH chính. Sau đó mở app từ biểu tượng mới để nhận thông báo, em nhé.'],
-      unsupported: ['Mở trên iPhone của em nhé', 'App cần iOS 16.4 trở lên. Em thêm app vào màn hình chính rồi mở lại từ biểu tượng Water nhé.'],
-      'server-pending': ['Một chút nữa thôi ♡', 'Anh cần cập nhật hệ thống thông báo. Em chưa cần làm gì thêm; khi xong, mình kết nối lại nhé.'],
-      error: ['Mình kết nối lại nhé', 'Chưa kết nối được với hệ thống thông báo. Em kiểm tra mạng rồi thử lại nhé.'],
-      pair: ['Kết nối một lần thôi ♡', 'Nhập mã anh gửi để nhận những lời nhắc dành riêng cho em.'],
-      denied: ['Cho anh nhắc em nhé?', `Em vào Cài đặt iPhone → Thông báo → ${state.profile.appTitle}, bật Cho phép thông báo rồi quay lại đây nhé.`],
-      enable: ['Cho anh nhắc em nhé?', 'Bật thông báo để nhận lời nhắn ngay cả khi em không mở app. Khi iPhone hỏi, em chọn Cho phép nhé.']
+      offline: ['Không có kết nối mạng', 'Kết nối mạng để nhận thông báo mới. Vẫn có thể xem thông báo đã lưu bằng nút giọt nước.'],
+      install: ['Thêm vào màn hình chính', 'Trong Safari, chọn Chia sẻ → Thêm vào MH chính. Sau đó mở app từ biểu tượng mới để bật thông báo.'],
+      unsupported: ['Trình duyệt chưa hỗ trợ', 'Trên iPhone, cần iOS 16.4 trở lên. Thêm app vào màn hình chính rồi mở lại từ biểu tượng Water.'],
+      'server-pending': ['Hệ thống chưa sẵn sàng', 'Hệ thống thông báo cần được cập nhật. Thử kiểm tra lại sau.'],
+      error: ['Chưa kết nối được', 'Không thể kết nối với hệ thống thông báo. Kiểm tra mạng rồi thử lại.'],
+      pair: ['Kết nối thiết bị', 'Nhập mã từ trang quản trị để nhận thông báo trên iPhone này.'],
+      denied: ['Thông báo đang tắt', `Vào Cài đặt iPhone → Thông báo → ${state.profile.appTitle}, bật Cho phép thông báo rồi quay lại app.`],
+      enable: ['Bật thông báo', 'Nhận thông báo ngay cả khi app đóng. Chọn Cho phép khi iPhone hỏi quyền thông báo.']
     }[screen];
     if (copy) { $('setup-title').textContent = copy[0]; $('setup-copy').textContent = copy[1]; }
     $('action-feedback').textContent = state.feedback;
@@ -206,7 +219,7 @@ export function startReceiver() {
       else state.failed = true;
       if (state.config?.apiVersion !== 2 || !state.config.ready || !state.session || (ios && !standalone())) return;
       const device = await client('/api/device/me');
-      if (device.profile) state.profile = { ...DEFAULT_PROFILE, ...device.profile };
+      if (device.profile) state.profile = normalizeReceiverProfile(device.profile);
       state.latestMessage = device.latestMessage || null;
       state.serverPushEnabled = !!device.pushEnabled;
       cacheView();
@@ -222,7 +235,7 @@ export function startReceiver() {
       }
       await openRequestedMessage();
     } catch (error) {
-      if (error.status === 401) { forgetExpiredSession(); state.feedback = 'Mình cần mã kết nối mới từ anh nhé.'; }
+      if (error.status === 401) { forgetExpiredSession(); state.feedback = 'Kết nối đã hết hiệu lực. Nhập mã mới từ trang quản trị.'; }
       else state.failed = true;
     } finally {
       state.loading = false; state.refreshing = false; render();
@@ -234,12 +247,12 @@ export function startReceiver() {
     event.preventDefault();
     if (state.busy) return;
     const code = $('pair-code').value.replace(/\s/g, '');
-    if (!/^\d{8}$/.test(code)) { state.feedback = 'Em nhập đủ 8 chữ số trong mã anh gửi nhé.'; render(); return; }
+    if (!/^\d{8}$/.test(code)) { state.feedback = 'Nhập đủ 8 chữ số của mã kết nối.'; render(); return; }
     try {
       // Check storage before consuming a one-time code.
       localStorage.setItem('water-beo-storage-check', '1');
       localStorage.removeItem('water-beo-storage-check');
-    } catch { state.feedback = 'Trình duyệt chưa cho lưu kết nối. Em mở app ở chế độ thường rồi thử lại nhé.'; render(); return; }
+    } catch { state.feedback = 'Trình duyệt không thể lưu kết nối. Mở app ở chế độ thường rồi thử lại.'; render(); return; }
     state.busy = 'pair'; state.feedback = ''; render();
     try {
       const result = await client('/api/pair', { method: 'POST', payload: { code }, authenticate: false });
@@ -249,10 +262,10 @@ export function startReceiver() {
       $('pair-code').value = '';
     } catch (error) {
       state.feedback = error.status === 429
-        ? 'Mình thử hơi nhiều lần rồi. Em chờ vài phút rồi nhập lại nhé.'
+        ? 'Đã thử quá nhiều lần. Chờ vài phút rồi nhập lại.'
         : error.status && error.status < 500
-          ? 'Mã chưa đúng hoặc đã hết hạn. Nhờ anh gửi em mã mới nhé.'
-          : 'Chưa kết nối được. Em kiểm tra mạng rồi thử lại nhé.';
+          ? 'Mã không đúng hoặc đã hết hạn. Tạo mã mới trong trang quản trị.'
+          : 'Chưa kết nối được. Kiểm tra mạng rồi thử lại.';
     } finally { state.busy = ''; render(); }
     if (state.session) { await refresh(); if (currentScreen() === 'enable') $('enable-button').focus(); }
   });
@@ -262,11 +275,11 @@ export function startReceiver() {
     let permissionRequest;
     // Keep this in the original click stack. No config fetch or worker await before consent.
     try { permissionRequest = Notification.requestPermission(); }
-    catch { state.feedback = 'Em mở app từ màn hình chính rồi thử bật thông báo lại nhé.'; render(); return; }
+    catch { state.feedback = 'Mở app từ màn hình chính rồi thử bật thông báo lại.'; render(); return; }
     state.busy = 'enable'; state.feedback = ''; render();
     Promise.resolve(permissionRequest).then(async consent => {
       if (consent !== 'granted') {
-        state.feedback = consent === 'denied' ? '' : 'Khi sẵn sàng, em có thể bật thông báo ở đây nhé.';
+        state.feedback = consent === 'denied' ? '' : 'Chưa cấp quyền thông báo. Có thể bật lại tại đây.';
         return;
       }
       const subscription = state.subscription || await state.registration.pushManager.subscribe({
@@ -279,7 +292,7 @@ export function startReceiver() {
       state.failed = false;
     }).catch(error => {
       if (error.status === 401) forgetExpiredSession();
-      state.feedback = 'Chưa bật xong thông báo. Em kiểm tra mạng rồi thử lại nhé.';
+      state.feedback = 'Chưa bật được thông báo. Kiểm tra mạng rồi thử lại.';
     }).finally(() => {
       state.busy = ''; render();
       if (state.refreshAgain || requestedMessageId) refresh();

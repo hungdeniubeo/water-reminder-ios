@@ -1,4 +1,4 @@
-const CACHE_NAME = 'water-reminder-static-v19-receiver';
+const CACHE_NAME = 'water-reminder-static-v20-neutral';
 const APP_ROOT = new URL('./', self.registration.scope);
 const API_URL = 'https://water-beo-push.hungdeniubeo-water.workers.dev';
 const ASSETS = [
@@ -38,7 +38,7 @@ self.addEventListener('fetch', event => {
         const home = await cache.match(new URL('./index.html', APP_ROOT).href);
         if (home) return home;
       }
-      return new Response('Chưa có kết nối mạng. Thử lại khi có mạng nhé.', {status:503, headers:{'Content-Type':'text/plain; charset=utf-8'}});
+      return new Response('Chưa có kết nối mạng. Kết nối mạng rồi thử lại.', {status:503, headers:{'Content-Type':'text/plain; charset=utf-8'}});
     }
   })());
 });
@@ -70,8 +70,8 @@ self.addEventListener('push', event => {
   event.waitUntil((async () => {
     let payload = {};
     try { payload = event.data?.json() || {}; } catch {}
-    const title = typeof payload.title === 'string' && payload.title.trim() ? payload.title.slice(0,70) : 'Water ♡';
-    const body = typeof payload.body === 'string' && payload.body.trim() ? payload.body.slice(0,150) : 'Beo ơi, nhớ uống chút nước nha em ♡';
+    const title = typeof payload.title === 'string' && payload.title.trim() ? payload.title.slice(0,70) : 'Water';
+    const body = typeof payload.body === 'string' && payload.body.trim() ? payload.body.slice(0,150) : 'Đến giờ uống nước.';
     const id = validMessageId(payload.id) ? payload.id : null;
     const data = {id, receiptToken:payload.receiptToken};
     // iOS requires visible notifications; network work happens only after this.

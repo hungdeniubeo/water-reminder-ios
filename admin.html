@@ -3,29 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#fff8fb">
+  <meta name="theme-color" content="#f7f7f5">
   <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="description" content="Trang riêng để gửi lời nhắn và đặt lịch nhắc cho Beo.">
-  <title>Water ♡ · Admin</title>
+  <meta name="description" content="Quản lý nội dung thông báo, lịch nhắc và thiết bị nhận của Water.">
+  <title>Quản trị Water</title>
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./admin.css">
   <script type="module" src="./admin.js"></script>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="./admin.html" aria-label="Water, trang quản trị"><span class="brand-drop" aria-hidden="true">♡</span>Water <span class="brand-tag">ADMIN</span></a>
-    <div class="header-actions"><a class="quiet-link" href="./" target="_blank" rel="noopener">App của Beo ↗</a><button id="logout" class="button ghost" hidden>Đăng xuất</button></div>
+    <a class="brand" href="./admin.html" aria-label="Water, trang quản trị"><span class="brand-drop" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3C9 7 5.5 11 5.5 15a6.5 6.5 0 0 0 13 0C18.5 11 15 7 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>Water <span class="brand-tag">ADMIN</span></a>
+    <div class="header-actions"><a class="quiet-link" href="./" target="_blank" rel="noopener">Mở app ↗</a><button id="logout" class="button ghost" hidden>Đăng xuất</button></div>
   </header>
   <main>
     <section id="login-panel" class="login-panel" aria-labelledby="login-title">
-      <div class="eyebrow">MỘT NGƯỜI NHẬN. THẬT NHIỀU THƯƠNG.</div>
-      <h1 id="login-title">Gửi một chút<br>quan tâm đến Beo.</h1>
-      <p class="intro">Soạn lời nhắn, đặt lịch nhắc và chăm chút app của em — tất cả ở đây.</p>
+      <h1 id="login-title">Quản trị Water</h1>
+      <p class="intro">Chỉnh nội dung, lịch nhắc và thiết bị nhận.</p>
       <form id="login-form" class="login-card">
-        <label for="admin-code">Mã quản trị của anh</label>
+        <label for="admin-code">Mã quản trị</label>
         <input id="admin-code" type="password" autocomplete="current-password" required minlength="16" maxlength="256" placeholder="Nhập mã quản trị" aria-describedby="login-help">
-        <p id="login-help" class="help">Dùng mã quản trị đã thiết lập trên máy chủ. Mã này chỉ dành cho anh.</p>
+        <p id="login-help" class="help">Dùng mã quản trị đã thiết lập trên máy chủ.</p>
         <button id="login-button" class="button primary" type="submit" disabled>Đang kiểm tra kết nối…</button>
         <p id="login-status" class="feedback" role="status" aria-live="polite"></p>
       </form>
@@ -39,7 +38,7 @@
 
     <div id="dashboard" hidden>
       <section class="page-heading">
-        <div><p class="eyebrow">GÓC NHỎ CỦA ANH</p><h1>Hôm nay, nhắn gì cho <span id="heading-name">Beo</span>?</h1><p class="intro">Một lời nhắc nhỏ, đến thẳng iPhone của em.</p></div>
+        <div><h1>Thông báo cho <span id="heading-name">Beo</span></h1><p class="intro">Gửi thông báo và quản lý lịch nhắc.</p></div>
         <button id="refresh" type="button" class="button ghost">↻ Làm mới</button>
       </section>
       <p id="global-status" class="feedback global-status" role="status" aria-live="polite"></p>
@@ -51,15 +50,15 @@
 
       <div class="dashboard-grid">
         <section class="card compose-card" aria-labelledby="compose-title">
-          <div class="section-heading"><span class="section-icon" aria-hidden="true">↗</span><div><p class="eyebrow">LỜI NHẮN TỪ ANH</p><h2 id="compose-title">Gửi ngay cho em</h2></div></div>
+          <div class="section-heading"><h2 id="compose-title">Gửi thông báo</h2></div>
           <form id="send-form">
             <label for="send-title">Tiêu đề thông báo</label>
-            <input id="send-title" maxlength="70" required placeholder="Water ♡">
+            <input id="send-title" maxlength="70" required placeholder="Water">
             <div class="label-row"><label for="send-body">Nội dung</label><span id="send-count" class="counter">0 / 150</span></div>
-            <textarea id="send-body" rows="4" maxlength="150" required placeholder="Beo ơi, nghỉ tay uống chút nước nha em ♡" aria-describedby="send-count"></textarea>
+            <textarea id="send-body" rows="4" maxlength="150" required placeholder="Đến giờ uống nước." aria-describedby="send-count"></textarea>
             <div class="notification-preview" aria-label="Xem trước nội dung thông báo">
-              <div class="preview-icon" aria-hidden="true">♡</div>
-              <div class="preview-copy"><div class="preview-meta"><span>WATER ♡</span><span>bây giờ</span></div><strong id="preview-title">Water ♡</strong><p id="preview-body">Lời nhắn của anh sẽ hiện ở đây.</p></div>
+              <div class="preview-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3C9 7 5.5 11 5.5 15a6.5 6.5 0 0 0 13 0C18.5 11 15 7 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+              <div class="preview-copy"><div class="preview-meta"><span>WATER</span><span>bây giờ</span></div><strong id="preview-title">Water</strong><p id="preview-body">Nội dung thông báo sẽ hiện ở đây.</p></div>
             </div>
             <p class="help">Xem trước nội dung. Kiểu hiển thị thực tế theo cài đặt iPhone.</p>
             <button id="send-button" class="button primary wide" type="submit" disabled>Gửi thông báo <span aria-hidden="true">↗</span></button>
@@ -68,18 +67,18 @@
         </section>
 
         <section class="card schedule-card" aria-labelledby="schedule-title">
-          <div class="section-heading"><span class="section-icon" aria-hidden="true">◷</span><div><p class="eyebrow">ĐỀU ĐẶN MỖI NGÀY</p><h2 id="schedule-title">Lịch nhắc của em</h2></div></div>
+          <div class="section-heading"><h2 id="schedule-title">Lịch nhắc</h2></div>
           <form id="settings-form">
-            <label class="switch-row" for="schedule-enabled"><span><strong>Nhắc tự động</strong><small>Gửi trong khung giờ anh chọn</small></span><input id="schedule-enabled" name="enabled" type="checkbox" role="switch"></label>
+            <label class="switch-row" for="schedule-enabled"><span><strong>Nhắc tự động</strong><small>Gửi trong khung giờ đã chọn</small></span><input id="schedule-enabled" name="enabled" type="checkbox" role="switch"></label>
             <div class="field-pair"><div><label for="schedule-start">Từ</label><input id="schedule-start" type="time" name="start" required></div><div><label for="schedule-end">Đến</label><input id="schedule-end" type="time" name="end" required></div></div>
             <div class="field-pair"><div><label for="schedule-interval">Khoảng cách</label><select id="schedule-interval" name="interval"><option value="60">Mỗi 1 giờ</option><option value="90">Mỗi 1 giờ 30</option><option value="120">Mỗi 2 giờ</option><option value="180">Mỗi 3 giờ</option></select></div><div><label for="schedule-timezone">Múi giờ</label><input id="schedule-timezone" name="timezone" required maxlength="64" list="timezones"><datalist id="timezones"><option value="Asia/Ho_Chi_Minh"><option value="Asia/Bangkok"><option value="Asia/Tokyo"><option value="Europe/Paris"><option value="America/Los_Angeles"><option value="America/New_York"></datalist></div></div>
             <label for="reminder-title">Tiêu đề lời nhắc</label><input id="reminder-title" name="notificationTitle" maxlength="70" required>
-            <label for="reminder-body">Lời nhắc tự động</label><textarea id="reminder-body" name="reminderMessage" rows="3" maxlength="150" required></textarea>
-            <details class="personal-details"><summary>Chỉnh tên và trang chủ của Beo</summary><div class="details-content">
+            <label for="reminder-body">Nội dung lời nhắc</label><textarea id="reminder-body" name="reminderMessage" rows="3" maxlength="150" required></textarea>
+            <details class="personal-details"><summary>Tên và nội dung trang chủ</summary><div class="details-content">
               <label for="recipient-name">Tên người nhận</label><input id="recipient-name" name="recipientName" maxlength="32" required>
               <label for="app-title">Tên hiển thị trong app</label><input id="app-title" name="appTitle" maxlength="40" required>
-              <label for="home-message">Lời nhắn trên trang chủ</label><textarea id="home-message" name="homeMessage" rows="3" maxlength="240" required></textarea>
-              <p class="help">App nhận nội dung mới khi Beo mở app và có mạng. Tên biểu tượng đã cài trên iPhone do iPhone quản lý.</p>
+              <label for="home-message">Nội dung trang chủ</label><textarea id="home-message" name="homeMessage" rows="3" maxlength="240" required></textarea>
+              <p class="help">Nội dung cập nhật khi mở app có kết nối mạng. Tên biểu tượng trên màn hình chính do iPhone quản lý.</p>
             </div></details>
             <button id="save-settings" class="button secondary wide" type="submit">Lưu thay đổi</button>
             <p id="settings-status" class="feedback" role="status" aria-live="polite"></p>
@@ -87,22 +86,22 @@
         </section>
 
         <section class="card device-card" id="device-card" aria-labelledby="device-title">
-          <div class="section-heading"><span class="section-icon" aria-hidden="true">⌁</span><div><p class="eyebrow">CHỈ DÀNH CHO MỘT NGƯỜI</p><h2 id="device-title">iPhone của <span id="device-name">Beo</span></h2></div></div>
+          <div class="section-heading"><div><h2 id="device-title">Thiết bị nhận</h2><p class="section-subtitle">Người nhận: <span id="device-name">Beo</span></p></div></div>
           <p id="device-status">Chưa có iPhone kết nối.</p>
-          <ol class="setup-steps"><li>Trên iPhone của Beo, mở app bằng Safari rồi <strong>Thêm vào MH chính</strong>.</li><li>Mở app từ biểu tượng vừa thêm, nhập mã kết nối bên dưới.</li><li>Beo chạm <strong>Bật thông báo</strong> và chọn <strong>Cho phép</strong>.</li></ol>
+          <ol class="setup-steps"><li>Trên iPhone cần kết nối, mở app bằng Safari rồi <strong>Thêm vào MH chính</strong>.</li><li>Mở app từ biểu tượng vừa thêm, nhập mã kết nối bên dưới.</li><li>Chạm <strong>Bật thông báo</strong> và chọn <strong>Cho phép</strong>.</li></ol>
           <button id="pair-button" type="button" class="button secondary">Tạo mã kết nối</button>
           <div id="pair-result" class="pair-result" hidden><p>MÃ KẾT NỐI MỘT LẦN</p><output id="pair-code"></output><small id="pair-expiry"></small><button id="copy-code" class="button ghost" type="button">Sao chép mã</button></div>
           <p id="pair-status" class="feedback" role="status" aria-live="polite"></p>
         </section>
 
         <section class="card history-card" aria-labelledby="history-title">
-          <div class="section-heading"><span class="section-icon" aria-hidden="true">♡</span><div><p class="eyebrow">NHỮNG LỜI ĐÃ GỬI</p><h2 id="history-title">Gần đây</h2></div></div>
+          <div class="section-heading"><h2 id="history-title">Lịch sử gửi</h2></div>
           <p class="help history-help">“Đã chuyển đi” là dịch vụ thông báo đã nhận. “iPhone đã nhận” là app đã xử lý và yêu cầu hiện thông báo. “Đã mở” là đã chạm vào thông báo.</p>
-          <ul id="message-history" class="message-history" aria-live="polite"><li class="empty-history">Chưa có lời nhắn nào.</li></ul>
+          <ul id="message-history" class="message-history" aria-live="polite"><li class="empty-history">Chưa có thông báo nào.</li></ul>
         </section>
       </div>
     </div>
   </main>
-  <footer class="footer">Water ♡ <span>Chỉ một Beo, được thương mỗi ngày.</span></footer>
+  <footer class="footer">Water · Quản trị</footer>
 </body>
 </html>

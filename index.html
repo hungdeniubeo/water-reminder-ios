@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#fffaf9">
+  <meta name="theme-color" content="#f7f7f5">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Water ♡">
-  <meta name="description" content="Một lời nhắc uống nước, một chút thương dành riêng cho Beo.">
-  <title>Water ♡ — Dành cho Beo</title>
+  <meta name="apple-mobile-web-app-title" content="Water">
+  <meta name="description" content="Nhắc uống nước và nhận thông báo.">
+  <title>Water — Beo</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/icon.svg">
@@ -17,32 +17,30 @@
   <script type="module" src="./receiver.js"></script>
 </head>
 <body>
-  <div class="ambient-wave" aria-hidden="true"></div>
   <main class="receiver-shell">
     <header class="topbar">
-      <a class="brand" href="./" aria-label="Water — Trang chủ"><span id="app-title">Water ♡</span></a>
+      <a class="brand" href="./" aria-label="Water — Trang chủ"><span id="app-title">Water</span></a>
       <span id="connection-state" class="connection-pill" data-state="loading" role="status"><span class="status-dot" aria-hidden="true"></span><span id="connection-label">Đang kết nối</span></span>
     </header>
     <section class="home" aria-labelledby="greeting">
       <div class="home-copy">
-        <p class="eyebrow">DÀNH RIÊNG CHO EM</p>
-        <h1 id="greeting">Beo ơi,</h1>
-        <p class="home-message" id="home-message">Một chút nước, một chút thương.<br>Anh luôn nhớ em ♡</p>
+        <p class="eyebrow">NHẮC UỐNG NƯỚC</p>
+        <h1 id="greeting">Beo</h1>
+        <p class="home-message" id="home-message">Nhắc uống nước mỗi ngày.</p>
       </div>
       <div class="drop-stage">
-        <span class="drop-halo" aria-hidden="true"></span>
-        <button id="letter-button" class="drop-btn big" type="button" aria-label="Mở lời nhắn dành cho em" aria-haspopup="dialog">
+        <button id="letter-button" class="drop-btn big" type="button" aria-label="Xem thông báo" aria-haspopup="dialog">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z"/><path class="hl" d="M8.5 14.3c-.3 1.9.6 3.5 2 4.3"/></svg>
         </button>
       </div>
-      <p class="button-caption">Chạm để mở lời nhắn</p>
-      <p class="quiet-note" id="quiet-note">Một lời nhắc nhỏ, gửi từ anh ♡</p>
+      <p class="button-caption">Xem thông báo</p>
+      <p class="quiet-note" id="quiet-note">Bật thông báo để nhận lời nhắc.</p>
     </section>
     <section class="setup-card" id="setup-panel" aria-labelledby="setup-title" hidden>
-      <div class="setup-heading"><span class="setup-heart" aria-hidden="true">♡</span><h2 id="setup-title">Kết nối một lần thôi</h2></div>
+      <div class="setup-heading"><h2 id="setup-title">Kết nối thiết bị</h2></div>
       <p id="setup-copy"></p>
       <form id="pair-form" hidden>
-        <label for="pair-code">Mã anh gửi cho em</label>
+        <label for="pair-code">Mã kết nối</label>
         <div class="pair-fields"><input id="pair-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="19" placeholder="1234 5678" aria-describedby="pair-hint" required><button class="soft-button" id="pair-button" type="submit">Kết nối</button></div>
         <p id="pair-hint" class="field-hint">Mã gồm 8 chữ số, chỉ dùng một lần.</p>
       </form>
@@ -50,17 +48,14 @@
       <button id="refresh-button" class="text-button" type="button" hidden>Kiểm tra lại</button>
       <p class="action-feedback" id="action-feedback" role="status" aria-live="polite" hidden></p>
     </section>
-    <footer class="footer"><span aria-hidden="true">♡</span><span>Nhớ chăm sóc mình, em nhé.</span></footer>
   </main>
   <dialog class="letter-dialog" id="letter-dialog" aria-labelledby="letter-title" aria-describedby="letter-body">
-    <button class="close-button" id="close-letter" type="button" aria-label="Đóng lời nhắn">×</button>
-    <span class="letter-heart" aria-hidden="true">♡</span>
-    <p class="eyebrow">MỘT CHÚT THƯƠNG TỪ ANH</p>
-    <h2 id="letter-title">Gửi Beo ♡</h2>
-    <p id="letter-body">Một chút nước, một chút thương. Anh luôn nhớ em ♡</p>
+    <button class="close-button" id="close-letter" type="button" aria-label="Đóng thông báo">×</button>
+    <h2 id="letter-title">Thông báo</h2>
+    <p id="letter-body">Chưa có thông báo. Thông báo mới nhất sẽ hiện ở đây.</p>
     <p id="letter-time" class="letter-time" hidden></p>
-    <button class="primary-button" id="letter-done" type="button">Đóng lời nhắn ♡</button>
+    <button class="primary-button" id="letter-done" type="button">Đóng</button>
   </dialog>
-  <noscript><p class="noscript">Em bật JavaScript trong trình duyệt để kết nối nhận lời nhắc nhé.</p></noscript>
+  <noscript><p class="noscript">Bật JavaScript trong trình duyệt để kết nối và nhận thông báo.</p></noscript>
 </body>
 </html>
