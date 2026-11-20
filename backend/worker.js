@@ -115,12 +115,14 @@ async function receiptToken(id, deviceId, env) {
   const bytes = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`receipt:${id}:${deviceId}`)));
   return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
 }
-async function sendWebPush({ env, subscription, payload }) {
+export async function sendWebPush({ env, subscription, payload }) {
   const { buildPushPayload } = await import('@block65/webcrypto-web-push');
   const options = await buildPushPayload({ data: JSON.stringify(payload), options: { ttl: RETRY_SECONDS } }, subscription, {
     subject: env.VAPID_SUBJECT, publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY
   });
-  return fetch(subscription.endpoint, { ...options, redirect: 'error', signal: AbortSignal.timeout(20000) });
+  // Workers rejects redirect:'error' before sending. Return redirects without following them;
+  // deliver() accepts only 2xx, so authorization and ciphertext stay at the registered endpoint.
+  return fetch(subscription.endpoint, { ...options, redirect: 'manual', signal: AbortSignal.timeout(20000) });
 }
 export function latestDueSlot(settings, device, date) {
   if (!settings.schedule_enabled || !device?.push_json) return null;

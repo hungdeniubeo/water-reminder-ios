@@ -80,6 +80,7 @@ Lời nhắc tự động dùng đúng tiêu đề/nội dung đã lưu trong ad
 
 ## Nếu chưa thấy thông báo
 
+- Nếu iPhone đã kết nối nhưng gửi báo **“Chưa xác nhận được kết quả gửi từ dịch vụ thông báo”**, cập nhật Worker lên bản sửa `redirect: 'manual'`. Bản cũ dùng `redirect: 'error'`, tùy chọn [Cloudflare Workers không hỗ trợ](https://developers.cloudflare.com/workers/runtime-apis/request/), nên dừng trước khi gửi. Chạy `git pull --ff-only` trên nhánh đã nhận bản sửa, rồi `cd backend` và `npm run deploy`. Đợt sửa này không đổi database, VAPID hoặc kết nối iPhone.
 - Kiểm tra admin đã kết nối **đúng iPhone của Beo**, không phải điện thoại của chủ app.
 - Mở app từ màn hình chính, xác nhận **Đã bật thông báo**. App đối chiếu đăng ký thật trên điện thoại với máy chủ mỗi lần mở.
 - Nếu quyền bị tắt, vào **Cài đặt iPhone → Thông báo → Water** rồi cho phép thông báo và màn hình khoá.
@@ -89,6 +90,6 @@ Lời nhắc tự động dùng đúng tiêu đề/nội dung đã lưu trong ad
 
 ## Kiểm thử
 
-`npm test` chạy kiểm thử logic và tích hợp bằng SQLite thật với dịch vụ gửi giả lập. `npm run check` kiểm tra cú pháp các entry point đang dùng. `npx wrangler deploy --dry-run` kiểm tra đóng gói Worker mà không đưa lên production.
+Chạy `npm ci --prefix backend` trước khi kiểm thử. `npm test` chạy logic và tích hợp bằng SQLite thật, cùng kiểm tra phần gửi trong runtime `workerd` bằng khóa thử và endpoint giả lập. Kiểm tra này dùng thư viện mã hóa thật và không gửi thông báo ra ngoài. `npm run check` kiểm tra cú pháp các entry point đang dùng. `npx wrangler deploy --dry-run` trong thư mục `backend` kiểm tra đóng gói Worker mà không đưa lên production.
 
 Kiểm tra cuối trên thiết bị thật: sau khi Beo cho phép thông báo, chủ app chủ động gửi một lời nhắn, khóa màn hình iPhone, quan sát thông báo và chạm để mở đúng nội dung. Không đánh dấu đã xác minh nhận thật chỉ từ kết quả kiểm thử giả lập.
