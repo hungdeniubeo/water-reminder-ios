@@ -202,6 +202,7 @@ export function createWorker({ now = () => Date.now(), sendPush = sendWebPush } 
       const migrated = await schemaReady(env);
       const ready = configured(env) && migrated;
       return json({ apiVersion: 2, ready, vapidPublicKey: ready ? env.VAPID_PUBLIC_KEY : null,
+        capabilities: {customMinutes:{min:5,max:720},history:true,disconnect:true},
         mode: 'admin-receiver', reason: !migrated ? 'migration-required' : !configured(env) ? 'configuration-required' : null });
     }
     await requireSchema(env);

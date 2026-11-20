@@ -12,8 +12,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./admin.css?v=20261120-control-center">
-  <script type="module" src="./admin.js?v=20261120-control-center"></script>
+  <link rel="stylesheet" href="./admin.css?v=20261120-control-center-final">
+  <script type="module" src="./admin.js?v=20261120-control-center-final"></script>
 </head>
 <body>
   <header class="topbar">
@@ -50,6 +50,7 @@
         <button id="refresh" type="button" class="button ghost refresh-button"><span aria-hidden="true">↻</span> Cập nhật</button>
       </section>
       <p id="global-status" class="feedback global-status" role="status" aria-live="polite"></p>
+      <p id="server-feature-warning" class="server-warning" hidden role="status">Máy chủ thông báo chưa được cập nhật. Lịch nhắc 5–15 phút, lọc lịch sử và ngắt thiết bị chỉ hoạt động sau khi triển khai Cloudflare Worker mới. Các chức năng cũ vẫn có thể sử dụng.</p>
       <section class="connection-strip" aria-labelledby="connection-title">
         <div class="connection-symbol"><span id="connection-dot" class="status-dot" aria-hidden="true"></span></div>
         <div><strong id="connection-title">Đang kiểm tra kết nối iPhone…</strong><p id="connection-detail">Đang kiểm tra máy chủ thông báo.</p></div>

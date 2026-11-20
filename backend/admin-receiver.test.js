@@ -89,6 +89,9 @@ test('public config exposes readiness/version but no secret or subscriber detail
   assert.equal(result.body.apiVersion, 2);
   assert.equal(result.body.ready, true);
   assert.equal(result.body.mode, 'admin-receiver');
+  assert.deepEqual(result.body.capabilities.customMinutes,{min:5,max:720});
+  assert.equal(result.body.capabilities.history,true);
+  assert.equal(result.body.capabilities.disconnect,true);
   const text = JSON.stringify(result.body);
   assert.ok(!text.includes(OWNER_SECRET));
   assert.ok(!text.includes(subscription.endpoint));
