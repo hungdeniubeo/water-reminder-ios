@@ -1,8 +1,8 @@
-const CACHE_NAME = 'water-reminder-static-v25-rosy-water-splash';
+const CACHE_NAME = 'water-reminder-static-v26-editorial-type';
 const APP_ROOT = new URL('./', self.registration.scope);
 const API_URL = 'https://water-beo-push.hungdeniubeo-water.workers.dev';
 const ASSETS = [
-  './', './index.html', './receiver.css?v=20261120-rosy-splash', './receiver.js?v=20261120-rosy-splash',
+  './', './index.html', './receiver.css?v=20261120-editorial-type', './receiver.js?v=20261120-rosy-splash',
   './classic-pink-button.css?v=20261120-rosy-splash', './classic-pink-button.js?v=20261120-rosy-splash', './push-config.js',
   './manifest.webmanifest', './assets/icon.svg', './assets/icon-maskable.svg'
 ];
