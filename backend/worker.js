@@ -382,11 +382,12 @@ export function createWorker({ now = () => Date.now(), sendPush = sendWebPush } 
     if (device?.push_json) {
       const slot = latestDueSlot(settings, device, date);
       if (slot && slot !== device.last_sent_slot) {
-        const defaults = settings.notification_title === 'Water ♡' &&
-          ['Beo ơi, nhớ nhấp một chút nước nha em ♡', 'Beo ơi, nhớ uống nước nha em ♡', 'Đến giờ uống nước rồi nè em.'].includes(settings.reminder_message);
+        const defaults = (settings.notification_title === 'Water ♡' &&
+          ['Beo ơi, nhớ nhấp một chút nước nha em ♡', 'Beo ơi, nhớ uống nước nha em ♡'].includes(settings.reminder_message)) ||
+          (settings.notification_title === 'Beo ơi 💧' && settings.reminder_message === 'Đến giờ uống nước rồi nè em.');
         // Saved personalized copy remains untouched; only shipped defaults rotate.
         const copy = defaults
-          ? { title: selectReminderTitle(slot), body: selectReminderMessage({ ...device, note_to_partner: '' }, { slot }) }
+          ? { title: selectReminderTitle(slot), body: selectReminderMessage({ ...device, timezone: settings.timezone, start_time: settings.start_time, end_time: settings.end_time, interval_minutes: settings.interval_minutes, note_to_partner: '' }, { slot }) }
           : { title: settings.notification_title, body: settings.reminder_message };
         const message = await createMessage(env, device, { ...copy,
           source: 'scheduled', dedupeKey: `scheduled:${device.id}:${slot}` }, timestamp);

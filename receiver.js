@@ -1,6 +1,6 @@
 import { PUSH_API_URL } from './push-config.js';
 import { attachClassicPinkButton } from './classic-pink-button.js?v=20261120-50-notes-final';
-import { createWaterNotePicker } from './water-notes.js';
+import { createWaterNotePicker, pickHomeCopy } from './water-notes.js?v=20261120-home-copy-v1';
 
 export const SESSION_KEY = 'water-beo-device-session-v1';
 const VIEW_KEY = 'water-beo-view-v2';
@@ -81,6 +81,7 @@ export function startReceiver() {
   const $ = id => document.getElementById(id);
   const client = createReceiverClient();
   const pickWaterNote = createWaterNotePicker();
+  const homeCopy = pickHomeCopy({ storage: globalThis.localStorage });
   let currentWaterNote = pickWaterNote();
   const permission = () => typeof Notification === 'undefined' ? 'unavailable' : Notification.permission;
   const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -138,8 +139,11 @@ export function startReceiver() {
       install: 'Thêm vào iPhone', unsupported: 'Chưa hỗ trợ', 'server-pending': 'Chờ kết nối',
       error: 'Chưa kết nối', pair: 'Chưa kết nối', denied: 'Thông báo đang tắt', enable: 'Chưa bật thông báo' };
     $('app-title').textContent = state.profile.appTitle;
-    $('greeting').textContent = state.profile.recipientName;
-    $('home-message').textContent = state.profile.homeMessage;
+    const automaticCopy = state.profile.homeMessage === DEFAULT_PROFILE.homeMessage;
+    $('home-eyebrow').textContent = automaticCopy ? homeCopy.eyebrow : 'NHẮC UỐNG NƯỚC';
+    $('greeting').textContent = automaticCopy ? homeCopy.title : state.profile.recipientName;
+    $('greeting').dataset.rotating = String(automaticCopy);
+    $('home-message').textContent = automaticCopy ? homeCopy.body : state.profile.homeMessage;
     document.title = `${state.profile.appTitle} — ${state.profile.recipientName}`;
     $('connection-label').textContent = labels[screen];
     $('connection-state').dataset.state = screen;

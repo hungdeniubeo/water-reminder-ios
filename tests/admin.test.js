@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { HOME_COPIES } from '../water-notes.js';
 import {messageState} from '../admin.js';
 import {readFile} from 'node:fs/promises';
 
@@ -217,8 +218,9 @@ test('notification templates only edit drafts and preserve pending edits during 
     await login();
     const savedSettings = structuredClone(state.settings);
     await emit('use-send-template', 'click');
-    assert.equal(nodes['send-title'].value, 'Water ♡');
-    assert.equal(nodes['send-body'].value, 'Beo ơi, nhớ uống nước nha em ♡');
+    const copy = HOME_COPIES.find(item => item.title.toLocaleUpperCase('vi-VN') === nodes['send-title'].value);
+    assert.ok(copy, 'manual template is one of the rotating Beo greetings');
+    assert.equal(nodes['send-body'].value, copy.body);
     assert.equal(nodes['preview-title'].textContent, nodes['send-title'].value);
     assert.equal(nodes['preview-body'].textContent, nodes['send-body'].value);
     await emit('use-reminder-template', 'click');
@@ -239,8 +241,14 @@ test('only the exact shipped notification pair is refreshed in the initial send 
       state.settings.reminderMessage = body;
       await login();
       const builtIn = body === 'Beo ơi, nhớ nhấp một chút nước nha em ♡';
-      assert.equal(nodes['send-title'].value, builtIn ? 'Water ♡' : 'Water ♡');
-      assert.equal(nodes['send-body'].value, builtIn ? 'Beo ơi, nhớ uống nước nha em ♡' : body);
+      if (builtIn) {
+        const template = HOME_COPIES.find(item => item.title.toLocaleUpperCase('vi-VN') === nodes['send-title'].value);
+        assert.ok(template, 'built-in preset loads a fresh sample');
+        assert.equal(nodes['send-body'].value, template.body);
+      } else {
+        assert.equal(nodes['send-title'].value, 'Water ♡');
+        assert.equal(nodes['send-body'].value, body);
+      }
       assert.equal(nodes['reminder-title'].value, 'Water ♡', 'stored schedule stays visible as saved');
       assert.equal(nodes['reminder-body'].value, body);
     });

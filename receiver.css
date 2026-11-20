@@ -119,6 +119,10 @@ h1, h2, p { margin: 0; }
   overflow-wrap:anywhere;text-wrap:balance;
   text-shadow:0 3px 0 rgba(255,255,255,.72);
 }
+.home h1[data-rotating="true"] {
+  max-width:335px;margin-left:auto;margin-right:auto;text-transform:uppercase;
+  font-size:clamp(27px,7.9vw,36px);letter-spacing:-1.45px;line-height:1.25;
+}
 .home-message {
   margin:11px auto 0;max-width:305px;color:#987587;
   font-size:14px;font-weight:400;letter-spacing:-.1px;line-height:1.8;
@@ -244,6 +248,7 @@ h1, h2, p { margin: 0; }
 body[data-setup="true"] .home {padding:11px 0;}
 body[data-setup="true"] .water-card {min-height:385px;padding:30px 18px 21px;border-radius:30px;}
 body[data-setup="true"] .home h1 {font-size:clamp(37px,11vw,48px);letter-spacing:-2.4px;}
+body[data-setup="true"] .home h1[data-rotating="true"] {font-size:clamp(23px,7.4vw,30px);letter-spacing:-.9px;}
 body[data-setup="true"] .home-message {margin-top:8px;font-size:13px;}
 body[data-setup="true"] .drop-stage {height:145px;flex-basis:145px;margin-top:3px;}
 body[data-setup="true"] .water-aura {width:165px;height:140px;}
@@ -259,6 +264,7 @@ body[data-setup="true"] .card-footmark {margin-top:12px;}
   .home {padding:9px 0 2px;}
   .water-card {min-height:475px;padding:30px 18px 18px;}
   .home h1 {font-size:clamp(45px,13vw,58px);}
+  .home h1[data-rotating="true"] {font-size:clamp(26px,7.7vw,34px);}
   .drop-stage {height:198px;flex-basis:198px;margin-top:3px;}
   .water-aura {height:190px;width:225px;}
   .halo-out {width:193px;height:193px;}
@@ -271,6 +277,7 @@ body[data-setup="true"] .card-footmark {margin-top:12px;}
   .connection-pill {font-size:10px;padding:6px 8px;}
   .water-card {padding-left:16px;padding-right:16px;border-radius:29px;}
   .home h1 {font-size:52px;letter-spacing:-3px;}
+  .home h1[data-rotating="true"] {font-size:28px;letter-spacing:-1px;}
   .setup-card {padding:19px 16px;}
   .pair-fields .soft-button {padding-inline:12px;}
 }

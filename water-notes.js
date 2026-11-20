@@ -71,3 +71,51 @@ export function createWaterNotePicker(random = Math.random) {
     return last;
   };
 }
+
+
+/** Short rotating greetings for the ACTIVE iPhone receiver home screen. */
+export const HOME_COPIES = Object.freeze([
+  { eyebrow: "NHẮC BEO UỐNG NƯỚC MỖI NGÀY ♡", title: "Cục cưng ơi, em uống nước chưa?", body: "Nhớ uống nước đầy đủ nha em ♡" },
+  { eyebrow: "MỘT CHÚT THƯƠNG GỬI BEO ♡", title: "Beo yêu, uống nước chút nha", body: "Anh nhắc xíu thôi, đừng quên uống nước đó." },
+  { eyebrow: "BEO ƠI, ANH NHẮC NÈ ♡", title: "Bé ơi, nghỉ tay một chút", body: "Uống vài ngụm nước rồi mình làm tiếp nha." },
+  { eyebrow: "UỐNG NƯỚC CÙNG ANH NHA ♡", title: "Cục zàng của anh ơi", body: "Sáng giờ em có nhớ uống nước không nè?" },
+  { eyebrow: "NHẮC BÉ UỐNG NƯỚC ♡", title: "Em bé ơi, uống nước chưa?", body: "Đi lấy một ly nước rồi quay lại nha em." },
+  { eyebrow: "MỘT LỜI NHẮC NHỎ ♡", title: "Beo đang bận lắm hả?", body: "Bận gì cũng nhớ uống chút nước nha." },
+  { eyebrow: "ANH THƯƠNG BEO ♡", title: "Beo ơi, nghe anh nhắc nè", body: "Để chai nước gần tay cho dễ nhớ nhé." },
+  { eyebrow: "BEO NHỚ UỐNG NƯỚC NHA ♡", title: "Cục cưng nghỉ xíu nhé", body: "Một ngụm nước thôi cũng được mà em." },
+  { eyebrow: "NHẮC EM UỐNG NƯỚC ♡", title: "Hôm nay Beo thế nào?", body: "Uống nước đều đều cho anh yên tâm nha." },
+  { eyebrow: "MỘT CHÚT QUAN TÂM ♡", title: "Bé thương ơi, anh đây", body: "Anh ghé nhắc bé uống nước một chút nè." },
+  { eyebrow: "LỜI NHẮC DÀNH CHO BEO ♡", title: "Nào, mình uống nước nhé", body: "Em uống một ít rồi nghỉ ngơi tí nha." },
+  { eyebrow: "UỐNG NƯỚC ĐỀU NHA BEO ♡", title: "Beo ơi, ly nước đâu rồi?", body: "Đừng mải làm mà quên uống nước em nhé." },
+  { eyebrow: "GỬI EM MỘT CHÚT THƯƠNG ♡", title: "Anh nhắc Beo một xíu", body: "Nhớ chăm sóc bản thân nữa nha cục cưng." },
+  { eyebrow: "BEO ƠI, ĐẾN GIỜ RỒI ♡", title: "Bé iu ơi, uống nước nha", body: "Có anh ở đây nhắc em uống nước nè." },
+  { eyebrow: "THƯƠNG BEO MỖI NGÀY ♡", title: "Bé có khát nước không?", body: "Uống một chút trước khi thấy khát nha." },
+  { eyebrow: "NHẮC BEO TỪ XA ♡", title: "Em ơi, cho anh nhắc tí", body: "Nhớ uống nước trước khi làm tiếp nè." },
+  { eyebrow: "ANH NHẮC CỤC CƯNG ♡", title: "Một ly nước cho Beo nha", body: "Uống xong rồi kể anh nghe hôm nay thế nào." },
+  { eyebrow: "DÀNH CHO BÉ YÊU ♡", title: "Beo à, mình nghỉ tay nhé", body: "Đứng dậy lấy nước uống một chút nha em." },
+  { eyebrow: "MỖI NGÀY MỘT CHÚT ♡", title: "Cục cưng nhớ uống nước đó", body: "Thương em nên anh cứ muốn nhắc thôi ♡" },
+  { eyebrow: "BEO ƠI, UỐNG NƯỚC THÔI ♡", title: "Bé ngoan, uống nước nhé", body: "Một ngụm rồi thêm một ngụm nữa nè." },
+  { eyebrow: "MỘT NGỤM NƯỚC CHO BEO ♡", title: "Hôm nay Beo uống đủ chưa?", body: "Anh nhắc để em đừng quên ly nước bên cạnh." },
+  { eyebrow: "ANH GỬI BEO LỜI NHẮC ♡", title: "Cục cưng, lại đây anh nhắc", body: "Nước đã để sẵn chưa em yêu?" },
+  { eyebrow: "BEO ĐỪNG QUÊN UỐNG NƯỚC ♡", title: "Bé ơi, thêm chút nước nha", body: "Uống từ từ thôi, không cần vội đâu em." },
+  { eyebrow: "MỖI NGÀY ĐỀU NHỚ BEO ♡", title: "Beo ơi, uống nước cùng anh", body: "Mình cùng uống một ly nước nhé ♡" }
+].map(copy => Object.freeze(copy)));
+
+export const HOME_COPY_KEY = 'water-beo-home-copy-last-v1';
+
+/** A new visit gets a new message. Re-renders keep the chosen text stable. */
+export function pickHomeCopy({ storage, random = Math.random } = {}) {
+  const count = HOME_COPIES.length;
+  const sample = Number(random());
+  const n = Number.isFinite(sample) ? Math.max(0, Math.min(.999999, sample)) : 0;
+  let previous = -1;
+  try {
+    const raw = storage?.getItem(HOME_COPY_KEY);
+    const value = raw === null || raw === undefined ? -1 : Number(raw);
+    if (Number.isInteger(value) && value >= 0 && value < count) previous = value;
+  } catch { /* Private browsing can block storage; rotating still works. */ }
+  const index = previous < 0 ? Math.floor(n * count)
+    : (previous + 1 + Math.floor(n * (count - 1))) % count;
+  try { storage?.setItem(HOME_COPY_KEY, String(index)); } catch {}
+  return HOME_COPIES[index];
+}

@@ -1,8 +1,8 @@
-const CACHE_NAME = 'water-reminder-static-v29-fifty-notes-final';
+const CACHE_NAME = 'water-reminder-static-v30-rotating-greeting';
 const APP_ROOT = new URL('./', self.registration.scope);
 const API_URL = 'https://water-beo-push.hungdeniubeo-water.workers.dev';
 const ASSETS = [
-  './', './index.html', './receiver.css?v=20261120-soft-water-card', './receiver.js?v=20261120-50-notes-final', './water-notes.js',
+  './', './index.html', './receiver.css?v=20261120-rotating-greeting', './receiver.js?v=20261120-rotating-greeting', './water-notes.js?v=20261120-home-copy-v1',
   './classic-pink-button.css?v=20261120-rosy-splash', './classic-pink-button.js?v=20261120-50-notes-final', './push-config.js',
   './manifest.webmanifest', './assets/icon.svg', './assets/icon-maskable.svg'
 ];

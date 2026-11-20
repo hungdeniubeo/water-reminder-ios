@@ -10,7 +10,7 @@
   <title>Quản trị Water</title>
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./admin.css?v=20261120-notification">
-  <script type="module" src="./admin.js?v=20261120-water-beo-reminder"></script>
+  <script type="module" src="./admin.js?v=20261120-random-samples"></script>
 </head>
 <body>
   <header class="topbar">
@@ -50,7 +50,7 @@
 
       <div class="dashboard-grid">
         <section class="card compose-card" aria-labelledby="compose-title">
-          <div class="section-heading compose-heading"><h2 id="compose-title">Gửi thông báo</h2><button id="use-send-template" class="button ghost template-button" type="button">Dùng mẫu gọn</button></div>
+          <div class="section-heading compose-heading"><h2 id="compose-title">Gửi thông báo</h2><button id="use-send-template" class="button ghost template-button" type="button">Đổi câu mẫu ♡</button></div>
           <form id="send-form">
             <label for="send-title">Tiêu đề thông báo</label>
             <input id="send-title" maxlength="70" required placeholder="Water ♡">
@@ -72,8 +72,8 @@
             <label class="switch-row" for="schedule-enabled"><span><strong>Nhắc tự động</strong><small>Gửi trong khung giờ đã chọn</small></span><input id="schedule-enabled" name="enabled" type="checkbox" role="switch"></label>
             <div class="field-pair"><div><label for="schedule-start">Từ</label><input id="schedule-start" type="time" name="start" required></div><div><label for="schedule-end">Đến</label><input id="schedule-end" type="time" name="end" required></div></div>
             <div class="field-pair"><div><label for="schedule-interval">Khoảng cách</label><select id="schedule-interval" name="interval"><option value="60">Mỗi 1 giờ</option><option value="90">Mỗi 1 giờ 30</option><option value="120">Mỗi 2 giờ</option><option value="180">Mỗi 3 giờ</option></select></div><div><label for="schedule-timezone">Múi giờ</label><input id="schedule-timezone" name="timezone" required maxlength="64" list="timezones"><datalist id="timezones"><option value="Asia/Ho_Chi_Minh"><option value="Asia/Bangkok"><option value="Asia/Tokyo"><option value="Europe/Paris"><option value="America/Los_Angeles"><option value="America/New_York"></datalist></div></div>
-            <div class="label-row reminder-label-row"><label for="reminder-title">Tiêu đề lời nhắc</label><button id="use-reminder-template" class="button ghost template-button" type="button">Dùng mẫu gọn</button></div><input id="reminder-title" name="notificationTitle" maxlength="70" required placeholder="Water ♡">
-            <label for="reminder-body">Nội dung lời nhắc</label><textarea id="reminder-body" name="reminderMessage" rows="3" maxlength="150" required placeholder="Beo ơi, nhớ uống nước nha em ♡"></textarea>
+            <div class="label-row reminder-label-row"><label for="reminder-title">Tiêu đề lời nhắc</label><button id="use-reminder-template" class="button ghost template-button" type="button">Bật mẫu tự đổi ♡</button></div><input id="reminder-title" name="notificationTitle" maxlength="70" required placeholder="Water ♡">
+            <label for="reminder-body">Nội dung lời nhắc</label><textarea id="reminder-body" name="reminderMessage" rows="3" maxlength="150" required placeholder="Beo ơi, nhớ uống nước nha em ♡"></textarea><p class="help">Giữ mẫu mặc định để mỗi lần nhắc theo lịch có một tiêu đề và lời nhắn khác nhau. Nếu tự sửa, app sẽ gửi đúng nội dung bạn đã nhập.</p>
             <details class="personal-details"><summary>Tên và nội dung trang chủ</summary><div class="details-content">
               <label for="recipient-name">Tên người nhận</label><input id="recipient-name" name="recipientName" maxlength="32" required>
               <label for="app-title">Tên hiển thị trong app</label><input id="app-title" name="appTitle" maxlength="40" required>

@@ -446,3 +446,24 @@ test('turning the schedule off cancels unclaimed scheduled retries', async t => 
   assert.equal(state.body.messages[0].retryAt, null);
   assert.match(state.body.messages[0].error, /đã tắt/);
 });
+
+
+test('default scheduled copy rotates with the configured one-hour interval, while saved custom copy remains exact', async t => {
+  const f = await fixture(t);
+  const { admin } = await f.connect();
+  const before = (await f.api('/api/admin/state', {token:admin})).body.settings;
+  const updated = {...before, enabled:true, start:'09:00', end:'21:00', interval:60};
+  assert.equal((await f.api('/api/admin/settings',{method:'POST',token:admin,data:updated})).status,200);
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  f.clock.ms+=60*60*1000;
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  assert.equal(f.sent.length,2);
+  assert.notEqual(f.sent[0].payload.body,f.sent[1].payload.body);
+  assert.notEqual(f.sent[0].payload.title,f.sent[1].payload.title);
+  const customized = {...updated,reminderMessage:'Lời nhắc em tự viết ♡'};
+  assert.equal((await f.api('/api/admin/settings',{method:'POST',token:admin,data:customized})).status,200);
+  f.clock.ms+=60*60*1000;
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  assert.equal(f.sent[2].payload.body,customized.reminderMessage);
+  assert.equal(f.sent[2].payload.title,customized.notificationTitle);
+});

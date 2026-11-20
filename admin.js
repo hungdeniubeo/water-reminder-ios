@@ -1,9 +1,20 @@
 import { PUSH_API_URL } from './push-config.js';
+import { HOME_COPIES } from './water-notes.js?v=20261120-home-copy-v1';
 
 const COMPACT_NOTIFICATION = {
   title: 'Water ♡',
   body: 'Beo ơi, nhớ uống nước nha em ♡'
 };
+
+let lastTemplateIndex = -1;
+function randomManualTemplate() {
+  // Manual templates vary without affecting custom typed messages or schedule settings.
+  const count = HOME_COPIES.length;
+  const jump = 1 + Math.floor(Math.random() * (count - 1));
+  lastTemplateIndex = lastTemplateIndex < 0 ? Math.floor(Math.random() * count) : (lastTemplateIndex + jump) % count;
+  const sample = HOME_COPIES[lastTemplateIndex];
+  return { title: sample.title.toLocaleUpperCase('vi-VN'), body: sample.body };
+}
 
 export function messageState(message) {
   if (message.openedAt || message.status === 'opened') return { label: 'Đã mở', tone: 'opened' };
@@ -146,10 +157,12 @@ function renderState(state) {
   $('pair-button').textContent = device.paired ? 'Kết nối iPhone khác' : 'Tạo mã kết nối';
   if (!settingsDirty) fillSettings(settings);
   if (!draftLoaded) {
-    const isShippedDefault = (settings.notificationTitle === 'Water ♡' && settings.reminderMessage === 'Beo ơi, nhớ nhấp một chút nước nha em ♡') ||
+    const isShippedDefault = (settings.notificationTitle === 'Water ♡' &&
+      ['Beo ơi, nhớ nhấp một chút nước nha em ♡', 'Beo ơi, nhớ uống nước nha em ♡'].includes(settings.reminderMessage)) ||
       (settings.notificationTitle === 'Beo ơi 💧' && settings.reminderMessage === 'Đến giờ uống nước rồi nè em.');
-    $('send-title').value = isShippedDefault ? COMPACT_NOTIFICATION.title : settings.notificationTitle;
-    $('send-body').value = isShippedDefault ? COMPACT_NOTIFICATION.body : settings.reminderMessage;
+    const draft = isShippedDefault ? randomManualTemplate() : { title: settings.notificationTitle, body: settings.reminderMessage };
+    $('send-title').value = draft.title;
+    $('send-body').value = draft.body;
     draftLoaded = true;
     renderPreview();
   }
@@ -184,8 +197,9 @@ function draftChanged() {
   feedback('send-status');
 }
 $('use-send-template')?.addEventListener('click', () => {
-  $('send-title').value = COMPACT_NOTIFICATION.title;
-  $('send-body').value = COMPACT_NOTIFICATION.body;
+  const draft = randomManualTemplate();
+  $('send-title').value = draft.title;
+  $('send-body').value = draft.body;
   draftChanged();
 });
 $('use-reminder-template')?.addEventListener('click', () => {
