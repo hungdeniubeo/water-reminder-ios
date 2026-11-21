@@ -11,13 +11,13 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "./assets/icon.svg",
+      "src": "./assets/icon.svg?v=20261121-heart-bell",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "./assets/icon-maskable.svg",
+      "src": "./assets/icon-maskable.svg?v=20261121-heart-bell",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "maskable"
