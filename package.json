@@ -5,8 +5,8 @@
   "type": "module",
   "description": "Private one-recipient iPhone push notifications with a separate admin page",
   "scripts": {
-    "test": "node --test tests/receiver.test.js tests/admin.test.js tests/admin-features.test.js tests/admin-interactions.test.js tests/home-copy.test.js tests/service-worker.test.js backend/*.test.js",
-    "check": "node --check receiver.js && node --check water-notes.js && node --check classic-pink-button.js && node --check admin.js && node --check admin-features.js && node --check sw.js && node --check push-config.js && node --check backend/worker.js && node --check backend/lib.js && node --check backend/reminder-messages.js"
+    "test": "node --test tests/receiver.test.js tests/admin.test.js tests/admin-features.test.js tests/admin-interactions.test.js tests/routines-admin.test.js tests/home-copy.test.js tests/service-worker.test.js backend/*.test.js",
+    "check": "node --check receiver.js && node --check water-notes.js && node --check classic-pink-button.js && node --check admin.js && node --check admin-features.js && node --check routines-admin.js && node --check sw.js && node --check push-config.js && node --check backend/worker.js && node --check backend/lib.js && node --check backend/routines.js && node --check backend/reminder-messages.js"
   },
   "engines": {
     "node": ">=22.18"

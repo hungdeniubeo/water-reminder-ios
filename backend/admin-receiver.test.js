@@ -8,6 +8,7 @@ import { SQLiteD1 } from './test-support/sqlite-d1.js';
 const schema = await readFile(new URL('./schema.sql', import.meta.url), 'utf8');
 const legacySchema = schema.split('-- Notification-first migration')[0];
 const migration = await readFile(new URL('./migrations/0002-admin-receiver.sql', import.meta.url), 'utf8');
+const routinesMigration = await readFile(new URL('./migrations/0003-extra-reminders.sql', import.meta.url), 'utf8');
 const OWNER_SECRET = 'test-only-admin-code-with-32-characters';
 const subscription = {
   endpoint: 'https://web.push.apple.com/test-only-device',
@@ -27,6 +28,7 @@ async function fixture(t, { legacy = false, pushStatus = 201 } = {}) {
       'Lời nhắc cũ được giữ lại ♡', JSON.stringify(subscription), subscription.endpoint, 1).run();
   }
   DB.exec(migration);
+  DB.exec(routinesMigration);
   const env = { DB, OWNER_SETUP_CODE: OWNER_SECRET, VAPID_PUBLIC_KEY: 'public-test-key',
     VAPID_PRIVATE_KEY: 'private-test-key', VAPID_SUBJECT: 'https://hungdeniubeo.github.io/water-reminder-ios/' };
   const sent = [];
@@ -551,4 +553,55 @@ test('only authenticated admin can unlink the sole receiving iPhone with explici
   assert.equal(state.device.paired,false);
   assert.equal(state.device.pushEnabled,false);
   assert.equal((await f.api('/api/admin/device/disconnect',{method:'POST',token:admin,data:{confirm:true}})).status,200);
+});
+
+
+test('extra work and lunch routines start disabled; migration remains idempotent and preserves existing phone', async t => {
+  const f=await fixture(t,{legacy:true});
+  const before=await f.DB.prepare('SELECT * FROM beo_receiver').first();
+  f.DB.exec(routinesMigration);
+  const admin=await f.login();
+  const result=await f.api('/api/admin/routines',{token:admin});
+  assert.equal(result.status,200);
+  assert.deepEqual(result.body.routines.map(x=>x.enabled),[false,false]);
+  assert.equal(result.body.routines.length,2);
+  assert.deepEqual(await f.DB.prepare('SELECT * FROM beo_receiver').first(),before);
+  assert.equal((await f.api('/api/admin/routines')).status,401);
+  assert.equal((await f.api('/api/device/me',{token:f.legacyToken})).status,200);
+});
+
+test('admin adds, edits and deletes custom notification schedules with validation',async t=>{
+  const f=await fixture(t), admin=await f.login();
+  const data={label:'Nghỉ tay',title:'BÉ ƠI, NGHỈ MỘT CHÚT ♡',
+    body:'Nghỉ tay chút nha em.',time:'15:00',days:127,enabled:true};
+  const added=await f.api('/api/admin/routines',{method:'POST',token:admin,data});
+  assert.equal(added.status,201);
+  const id=added.body.routine.id;
+  assert.equal((await f.api('/api/admin/routines',{method:'POST',token:admin,data:{...data,days:0}})).status,400);
+  assert.equal((await f.api('/api/admin/routines/'+id,{method:'PATCH',data})).status,401);
+  const changed=await f.api('/api/admin/routines/'+id,{method:'PATCH',token:admin,data:{...data,days:62,time:'15:10'}});
+  assert.equal(changed.body.routine.time,'15:10');
+  assert.equal(changed.body.routine.days,62);
+  assert.equal((await f.api('/api/admin/routines/'+id,{method:'DELETE',token:admin})).status,200);
+});
+
+test('weekday morning and daily lunch have independent cron slots without duplicate sends',async t=>{
+  const f=await fixture(t), {admin}=await f.connect();
+  const routines=(await f.api('/api/admin/routines',{token:admin})).body.routines;
+  for(const r of routines) {
+    assert.equal((await f.api('/api/admin/routines/'+r.id,{method:'PATCH',token:admin,
+      data:{...r,enabled:true}})).status,200);
+  }
+  f.clock.ms=Date.UTC(2026,10,20,1,0);
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  assert.equal(f.sent.length,1);
+  assert.match(f.sent[0].payload.title,/ĐI LÀM/);
+  f.clock.ms=Date.UTC(2026,10,20,4,50);
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  assert.equal(f.sent.length,2);
+  assert.match(f.sent[1].payload.title,/ĂN TRƯA/);
+  f.clock.ms=Date.UTC(2026,10,21,1,0); // Saturday
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  assert.equal(f.sent.length,2);
 });
