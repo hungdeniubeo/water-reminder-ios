@@ -8,7 +8,8 @@
     "deploy": "wrangler deploy",
     "db:migrate": "wrangler d1 execute water-couple --remote --file=./schema.sql",
     "test": "node --test",
-    "db:upgrade": "wrangler d1 execute water-couple --remote --file=./migrations/0002-admin-receiver.sql"
+    "db:upgrade": "wrangler d1 execute water-couple --remote --file=./migrations/0002-admin-receiver.sql",
+    "db:routines": "wrangler d1 execute water-couple --remote --file=./migrations/0003-extra-reminders.sql"
   },
   "dependencies": {
     "@block65/webcrypto-web-push": "2.0.0"
