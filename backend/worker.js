@@ -1,5 +1,6 @@
 import { dueSlot, goodName, goodSchedule, randomSecret, safeCompare, sha256, validPushSubscription } from './lib.js';
 import { selectReminderMessage, selectReminderTitle } from './reminder-messages.js';
+import { MAX_ROUTINES, ROUTINE_ID, validRoutine, exposeRoutine, routineSlot } from './routines.js';
 
 export const ORIGIN = 'https://hungdeniubeo.github.io';
 export const ROOM_ID = 'water-beo-single-device';
@@ -74,6 +75,13 @@ const exposeMessage = row => row ? ({
   error: row.error || '', retryAt: row.next_attempt_at || null
 }) : null;
 const getSettings = env => env.DB.prepare('SELECT * FROM beo_settings WHERE id=1').first();
+async function routinesReady(env) {
+  const row = await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='beo_routines'").first();
+  return Boolean(row);
+}
+async function requireRoutines(env) {
+  if (!(await routinesReady(env))) fail(503, 'Cần cập nhật cơ sở dữ liệu cho lời nhắc mới.');
+}
 const getReceiver = env => env.DB.prepare(`SELECT d.*, r.last_seen_at FROM beo_receiver r
   JOIN devices d ON d.id=r.device_id WHERE r.id=1 AND d.room_id=?`).bind(ROOM_ID).first();
 async function authDevice(request, env) {
@@ -280,6 +288,45 @@ export function createWorker({ now = () => Date.now(), sendPush = sendWebPush } 
             lastSeenAt: device?.last_seen_at || null },
           service: { ready: configured(env) }, messages: messages.results.map(exposeMessage) });
       }
+      if (path === '/api/admin/routines' && method === 'GET') {
+        await requireRoutines(env);
+        const result = await env.DB.prepare('SELECT * FROM beo_routines ORDER BY time_local,id').all();
+        return json({ routines: result.results.map(exposeRoutine) });
+      }
+      if (path === '/api/admin/routines' && method === 'POST') {
+        await requireRoutines(env);
+        const data = await readJson(request);
+        if (!validRoutine(data)) fail(400, 'Kiểm tra lại giờ, thứ trong tuần, tiêu đề và nội dung.');
+        const count = await env.DB.prepare('SELECT COUNT(*) AS n FROM beo_routines').first();
+        if (count.n >= MAX_ROUTINES) fail(409, 'Tối đa 20 lời nhắc tự động. Xóa bớt lời nhắc không dùng.');
+        const id = crypto.randomUUID();
+        await env.DB.prepare('INSERT INTO beo_routines (id,label,title,body,time_local,days_mask,enabled,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)')
+          .bind(id,data.label.trim(),data.title.trim(),data.body.trim(),data.time,data.days,data.enabled?1:0,timestamp,timestamp).run();
+        return json({routine:exposeRoutine(await env.DB.prepare('SELECT * FROM beo_routines WHERE id=?').bind(id).first())},201);
+      }
+      const routineMatch = /^\/api\/admin\/routines\/([a-z0-9-]+)$/.exec(path);
+      if (routineMatch && ['PATCH','DELETE'].includes(method)) {
+        await requireRoutines(env);
+        const id = routineMatch[1];
+        if (!ROUTINE_ID.test(id)) fail(404,'Không tìm thấy lời nhắc.');
+        const existing = await env.DB.prepare('SELECT * FROM beo_routines WHERE id=?').bind(id).first();
+        if (!existing) fail(404,'Không tìm thấy lời nhắc.');
+        if (method === 'DELETE') {
+          await env.DB.prepare('DELETE FROM beo_routines WHERE id=?').bind(id).run();
+          await env.DB.prepare("UPDATE beo_messages SET status='failed',next_attempt_at=0,lease_until=0,error='Lời nhắc đã bị xóa.' WHERE source='scheduled' AND dedupe_key LIKE ? AND (status='pending' OR (status='failed' AND next_attempt_at>0))")
+            .bind('routine:%:' + id + ':%').run();
+          return json({ok:true});
+        }
+        const data = await readJson(request);
+        if (!validRoutine(data)) fail(400,'Kiểm tra lại giờ, thứ trong tuần, tiêu đề và nội dung.');
+        await env.DB.prepare('UPDATE beo_routines SET label=?,title=?,body=?,time_local=?,days_mask=?,enabled=?,updated_at=? WHERE id=?')
+          .bind(data.label.trim(),data.title.trim(),data.body.trim(),data.time,data.days,data.enabled?1:0,timestamp,id).run();
+        if (!data.enabled) {
+          await env.DB.prepare("UPDATE beo_messages SET status='failed',next_attempt_at=0,lease_until=0,error='Lời nhắc đã được tắt.' WHERE source='scheduled' AND dedupe_key LIKE ? AND (status='pending' OR (status='failed' AND next_attempt_at>0))")
+            .bind('routine:%:' + id + ':%').run();
+        }
+        return json({routine:exposeRoutine(await env.DB.prepare('SELECT * FROM beo_routines WHERE id=?').bind(id).first())});
+      }
       if (path === '/api/admin/history' && method === 'GET') {
         const params = new URL(request.url).searchParams;
         const limit = Number(params.get('limit') ?? 30);
@@ -326,7 +373,8 @@ export function createWorker({ now = () => Date.now(), sendPush = sendWebPush } 
             data.reminderMessage.trim(), data.enabled ? 1 : 0, data.start, data.end, Number(data.interval), data.timezone, timestamp).run();
         if (!data.enabled) {
           await env.DB.prepare(`UPDATE beo_messages SET status='failed',next_attempt_at=0,lease_until=0,error='Đã dừng vì lịch nhắc đã tắt.'
-            WHERE source='scheduled' AND (status='pending' OR (status='failed' AND next_attempt_at>0))`).run();
+            WHERE source='scheduled' AND dedupe_key LIKE 'scheduled:%'
+            AND (status='pending' OR (status='failed' AND next_attempt_at>0))`).run();
         }
         return json({ ok: true, settings: exposeSettings(await getSettings(env)) });
       }
@@ -431,10 +479,27 @@ export function createWorker({ now = () => Date.now(), sendPush = sendWebPush } 
           source: 'scheduled', dedupeKey: `scheduled:${device.id}:${slot}` }, timestamp);
         await deliver(env, device, message, timestamp);
       }
+      if (await routinesReady(env)) {
+        const extras = await env.DB.prepare('SELECT * FROM beo_routines WHERE enabled=1 ORDER BY time_local,id').all();
+        for (const row of extras.results) {
+          const reminder = exposeRoutine(row);
+          let matched = null;
+          for (let offset=0; offset<15; offset++) {
+            matched = routineSlot(reminder,new Date(date.getTime()-offset*60000),settings.timezone);
+            if (matched) break;
+          }
+          if (!matched) continue;
+          const message = await createMessage(env,device,{
+            title:reminder.title,body:reminder.body,source:'scheduled',
+            dedupeKey:'routine:' + device.id + ':' + reminder.id + ':' + matched },timestamp);
+          await deliver(env,device,message,timestamp);
+        }
+      }
+      const extrasEnabled = await routinesReady(env) && Boolean((await env.DB.prepare('SELECT id FROM beo_routines WHERE enabled=1 LIMIT 1').first()));
       const retries = await env.DB.prepare(`SELECT * FROM beo_messages WHERE device_id=? AND created_at>=? AND attempts<?
-        AND (source='manual' OR ?=1)
+        AND (source='manual' OR ?=1 OR (source='scheduled' AND dedupe_key LIKE 'routine:%' AND ?=1))
         AND (status='pending' OR (status='failed' AND next_attempt_at>0 AND next_attempt_at<=?) OR (status='sending' AND lease_until<?)) ORDER BY created_at LIMIT 5`)
-        .bind(device.id, timestamp - RETRY_SECONDS, MAX_ATTEMPTS, settings.schedule_enabled ? 1 : 0, timestamp, timestamp).all();
+        .bind(device.id, timestamp - RETRY_SECONDS, MAX_ATTEMPTS, settings.schedule_enabled ? 1 : 0, extrasEnabled ? 1 : 0, timestamp, timestamp).all();
       for (const message of retries.results) await deliver(env, device, message, timestamp);
     }
     if (date.getUTCMinutes() === 0) {
