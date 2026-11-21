@@ -1,4 +1,4 @@
-const CACHE_NAME = 'water-reminder-static-v30-rotating-greeting';
+const CACHE_NAME = 'water-reminder-static-v31-bell-reminders';
 const APP_ROOT = new URL('./', self.registration.scope);
 const API_URL = 'https://water-beo-push.hungdeniubeo-water.workers.dev';
 const ASSETS = [

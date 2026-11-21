@@ -1,5 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#f9dbe6"/><stop offset="1" stop-color="#e9a6bd"/></linearGradient></defs>
-<rect width="512" height="512" fill="url(#g)"/><circle cx="256" cy="256" r="171" fill="#fff8fa" opacity=".6"/>
-<path d="M256 129c-38 58-96 114-96 170a96 96 0 0 0 192 0c0-56-58-112-96-170Z" fill="#c85885"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Beo reminders icon">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe5ee"/><stop offset="1" stop-color="#f6bdd1"/></linearGradient></defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <circle cx="256" cy="255" r="177" fill="#fff9fb" opacity=".58"/>
+  <path d="M256 153c-47 0-78 36-78 85v47c0 19-10 32-25 44-8 7-3 21 9 21h188c12 0 17-14 9-21-15-12-25-25-25-44v-47c0-49-31-85-78-85Z" fill="#c25181"/>
+  <path d="M232 369c4 13 13 21 24 21s20-8 24-21" fill="none" stroke="#ae4272" stroke-width="14" stroke-linecap="round"/>
+  <path d="M256 259c-26-20-45-3-45 17 0 19 18 33 45 50 27-17 45-31 45-50 0-20-19-37-45-17Z" fill="#fff8fb"/>
 </svg>

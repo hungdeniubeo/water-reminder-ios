@@ -1,7 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Water app icon">
-<defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#ffe5ee"/><stop offset="1" stop-color="#f9cbdc"/></linearGradient><linearGradient id="drop" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#e99db9"/><stop offset="1" stop-color="#c34e7c"/></linearGradient></defs>
-<rect width="512" height="512" rx="120" fill="url(#bg)"/>
-<circle cx="256" cy="263" r="168" fill="#fff9fb" opacity=".58"/>
-<path d="M255 101c-51 76-122 151-122 229a122 122 0 0 0 244 0c0-78-71-153-122-229Z" fill="url(#drop)"/>
-<path d="M182 344c7 23 21 39 43 50" fill="none" stroke="#fff2f7" stroke-width="16" stroke-linecap="round" opacity=".65"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Beo reminders: a heart inside a notification bell">
+  <defs>
+    <linearGradient id="pink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe5ee"/><stop offset="1" stop-color="#f6bdd1"/></linearGradient>
+    <linearGradient id="bell" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dd83a6"/><stop offset="1" stop-color="#bc4778"/></linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#pink)"/>
+  <circle cx="256" cy="254" r="181" fill="#fff7fa" opacity=".54"/>
+  <path d="M256 128c-56 0-98 44-98 104v56c0 21-11 37-31 53-11 9-5 28 10 28h238c15 0 21-19 10-28-20-16-31-32-31-53v-56c0-60-42-104-98-104Z" fill="url(#bell)"/>
+  <path d="M226 393c5 16 17 24 30 24s25-8 30-24" fill="none" stroke="#b94b7b" stroke-width="18" stroke-linecap="round"/>
+  <path d="M255 274c-35-25-60-5-60 21 0 25 26 43 60 64 34-21 60-39 60-64 0-26-25-46-60-21Z" fill="#fff8fb"/>
+  <path d="M374 123l7 19 19 7-19 7-7 19-7-19-19-7 19-7 7-19Z" fill="#fff9fc"/>
+  <circle cx="129" cy="185" r="7" fill="#fff9fc" opacity=".94"/>
 </svg>

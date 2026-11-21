@@ -1,5 +1,6 @@
 import { PUSH_API_URL } from './push-config.js';
 import { previewScheduleTimes } from './admin-features.js?v=20261120-simple-v1';
+import { setupRoutinesAdmin } from './routines-admin.js?v=20261121-routines-v1';
 import { HOME_COPIES } from './water-notes.js?v=20261120-home-copy-v1';
 
 const COMPACT_NOTIFICATION = {
@@ -42,6 +43,7 @@ let pairingExpiry = 0;
 let refreshBusy = false;
 let copyMode = 'auto';
 let fixedDraft = { title: '', body: '' };
+let routinesUI = null;
 
 
 function feedback(id, text = '', tone = '') {
@@ -65,6 +67,7 @@ function lockDashboard() {
   pendingSend = null;
   draftLoaded = false;
   settingsDirty = false;
+  routinesUI?.reset();
   $('send-form').reset();
   $('settings-form').reset();
 }
@@ -190,6 +193,7 @@ async function refreshState({silent = false} = {}) {
     $('login-panel').hidden = true;
     $('dashboard').hidden = false;
     $('logout').hidden = false;
+    routinesUI?.ensureLoaded();
     if (!silent) feedback('global-status');
   } catch (error) {
     if (!silent) feedback(token ? 'global-status' : 'login-status', explainError(error), 'error');
@@ -390,6 +394,7 @@ setInterval(() => {
     $('pair-code').textContent = '···· ····';
   }
 }, 15000);
+routinesUI = setupRoutinesAdmin({$,api});
 updateSchedulePreview();
 renderPreview();
 checkService();

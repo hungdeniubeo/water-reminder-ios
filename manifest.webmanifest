@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Water — Beo",
   "short_name": "Water",
-  "description": "Nhắc uống nước và nhận thông báo.",
+  "description": "Lời nhắc nhẹ nhàng cho Beo: đi làm, ăn trưa, uống nước và những điều nhỏ mỗi ngày.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
