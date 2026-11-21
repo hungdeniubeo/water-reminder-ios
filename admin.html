@@ -11,12 +11,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./admin.css?v=20261120-simple-v1">
-  <script type="module" src="./admin.js?v=20261120-simple-v1"></script>
+  <link rel="stylesheet" href="./admin.css?v=20261121-routines-v1">
+  <script type="module" src="./admin.js?v=20261121-routines-v1"></script>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="./admin.html" aria-label="Trang quản lý Water"><span class="brand-icon">💧</span>Water <span class="brand-tag">ADMIN</span></a>
+    <a class="brand" href="./admin.html" aria-label="Trang quản lý Water"><span class="brand-icon">♡</span>Water <span class="brand-tag">ADMIN</span></a>
     <div class="header-actions"><a href="./" target="_blank" rel="noopener">Mở app</a><button id="logout" class="button text-button" type="button" hidden>Đăng xuất</button></div>
   </header>
   <main>
@@ -35,7 +35,7 @@
 
     <div id="dashboard" hidden>
       <div class="page-heading">
-        <div><p class="eyebrow">WATER FOR BEO ♡</p><h1>Nhắc <span id="heading-name">Beo</span> uống nước</h1><p class="muted">Cài giờ nhắc hoặc gửi một lời thương.</p></div>
+        <div><p class="eyebrow">WATER FOR BEO ♡</p><h1>Nhắc <span id="heading-name">Beo</span> mỗi ngày</h1><p class="muted">Nhắc uống nước, đi làm, ăn trưa và những điều nhỏ khác.</p></div>
         <button id="refresh" class="button text-button" type="button">↻ Làm mới</button>
       </div>
       <div class="connection-strip" role="status" aria-live="polite">
@@ -43,6 +43,7 @@
         <div><strong id="connection-title">Đang kiểm tra iPhone…</strong><p id="connection-detail"></p></div>
       </div>
       <p id="global-status" class="feedback" role="status" aria-live="polite"></p>
+      <p id="server-feature-warning" class="notice" hidden>Máy chủ chưa hỗ trợ đầy đủ lịch tùy chỉnh. Hãy cập nhật Cloudflare Worker.</p>
       <div class="dashboard-grid">
         <section class="card" id="schedule-section" aria-labelledby="schedule-title">
           <div class="card-head"><div><h2 id="schedule-title">Lịch nhắc</h2><p class="muted">Tự nhắc Beo theo giờ đã chọn.</p></div></div>
@@ -84,6 +85,30 @@
             <button id="save-settings" class="button primary full" type="submit">Lưu lịch nhắc</button>
             <p id="settings-status" class="feedback" role="status" aria-live="polite"></p>
           </form>
+          <div class="routine-section" id="routines-section">
+            <div class="routine-heading"><div><h3>Nhắc việc hằng ngày</h3><p class="muted">Đi làm, ăn trưa, hoặc lịch do mày tự đặt.</p></div><button id="routine-add" type="button" class="button small">+ Thêm</button></div>
+            <ul id="routine-list" class="routine-list" aria-live="polite"><li class="routine-empty">Đang tải lịch...</li></ul>
+            <div class="routine-subfoot"><button id="routine-refresh" class="inline-link" type="button">↻ Tải lại lịch</button></div>
+            <p id="routines-status" class="feedback" role="status" aria-live="polite"></p>
+            <form id="routine-form" class="routine-editor" hidden>
+              <h4 id="routine-form-title">Thêm lời nhắc</h4>
+              <label for="routine-label">Tên lịch</label><input id="routine-label" maxlength="40" placeholder="Ví dụ: Đi ăn trưa" required>
+              <div class="field-grid"><div><label for="routine-time">Giờ gửi</label><input id="routine-time" type="time" required></div><label class="routine-enable" for="routine-enabled"><span>Bật lịch</span><input id="routine-enabled" type="checkbox" checked></label></div>
+              <fieldset class="routine-days"><legend>Ngày nhắc</legend><div class="weekday-grid">
+                <label><input type="checkbox" data-routine-day="1" checked><span>T2</span></label>
+                <label><input type="checkbox" data-routine-day="2" checked><span>T3</span></label>
+                <label><input type="checkbox" data-routine-day="3" checked><span>T4</span></label>
+                <label><input type="checkbox" data-routine-day="4" checked><span>T5</span></label>
+                <label><input type="checkbox" data-routine-day="5" checked><span>T6</span></label>
+                <label><input type="checkbox" data-routine-day="6" checked><span>T7</span></label>
+                <label><input type="checkbox" data-routine-day="0" checked><span>CN</span></label>
+              </div></fieldset>
+              <label for="routine-title">Tiêu đề thông báo</label><input id="routine-title" maxlength="70" placeholder="BEO ƠI, ĐẾN GIỜ ĂN TRƯA ♡" required>
+              <label for="routine-body">Lời nhắn</label><textarea id="routine-body" maxlength="150" rows="2" placeholder="Sắp 12h rồi, em nhớ đi ăn trưa nha ♡" required></textarea>
+              <div class="routine-form-actions"><button id="routine-save" type="submit" class="button primary">Lưu lời nhắc</button><button id="routine-cancel" type="button" class="button">Hủy</button><button id="routine-delete" class="inline-link danger-link" type="button" hidden>Xóa</button></div>
+              <p id="routine-form-status" class="feedback" role="status" aria-live="polite"></p>
+            </form>
+          </div>
         </section>
         <section class="card" id="compose-section" aria-labelledby="compose-title">
           <div class="card-head"><div><h2 id="compose-title">Gửi lời nhắn</h2><p class="muted">Muốn nhắc ngay thì gửi ở đây.</p></div><button id="use-send-template" class="button small" type="button">↻ Đổi câu</button></div>
@@ -91,7 +116,7 @@
             <label for="send-title">Tiêu đề</label><input id="send-title" maxlength="70" required placeholder="Cục cưng ơi, em uống nước chưa?">
             <div class="label-split"><label for="send-body">Nội dung</label><span id="send-count">0 / 150</span></div>
             <textarea id="send-body" rows="3" maxlength="150" required placeholder="Nhớ uống nước đầy đủ nha em ♡"></textarea>
-            <div class="notification-preview" aria-label="Xem trước thông báo"><div class="preview-logo">💧</div><div><div class="preview-line"><strong id="preview-title">Water ♡</strong><small>bây giờ</small></div><p id="preview-body">Nhớ uống nước đầy đủ nha em ♡</p></div></div>
+            <div class="notification-preview" aria-label="Xem trước thông báo"><div class="preview-logo">♡</div><div><div class="preview-line"><strong id="preview-title">Water ♡</strong><small>bây giờ</small></div><p id="preview-body">Nhớ uống nước đầy đủ nha em ♡</p></div></div>
             <button id="send-button" class="button primary full" type="submit" disabled>Gửi tới iPhone ♡</button>
             <p id="send-status" class="feedback" role="status" aria-live="polite"></p>
           </form>
