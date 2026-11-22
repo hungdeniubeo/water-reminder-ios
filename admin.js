@@ -331,7 +331,7 @@ $('send-form').addEventListener('submit', async event => {
   } catch (error) { feedback('send-status', explainError(error), 'error'); }
   finally { sendBusy = false; syncSendButton(); }
 });
-$('settings-form').addEventListener('input', () => { settingsDirty = true; feedback('settings-status'); });
+$('settings-form').addEventListener('input', () => { settingsDirty = true; $('settings-dirty-indicator').hidden = false; feedback('settings-status'); });
 $('settings-form').addEventListener('submit', async event => {
   event.preventDefault();
   const form = $('settings-form');
@@ -357,6 +357,7 @@ $('settings-form').addEventListener('submit', async event => {
   try {
     await api('/api/admin/settings', {method:'POST',data});
     settingsDirty = false;
+    $('settings-dirty-indicator').hidden = true;
     feedback('settings-status', 'Đã lưu thay đổi.', 'success');
     await refreshState({silent:true});
   } catch (error) { feedback('settings-status', explainError(error), 'error'); }

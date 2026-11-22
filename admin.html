@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#fff7fa">
+  <meta name="theme-color" content="#fff8fb">
   <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex,nofollow">
   <title>Water ♡ · Admin</title>
@@ -11,12 +11,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./admin.css?v=20261122-routine-polish-v1">
-  <script type="module" src="./admin.js?v=20261122-routine-polish-v1"></script>
+  <link rel="stylesheet" href="./admin.css?v=20261122-admin-redesign-v2">
+  <script type="module" src="./admin.js?v=20261122-admin-redesign-v2"></script>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="./admin.html" aria-label="Trang quản lý Water"><span class="brand-icon">♡</span>Water <span class="brand-tag">ADMIN</span></a>
+    <a class="brand" href="./admin.html" aria-label="Trang quản lý Water"><span class="brand-icon" aria-hidden="true">♡</span><span>Water<span class="brand-subtitle"> for Beo</span></span><span class="brand-tag">ADMIN</span></a>
     <div class="header-actions"><a href="./" target="_blank" rel="noopener">Mở app</a><button id="logout" class="button text-button" type="button" hidden>Đăng xuất</button></div>
   </header>
   <main>
@@ -38,6 +38,12 @@
         <div><p class="eyebrow">WATER FOR BEO ♡</p><h1>Nhắc <span id="heading-name">Beo</span> mỗi ngày</h1><p class="muted">Nhắc uống nước, đi làm, ăn trưa và những điều nhỏ khác.</p></div>
         <button id="refresh" class="button text-button" type="button">↻ Làm mới</button>
       </div>
+      <nav class="admin-nav" aria-label="Các mục quản trị">
+        <a class="admin-nav-link" href="#schedule-section"><span aria-hidden="true">◷</span> Lịch uống nước</a>
+        <a class="admin-nav-link" href="#routines-section"><span aria-hidden="true">▦</span> Nhắc hằng ngày</a>
+        <a class="admin-nav-link" href="#compose-section"><span aria-hidden="true">✉</span> Gửi lời nhắn</a>
+        <a class="admin-nav-link" href="#device-card"><span aria-hidden="true">◉</span> iPhone & lịch sử</a>
+      </nav>
       <div class="connection-strip" role="status" aria-live="polite">
         <span id="connection-dot" class="status-dot" aria-hidden="true"></span>
         <div><strong id="connection-title">Đang kiểm tra iPhone…</strong><p id="connection-detail"></p></div>
@@ -46,7 +52,7 @@
       <p id="server-feature-warning" class="notice" hidden>Máy chủ chưa hỗ trợ đầy đủ lịch tùy chỉnh. Hãy cập nhật Cloudflare Worker.</p>
       <div class="dashboard-grid">
         <section class="card" id="schedule-section" aria-labelledby="schedule-title">
-          <div class="card-head"><div><h2 id="schedule-title">Lịch nhắc</h2><p class="muted">Tự nhắc Beo theo giờ đã chọn.</p></div></div>
+          <div class="card-head"><div><span class="section-kicker">01 / TỰ ĐỘNG</span><h2 id="schedule-title">Lịch uống nước</h2><p class="muted">Chọn khung giờ và khoảng cách giữa mỗi lần nhắc.</p></div><span id="settings-dirty-indicator" class="unsaved-pill" hidden>Chưa lưu</span></div>
           <form id="settings-form">
             <label class="toggle-row" for="schedule-enabled"><span>Bật nhắc tự động</span><input id="schedule-enabled" name="enabled" type="checkbox" role="switch"></label>
             <div class="field-grid">
@@ -86,7 +92,7 @@
             <p id="settings-status" class="feedback" role="status" aria-live="polite"></p>
           </form>
           <div class="routine-section" id="routines-section">
-            <div class="routine-heading"><div><h3>Nhắc việc hằng ngày</h3><p class="muted">Đi làm, ăn trưa, hoặc lịch do mày tự đặt.</p></div><button id="routine-add" type="button" class="button small">+ Thêm</button></div>
+            <div class="routine-heading"><div><span class="section-kicker">02 / LỊCH RIÊNG</span><h3>Nhắc việc hằng ngày</h3><p class="muted">Đi làm, ăn trưa và những việc cần nhớ.</p></div><button id="routine-add" type="button" class="button small">+ Thêm</button></div>
             <ul id="routine-list" class="routine-list" aria-live="polite"><li class="routine-empty">Đang tải lịch...</li></ul>
             <div class="routine-subfoot"><button id="routine-refresh" class="inline-link" type="button">↻ Tải lại lịch</button></div>
             <p id="routines-status" class="feedback" role="status" aria-live="polite"></p>
@@ -119,19 +125,19 @@
           </div>
         </section>
         <section class="card" id="compose-section" aria-labelledby="compose-title">
-          <div class="card-head"><div><h2 id="compose-title">Gửi lời nhắn</h2><p class="muted">Muốn nhắc ngay thì gửi ở đây.</p></div><button id="use-send-template" class="button small" type="button">↻ Đổi câu</button></div>
+          <div class="card-head"><div><span class="section-kicker">03 / GỬI NGAY</span><h2 id="compose-title">Gửi lời nhắn</h2><p class="muted">Soạn và xem trước thông báo trước khi gửi.</p></div><button id="use-send-template" class="button small" type="button">↻ Đổi câu</button></div>
           <form id="send-form">
             <label for="send-title">Tiêu đề</label><input id="send-title" maxlength="70" required placeholder="Cục cưng ơi, em uống nước chưa?">
             <div class="label-split"><label for="send-body">Nội dung</label><span id="send-count">0 / 150</span></div>
             <textarea id="send-body" rows="3" maxlength="150" required placeholder="Nhớ uống nước đầy đủ nha em ♡"></textarea>
-            <div class="notification-preview" aria-label="Xem trước thông báo"><div class="preview-logo">♡</div><div><div class="preview-line"><strong id="preview-title">Water ♡</strong><small>bây giờ</small></div><p id="preview-body">Nhớ uống nước đầy đủ nha em ♡</p></div></div>
+            <p class="preview-caption">XEM TRƯỚC TRÊN IPHONE</p><div class="notification-preview" aria-label="Xem trước thông báo"><div class="preview-logo">♡</div><div><div class="preview-line"><strong id="preview-title">Water ♡</strong><small>bây giờ</small></div><p id="preview-body">Nhớ uống nước đầy đủ nha em ♡</p></div></div>
             <button id="send-button" class="button primary full" type="submit" disabled>Gửi tới iPhone ♡</button>
             <p id="send-status" class="feedback" role="status" aria-live="polite"></p>
           </form>
         </section>
       </div>
       <details class="manage-details" id="device-card">
-        <summary><span>iPhone & lịch sử <small id="device-status">Đang kiểm tra</small></span><span aria-hidden="true">⌄</span></summary>
+        <summary><span><span class="section-kicker">04 / THIẾT BỊ</span><strong class="device-summary-title">iPhone & lịch sử</strong> <small id="device-status">Đang kiểm tra</small></span><span aria-hidden="true" class="summary-chevron">⌄</span></summary>
         <div class="manage-inner">
           <div class="device-row"><div><strong>Thiết bị nhận</strong><p class="muted">Dành cho <span id="device-name">Beo</span>. Chỉ một iPhone được kết nối.</p></div><button id="pair-button" class="button secondary" type="button">Tạo mã kết nối</button></div>
           <div id="pair-result" class="pair-result" hidden><span>MÃ KẾT NỐI · 10 PHÚT</span><strong id="pair-code"></strong><small id="pair-expiry"></small><button id="copy-code" class="button small" type="button">Sao chép mã</button></div>
