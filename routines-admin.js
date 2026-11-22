@@ -54,7 +54,7 @@ export function setupRoutinesAdmin({ $, api }) {
       });
       const edit=document.createElement('button');edit.type='button';edit.className='inline-link';
       edit.textContent='Sửa';edit.disabled=busy;edit.setAttribute('aria-label','Sửa '+routine.label);
-      edit.addEventListener('click',()=>openForm(routine));
+      edit.addEventListener('click',()=>{ if (!busy) openForm(routine); });
       actions.append(toggle,edit);item.append(copy,actions);fragment.append(item);
     }
     list.replaceChildren(fragment);
@@ -71,7 +71,8 @@ export function setupRoutinesAdmin({ $, api }) {
     $('routine-delete').hidden=!item;
     $('routine-form').hidden=false;
     formStatus();status();
-    $('routine-label').focus?.();
+    $('routine-form').scrollIntoView?.({behavior:'smooth',block:'nearest'});
+    $('routine-label').focus?.({preventScroll:true});
   }
   function closeForm(){$('routine-form').hidden=true;editing=null;formStatus();}
   async function load() {
@@ -80,12 +81,16 @@ export function setupRoutinesAdmin({ $, api }) {
     try {
       const result=await api('/api/admin/routines');
       reminders=Array.isArray(result.routines)?result.routines:[];
-      render();status();
+      status();
     } catch(error) {
       status(error.status===404||error.status===503
         ? 'Lịch mới chưa được triển khai trên Cloudflare. Lịch uống nước cũ vẫn hoạt động.'
         : error.message||'Không tải được lịch. Kiểm tra mạng rồi thử lại.','error');
-    } finally {busy=false;}
+    } finally {
+      // Buttons must be rendered after busy is cleared, or they stay disabled.
+      busy=false;
+      render();
+    }
   }
   async function saveRoutine(id,data,close=true) {
     if(busy)return;
