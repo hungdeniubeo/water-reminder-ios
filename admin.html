@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./admin.css?v=20261122-inter-v1">
-  <script type="module" src="./admin.js?v=20261122-edit-fix-v1"></script>
+  <link rel="stylesheet" href="./admin.css?v=20261122-routine-polish-v1">
+  <script type="module" src="./admin.js?v=20261122-routine-polish-v1"></script>
 </head>
 <body>
   <header class="topbar">
@@ -93,8 +93,14 @@
             <form id="routine-form" class="routine-editor" hidden>
               <h4 id="routine-form-title">Thêm lời nhắc</h4>
               <label for="routine-label">Tên lịch</label><input id="routine-label" maxlength="40" placeholder="Ví dụ: Đi ăn trưa" required>
-              <div class="field-grid"><div><label for="routine-time">Giờ gửi</label><input id="routine-time" type="time" required></div><label class="routine-enable" for="routine-enabled"><span>Bật lịch</span><input id="routine-enabled" type="checkbox" checked></label></div>
-              <fieldset class="routine-days"><legend>Ngày nhắc</legend><div class="weekday-grid">
+              <div class="field-grid"><div><label for="routine-time">Giờ gửi</label><input id="routine-time" type="time" required></div><label class="routine-enable" for="routine-enabled"><span>Bật lịch</span><input id="routine-enabled" type="checkbox" checked><span class="routine-switch" aria-hidden="true"></span></label></div>
+              <fieldset class="routine-days"><legend>Ngày nhắc</legend>
+                <div class="routine-quick-days" role="group" aria-label="Chọn nhanh ngày nhắc">
+                  <button type="button" class="routine-quick-day" data-routine-preset="127" aria-pressed="true">Hằng ngày</button>
+                  <button type="button" class="routine-quick-day" data-routine-preset="62" aria-pressed="false">Thứ 2–6</button>
+                  <button type="button" class="routine-quick-day" data-routine-preset="65" aria-pressed="false">Cuối tuần</button>
+                </div>
+                <div class="weekday-grid">
                 <label><input type="checkbox" data-routine-day="1" checked><span>T2</span></label>
                 <label><input type="checkbox" data-routine-day="2" checked><span>T3</span></label>
                 <label><input type="checkbox" data-routine-day="3" checked><span>T4</span></label>
@@ -102,7 +108,9 @@
                 <label><input type="checkbox" data-routine-day="5" checked><span>T6</span></label>
                 <label><input type="checkbox" data-routine-day="6" checked><span>T7</span></label>
                 <label><input type="checkbox" data-routine-day="0" checked><span>CN</span></label>
-              </div></fieldset>
+              </div>
+                <p class="routine-schedule-summary" id="routine-schedule-summary" aria-live="polite">Nhắc lúc 12:00 · Hằng ngày</p>
+              </fieldset>
               <label for="routine-title">Tiêu đề thông báo</label><input id="routine-title" maxlength="70" placeholder="BEO ƠI, ĐẾN GIỜ ĂN TRƯA ♡" required>
               <label for="routine-body">Lời nhắn</label><textarea id="routine-body" maxlength="150" rows="2" placeholder="Sắp 12h rồi, em nhớ đi ăn trưa nha ♡" required></textarea>
               <div class="routine-form-actions"><button id="routine-save" type="submit" class="button primary">Lưu lời nhắc</button><button id="routine-cancel" type="button" class="button">Hủy</button><button id="routine-delete" class="inline-link danger-link" type="button" hidden>Xóa</button></div>

@@ -49,3 +49,198 @@ h1,h2,.routine-heading h3{letter-spacing:-.025em;font-weight:700;}
 .routine-list{line-height:1.55;}
 .routine-actions .inline-link{font-weight:600;text-decoration-thickness:1px;text-underline-offset:3px;}
 @media (max-width:760px){.card{padding:22px 19px}.routine-copy small{line-height:1.5;}}
+
+
+/* Routine form only: frosted rose treatment and gentle, accessible motion. */
+#routine-form.routine-editor {
+  --routine-glow: rgba(200, 85, 137, .13);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 226, 239, .77), transparent 48%),
+    linear-gradient(150deg, rgba(255, 252, 254, .97), rgba(255, 245, 249, .96));
+  border: 1px solid #efcddd;
+  border-radius: 19px;
+  padding: 21px 19px 20px;
+  box-shadow: 0 8px 28px rgba(170, 74, 114, .055), inset 0 1px rgba(255,255,255,.85);
+  backdrop-filter: blur(10px) saturate(115%);
+  -webkit-backdrop-filter: blur(10px) saturate(115%);
+  transition: box-shadow .25s ease, border-color .25s ease;
+}
+#routine-form.routine-editor:not([hidden]) {
+  animation: routine-reveal .31s cubic-bezier(.2,.75,.3,1) both;
+}
+#routine-form.routine-editor:focus-within {
+  border-color: #e5aec7;
+  box-shadow: 0 10px 32px rgba(170,74,114,.09), 0 0 0 3px rgba(204,94,141,.05);
+}
+#routine-form h4 {
+  font-weight: 700;
+  letter-spacing: -.025em;
+  font-size: 17px;
+  margin-bottom: 12px;
+}
+#routine-form label,
+#routine-form .routine-days legend {
+  color: #70495e;
+  font-size: 12px;
+  font-weight: 650;
+}
+#routine-form :is(input:not([type="checkbox"]), textarea) {
+  background: rgba(255,255,255,.96);
+  border: 1px solid #ecd5e0;
+  border-radius: 13px;
+  min-height: 46px;
+  transition: border-color .19s ease, box-shadow .19s ease, background .19s ease, transform .19s ease;
+}
+#routine-form :is(input:not([type="checkbox"]), textarea):hover {
+  border-color: #dba9c0;
+}
+#routine-form :is(input:not([type="checkbox"]), textarea):focus {
+  border-color: #c85c8b;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(206,92,143,.10), 0 4px 15px rgba(179,87,124,.055);
+  outline: none;
+}
+#routine-form #routine-time {
+  accent-color: #c45a86;
+  color-scheme: light;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+#routine-form .routine-enable {
+  position: relative;
+  justify-content: space-between;
+  gap: 10px;
+  align-self: end;
+  cursor: pointer;
+}
+#routine-form .routine-enable input[type="checkbox"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  inset-inline-end: 0;
+}
+#routine-form .routine-switch {
+  position: relative;
+  width: 45px;
+  height: 26px;
+  flex: none;
+  border-radius: 99px;
+  background: #e9d7e0;
+  box-shadow: inset 0 1px 3px rgba(100,42,74,.07);
+  transition: background-color .2s ease, box-shadow .2s ease;
+}
+#routine-form .routine-switch::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(70,27,55,.16);
+  transition: transform .22s cubic-bezier(.2,.8,.25,1);
+}
+#routine-form .routine-enable input:checked + .routine-switch {
+  background: #c45a86;
+}
+#routine-form .routine-enable input:checked + .routine-switch::after {
+  transform: translateX(19px);
+}
+#routine-form .routine-enable input:focus-visible + .routine-switch {
+  outline: 3px solid #e5aac6;
+  outline-offset: 3px;
+}
+#routine-form .routine-quick-days {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 13px;
+}
+#routine-form .routine-quick-day {
+  min-height: 32px;
+  border: 1px solid #ebd5e0;
+  border-radius: 99px;
+  padding: 5px 12px;
+  background: rgba(255,255,255,.83);
+  color: #a06e86;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+#routine-form .routine-quick-day:hover {
+  background: #fff2f7;
+  border-color: #da9ebb;
+  transform: translateY(-1px);
+}
+#routine-form .routine-quick-day.is-active {
+  background: #c45a86;
+  border-color: #c45a86;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(196,90,134,.16);
+}
+#routine-form .routine-quick-day:focus-visible {
+  outline: 3px solid #efb8d0;
+  outline-offset: 2px;
+}
+#routine-form .weekday-grid span {
+  border-radius: 11px;
+  height: 38px;
+  background: rgba(255,255,255,.83);
+  border-color: #e7d1dc;
+  font-size: 12px;
+  transition: transform .18s ease, background-color .18s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
+}
+#routine-form .weekday-grid label:hover span {
+  border-color: #d99fba;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 9px rgba(184,86,131,.08);
+}
+#routine-form .weekday-grid input:checked + span {
+  background: #f8dae7;
+  border-color: #cc729e;
+  color: #9e3869;
+  box-shadow: inset 0 0 0 1px rgba(205,112,157,.07);
+}
+#routine-form .weekday-grid label:active span {
+  transform: scale(.95);
+}
+#routine-form .routine-schedule-summary {
+  color: #a05f7e;
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 11px 0 0;
+  min-height: 17px;
+}
+#routine-form .routine-form-actions .button {
+  transition: background-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+#routine-form .routine-form-actions .button:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(185,82,127,.13);
+}
+#routine-form .routine-form-actions .button:not(:disabled):active {
+  transform: translateY(0) scale(.98);
+}
+#routine-form #routine-delete {
+  transition: color .2s ease, opacity .2s ease;
+}
+#routine-form #routine-delete:hover {
+  color: #962a50;
+}
+@keyframes routine-reveal {
+  from { opacity: 0; transform: translateY(9px) scale(.994); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #routine-form.routine-editor:not([hidden]) { animation: none; }
+  #routine-form *,
+  #routine-form :is(input, textarea, button) { transition: none !important; }
+}
+@media (max-width: 430px) {
+  #routine-form.routine-editor { padding: 18px 14px; }
+  #routine-form .routine-quick-day { flex: 1 1 auto; padding-inline: 9px; }
+  #routine-form .routine-enable { align-self: center; }
+}

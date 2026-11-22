@@ -5,6 +5,7 @@ const DAYS = [
 ];
 const everyDay = 127;
 const weekdayMask = 62;
+const weekendMask = 65;
 const describeDays = mask => mask === everyDay ? 'Hằng ngày' : mask === weekdayMask ? 'Thứ 2–6' :
   DAYS.filter(d => mask & (1 << d.day)).map(d => d.label).join(', ');
 
@@ -22,8 +23,21 @@ export function setupRoutinesAdmin({ $, api }) {
     $('routine-form-status').dataset.tone = tone;
   };
   const weekdays = () => [...document.querySelectorAll('[data-routine-day]')];
+  const quickDays = () => [...document.querySelectorAll('[data-routine-preset]')];
   const checkedDays = () => weekdays().reduce((mask,item) => item.checked ? mask | (1 << Number(item.dataset.routineDay)) : mask,0);
   const setDays = mask => weekdays().forEach(box => { box.checked = !!(mask & (1 << Number(box.dataset.routineDay))); });
+  function syncScheduleSummary() {
+    const mask = checkedDays();
+    for (const button of quickDays()) {
+      const selected = Number(button.dataset.routinePreset) === mask;
+      button.classList.toggle('is-active', selected);
+      button.setAttribute('aria-pressed', String(selected));
+    }
+    const time = $('routine-time').value || '12:00';
+    $('routine-schedule-summary').textContent = mask
+      ? 'Nhắc lúc ' + time + ' · ' + describeDays(mask)
+      : 'Chọn ít nhất một ngày để lưu lời nhắc.';
+  }
   const draft = () => ({
     label:$('routine-label').value.trim(),title:$('routine-title').value.trim(),
     body:$('routine-body').value.trim(),time:$('routine-time').value,
@@ -68,6 +82,7 @@ export function setupRoutinesAdmin({ $, api }) {
     $('routine-time').value=item?.time||'12:00';
     $('routine-enabled').checked=item?item.enabled:true;
     setDays(item?.days??everyDay);
+    syncScheduleSummary();
     $('routine-delete').hidden=!item;
     $('routine-form').hidden=false;
     formStatus();status();
@@ -109,6 +124,18 @@ export function setupRoutinesAdmin({ $, api }) {
       status(error.message||'Không lưu được lịch.','error');
     } finally {busy=false;}
   }
+  // Quick day filters only change the unsaved form; the backend is called after Save.
+  for (const button of quickDays()) {
+    button.addEventListener('click', () => {
+      const mask = Number(button.dataset.routinePreset);
+      if (![everyDay, weekdayMask, weekendMask].includes(mask)) return;
+      setDays(mask);
+      syncScheduleSummary();
+    });
+  }
+  for (const box of weekdays()) box.addEventListener('change', syncScheduleSummary);
+  $('routine-time').addEventListener('input', syncScheduleSummary);
+  $('routine-time').addEventListener('change', syncScheduleSummary);
   $('routine-add').addEventListener('click',()=>openForm());
   $('routine-cancel').addEventListener('click',closeForm);
   $('routine-refresh').addEventListener('click',load);

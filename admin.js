@@ -1,6 +1,6 @@
 import { PUSH_API_URL } from './push-config.js';
 import { previewScheduleTimes } from './admin-features.js?v=20261120-simple-v1';
-import { setupRoutinesAdmin } from './routines-admin.js?v=20261122-edit-fix-v1';
+import { setupRoutinesAdmin } from './routines-admin.js?v=20261122-routine-polish-v1';
 import { HOME_COPIES } from './water-notes.js?v=20261120-home-copy-v1';
 
 const COMPACT_NOTIFICATION = {
