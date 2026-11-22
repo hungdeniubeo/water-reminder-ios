@@ -9,7 +9,7 @@ const weekendMask = 65;
 const describeDays = mask => mask === everyDay ? 'Hằng ngày' : mask === weekdayMask ? 'Thứ 2–6' :
   DAYS.filter(d => mask & (1 << d.day)).map(d => d.label).join(', ');
 
-export function setupRoutinesAdmin({ $, api }) {
+export function setupRoutinesAdmin({ $, api, onFormOpen }) {
   let reminders = [];
   let initialized = false;
   let busy = false;
@@ -80,6 +80,7 @@ export function setupRoutinesAdmin({ $, api }) {
     $('routine-title').value=item?.title||'';
     $('routine-body').value=item?.body||'';
     $('routine-time').value=item?.time||'12:00';
+    onFormOpen?.();
     $('routine-enabled').checked=item?item.enabled:true;
     setDays(item?.days??everyDay);
     syncScheduleSummary();

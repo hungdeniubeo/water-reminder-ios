@@ -1,6 +1,7 @@
 import { PUSH_API_URL } from './push-config.js';
 import { previewScheduleTimes } from './admin-features.js?v=20261120-simple-v1';
 import { setupRoutinesAdmin } from './routines-admin.js?v=20261122-routine-polish-v1';
+import { setupTimePickers } from './time-picker.js?v=20261122-timepicker-v1';
 import { HOME_COPIES } from './water-notes.js?v=20261120-home-copy-v1';
 
 const COMPACT_NOTIFICATION = {
@@ -44,6 +45,7 @@ let refreshBusy = false;
 let copyMode = 'auto';
 let fixedDraft = { title: '', body: '' };
 let routinesUI = null;
+const timePickers = setupTimePickers();
 
 
 function feedback(id, text = '', tone = '') {
@@ -162,7 +164,7 @@ function renderState(state) {
   $('connection-detail').textContent = connected ? 'Sẵn sàng gửi ngay hoặc gửi theo lịch.' : device.paired ? 'Mở app từ màn hình chính iPhone và chạm Bật thông báo.' : 'Tạo mã bên dưới để kết nối iPhone nhận thông báo.';
   $('device-status').textContent = connected ? 'Một iPhone đã đăng ký nhận thông báo.' : device.paired ? 'Đã ghép một iPhone. Chưa bật nhận thông báo.' : 'Chưa có iPhone nào được ghép với app.';
   $('pair-button').textContent = device.paired ? 'Kết nối iPhone khác' : 'Tạo mã kết nối';
-  if (!settingsDirty) fillSettings(settings);
+  if (!settingsDirty) { fillSettings(settings); timePickers.sync(); }
   if (!draftLoaded) {
     const isShippedDefault = (settings.notificationTitle === 'Water ♡' &&
       ['Beo ơi, nhớ nhấp một chút nước nha em ♡', 'Beo ơi, nhớ uống nước nha em ♡'].includes(settings.reminderMessage)) ||
@@ -399,7 +401,7 @@ setInterval(() => {
     $('pair-code').textContent = '···· ····';
   }
 }, 15000);
-routinesUI = setupRoutinesAdmin({$,api});
+routinesUI = setupRoutinesAdmin({$,api,onFormOpen:() => timePickers.sync('routine-time')});
 updateSchedulePreview();
 renderPreview();
 checkService();

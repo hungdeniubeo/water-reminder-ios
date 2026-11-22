@@ -280,3 +280,111 @@ main{max-width:1200px;padding-top:34px}.page-heading{margin-bottom:23px;align-it
 @media(max-width:760px){main{padding-top:25px}.topbar{padding:14px 16px}.brand{font-size:19px}.brand-icon{width:35px;height:35px}.brand-subtitle{display:none}.page-heading{align-items:flex-start}.page-heading h1{font-size:29px}.page-heading .muted{font-size:12px}.dashboard-grid{grid-template-columns:minmax(0,1fr);gap:16px}.card{padding:22px 19px;border-radius:20px}.admin-nav{margin-inline:-1px;padding-bottom:13px}.admin-nav-link{padding:8px 12px;font-size:11px}.connection-strip{padding:12px 15px}.manage-details>summary{padding:17px 18px}.manage-inner{padding-inline:18px}.routine-item{flex-wrap:wrap}.routine-actions{margin-left:auto}}
 @media(max-width:420px){.header-actions{gap:6px}.header-actions a{font-size:11px}.brand-tag{font-size:8px}.page-heading{gap:8px}.page-heading .button{min-height:38px;padding:6px 8px}.field-grid{gap:10px}.card{padding:20px 16px}.routine-item{padding:12px 10px}.routine-actions{gap:8px}.card h2{font-size:20px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.status-dot.connected{animation:none}}
+
+/* Time controls — same appearance on Windows, macOS and mobile. */
+.time-control{position:relative;min-width:0}
+.card .time-control input.time-source-hidden:not([type="checkbox"]){
+  position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;
+  padding:0!important;margin:0!important;border:0!important;opacity:0!important;
+  pointer-events:none!important;clip-path:inset(50%);overflow:hidden;
+}
+.time-display{
+  width:100%;height:49px;display:flex;align-items:center;gap:11px;
+  padding:0 14px;border:1px solid #e9d7e0;border-radius:13px;
+  background:#fff;color:#533949;text-align:left;font:600 15px/1.4 "Inter",sans-serif;
+  font-variant-numeric:tabular-nums;cursor:pointer;
+  transition:border-color .18s,box-shadow .18s,background-color .18s;
+}
+.time-display:hover{border-color:#d7a6bd;background:#fffcfe}
+.time-display:focus-visible,.time-display[aria-expanded="true"]{border-color:#c46f96;outline:none;box-shadow:0 0 0 4px rgba(196,90,134,.11)}
+.time-display-icon{font-size:21px;font-weight:400;color:#bd7697;line-height:1}
+.time-display-value{flex:1;white-space:nowrap}
+.time-display-arrow{color:#b38a9d;font-size:19px;font-weight:400;transition:transform .2s}
+.time-display[aria-expanded="true"] .time-display-arrow{transform:rotate(180deg)}
+.time-picker-backdrop{position:fixed;inset:0;z-index:220;background:rgba(46,25,40,.14)}
+.time-picker-panel{
+  position:fixed;z-index:221;width:min(326px,calc(100vw - 24px));
+  max-height:calc(100dvh - 24px);overflow-y:auto;
+  border:1px solid #ecd5df;border-radius:19px;
+  padding:21px;background:#fffafd;color:#4b3542;
+  box-shadow:0 20px 65px rgba(77,35,58,.18),0 2px 10px rgba(77,35,58,.06);
+  animation:time-picker-enter .17s ease-out both;
+}
+.time-picker-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.time-picker-heading strong{display:block;font-size:17px;font-weight:700;letter-spacing:-.35px;line-height:1.4}
+.time-picker-kicker{display:block;font-size:10px;font-weight:700;letter-spacing:1.3px;color:#b87a96;margin-bottom:6px}
+.time-picker-close{width:29px;height:29px;display:grid;place-items:center;flex:none;border:0;border-radius:9px;background:transparent;color:#947487;font-size:23px;cursor:pointer;line-height:1}
+.time-picker-close:hover{background:#f6e8ef;color:#974c70}
+.time-picker-inputs{display:grid;grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr);gap:11px;align-items:end;margin:19px 0 18px}
+.time-picker-field{display:block;min-width:0;font-size:12px;font-weight:650;color:#806071}
+.time-picker-field span{display:block;margin-bottom:8px}
+.time-picker-field input{
+  display:block;width:100%;height:65px;border-radius:13px;border:1px solid #e6cbd9;
+  background:#fff;color:#4b3340;font:700 30px/1 "Inter",sans-serif;text-align:center;
+  font-variant-numeric:tabular-nums;outline:none;transition:border-color .16s,box-shadow .16s;
+  padding:8px 5px;
+}
+.time-picker-field input::selection{background:#f2ccdf;color:#843b60}
+.time-picker-field input:focus{border-color:#c35a89;box-shadow:0 0 0 4px rgba(194,91,137,.11)}
+.time-picker-field input[aria-invalid="true"]{border-color:#bd6472}
+.time-picker-colon{font-size:27px;font-weight:700;line-height:65px;align-self:end;text-align:center;color:#b17b96}
+.time-picker-quick>span{display:block;font-size:12px;font-weight:650;color:#826575;margin-bottom:9px}
+.time-picker-chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.time-minute-chip{min-width:0;min-height:38px;border:1px solid #e9d8e1;background:#fff;border-radius:10px;color:#8d647b;font:650 13px "Inter",sans-serif;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
+.time-minute-chip:hover{background:#fdf1f6;border-color:#d9aec1}
+.time-minute-chip.selected{background:#f6dce8;border-color:#d597b2;color:#993c69}
+.time-picker-error{min-height:17px;margin:10px 0 0;color:#b24a65;font-size:11px;line-height:1.5}
+.time-picker-actions{display:flex;gap:9px;margin-top:7px}
+.time-picker-actions button{flex:1;min-height:42px;border-radius:11px;font:700 13px "Inter",sans-serif;cursor:pointer}
+.time-picker-cancel{border:1px solid #ead9e1;background:#fff;color:#806276}
+.time-picker-cancel:hover{background:#fcf1f6}
+.time-picker-apply{border:1px solid #ba507d;background:#c05b87;color:#fff;box-shadow:0 5px 12px rgba(172,66,112,.15)}
+.time-picker-apply:hover{background:#ac4875}
+.time-picker-panel :is(button,input):focus-visible{outline:3px solid #e8a9c6;outline-offset:2px}
+@keyframes time-picker-enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Align the remaining small controls with the input and button system. */
+#reminder-mode{appearance:none;-webkit-appearance:none;padding-right:38px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23946a80' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;
+}
+#schedule-timezone{font-size:13px}
+#routine-form .time-control{width:100%}
+#routine-form .time-display{min-height:49px;background:#fff}
+#routine-form .time-display:hover{border-color:#dba9c0}
+#routine-form .time-display:focus-visible{box-shadow:0 0 0 4px rgba(206,92,143,.10)}
+#routine-form .routine-enable{min-height:49px;margin-bottom:0!important;padding:0 3px 0 0}
+#routine-form .routine-enable span:first-child{margin:0}
+#routine-form .weekday-grid span{min-height:41px}
+#routine-form .routine-quick-day{min-height:36px}
+.routine-empty,.empty-history{border:1px dashed #e9d9e2;border-radius:13px;background:#fffafd;padding:15px;color:#947b8b}
+.routine-subfoot{margin-top:12px}
+.routine-actions .inline-link{min-height:32px;padding:5px 3px;text-decoration:none}
+.routine-actions .inline-link:hover{color:#923b69;text-decoration:underline}
+.message-row{align-items:center}
+.message-row strong{font-size:12px;line-height:1.5}
+.message-state{display:inline-flex;align-items:center;white-space:nowrap;border-radius:999px;background:#f7ecf2;padding:4px 8px;font-size:10px;font-weight:650;color:#93667f}
+.message-state.received,.message-state.opened{background:#eaf6ee;color:#417c58}
+.message-state.failed{background:#fff0ef;color:#af5262}
+.message-item p{font-size:12px;line-height:1.6}
+.message-history{margin-top:13px}
+.pair-result{gap:10px;background:#fff8fb;border-color:#ead2df}
+.pair-result strong{color:#8e3b65}
+.pair-result .button{margin-left:auto}
+.notice{border-radius:13px}
+.extra-settings summary,.manage-details>summary{touch-action:manipulation}
+.extra-settings summary:hover{color:#8d3b62}
+@media(max-width:600px){
+  .time-picker-backdrop{background:rgba(55,28,44,.3);backdrop-filter:blur(2px)}
+  .time-picker-panel{left:12px!important;right:12px!important;top:auto!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+    width:auto;max-height:min(450px,calc(100dvh - 28px));padding:21px 19px 18px;border-radius:22px;
+    animation:time-picker-sheet .2s ease-out both}
+  .time-picker-inputs{margin:20px 0 17px}
+  .time-picker-field input{height:68px}
+  .time-minute-chip{min-height:42px}
+  #routine-form .routine-enable{padding-left:4px}
+  .routine-actions{flex-wrap:wrap;justify-content:flex-end}
+  .pair-result .button{margin-left:0}
+}
+@keyframes time-picker-sheet{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.time-picker-panel{animation:none}.time-display-arrow{transition:none}}
