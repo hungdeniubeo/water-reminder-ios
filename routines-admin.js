@@ -22,8 +22,8 @@ export function setupRoutinesAdmin({ $, api }) {
     $('routine-form-status').textContent = value;
     $('routine-form-status').dataset.tone = tone;
   };
-  const weekdays = () => [...document.querySelectorAll('[data-routine-day]')];
-  const quickDays = () => [...document.querySelectorAll('[data-routine-preset]')];
+  const weekdays = () => [...(document.querySelectorAll?.('[data-routine-day]') || [])];
+  const quickDays = () => [...(document.querySelectorAll?.('[data-routine-preset]') || [])];
   const checkedDays = () => weekdays().reduce((mask,item) => item.checked ? mask | (1 << Number(item.dataset.routineDay)) : mask,0);
   const setDays = mask => weekdays().forEach(box => { box.checked = !!(mask & (1 << Number(box.dataset.routineDay))); });
   function syncScheduleSummary() {
