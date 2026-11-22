@@ -33,7 +33,7 @@ function mockElement() {
   return {
     children:[],listeners:{},dataset:{},disabled:false,checked:false,
     textContent:'',value:'',hidden:false,
-    classList:{toggle(){}},setAttribute(){},
+    classList:{toggle(){}},attributes:{},setAttribute(name,value){this.attributes[name]=value;},
     addEventListener(kind,fn){(this.listeners[kind] ||= []).push(fn);},
     append(...items){this.children.push(...items);},
     replaceChildren(...items){this.children=items.flatMap(x=>x.isFragment?x.children:[x]);},
@@ -43,12 +43,13 @@ function mockElement() {
 async function fixture(t) {
   const ids=['routines-status','routine-form-status','routine-list','routine-form','routine-form-title',
     'routine-label','routine-title','routine-body','routine-time','routine-enabled','routine-delete',
-    'routine-add','routine-cancel','routine-refresh','routine-save'];
+    'routine-add','routine-cancel','routine-refresh','routine-save','routine-schedule-summary'];
   const nodes=Object.fromEntries(ids.map(id=>[id,mockElement()]));
   const days=[1,2,3,4,5,6,0].map(day=>{const e=mockElement();e.dataset.routineDay=String(day);return e;});
+  const presets=[127,62,65].map(mask=>{const e=mockElement();e.dataset.routinePreset=String(mask);return e;});
   const original=globalThis.document;
   globalThis.document={
-    querySelectorAll:()=>days,createDocumentFragment:()=>Object.assign(mockElement(),{isFragment:true}),
+    querySelectorAll:selector=>selector==='[data-routine-day]'?days:selector==='[data-routine-preset]'?presets:[],createDocumentFragment:()=>Object.assign(mockElement(),{isFragment:true}),
     createElement:()=>mockElement()
   };
   t.after(()=>{globalThis.document=original;});
@@ -69,7 +70,7 @@ async function fixture(t) {
   };
   setupRoutinesAdmin({$:id=>nodes[id],api}).ensureLoaded();
   await new Promise(resolve=>setImmediate(resolve));
-  return {nodes,days,patches};
+  return {nodes,days,presets,patches};
 }
 test('Edit and enable buttons are active after initial list load',async t=>{
   const {nodes}=await fixture(t);
@@ -103,4 +104,43 @@ test('Enable button updates only the selected reminder',async t=>{
   assert.equal(patches[0].enabled,true);
   assert.equal(nodes['routine-list'].children.length,2);
   assert.equal(nodes['routine-list'].children[0].children[1].children[0].disabled,false);
+});
+
+test('quick day filters select all, weekdays or weekends without saving until submit',async t=>{
+  const {nodes,days,presets,patches}=await fixture(t);
+  const edit=nodes['routine-list'].children[0].children[1].children[1];
+  await edit.listeners.click[0]();
+  assert.match(nodes['routine-schedule-summary'].textContent,/11:50.*Hằng ngày/);
+  await presets[1].listeners.click[0]();
+  assert.deepEqual(days.map(d=>d.checked),[true,true,true,true,true,false,false]);
+  assert.equal(presets[1].attributes['aria-pressed'],'true');
+  assert.match(nodes['routine-schedule-summary'].textContent,/Thứ 2–6/);
+  await presets[2].listeners.click[0]();
+  assert.deepEqual(days.map(d=>d.checked),[false,false,false,false,false,true,true]);
+  assert.equal(presets[2].attributes['aria-pressed'],'true');
+  assert.equal(presets[1].attributes['aria-pressed'],'false');
+  assert.equal(patches.length,0,'quick filters must not call backend');
+});
+
+test('manual day changes clear quick selection and clock updates live summary',async t=>{
+  const {nodes,days,presets,patches}=await fixture(t);
+  await nodes['routine-add'].listeners.click[0]();
+  assert.equal(presets[0].attributes['aria-pressed'],'true');
+  days[0].checked=false;
+  await days[0].listeners.change[0]();
+  assert.equal(presets.every(p=>p.attributes['aria-pressed']==='false'),true);
+  nodes['routine-time'].value='18:45';
+  await nodes['routine-time'].listeners.input[0]();
+  assert.match(nodes['routine-schedule-summary'].textContent,/18:45/);
+  assert.equal(patches.length,0);
+});
+
+test('new effects and day filters are confined to reminder form markup',()=>{
+  const html=readFileSync(new URL('../admin.html',import.meta.url),'utf8');
+  assert.equal((html.match(/data-routine-preset="/g)||[]).length,3);
+  assert.match(html,/id="routine-schedule-summary"/);
+  assert.match(html,/class="routine-switch"/);
+  const css=readFileSync(new URL('../admin.css',import.meta.url),'utf8');
+  assert.match(css,/#routine-form\.routine-editor/);
+  assert.match(css,/@media \(prefers-reduced-motion: reduce\)/);
 });
