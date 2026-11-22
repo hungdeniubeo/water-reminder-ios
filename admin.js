@@ -1,8 +1,8 @@
 import { PUSH_API_URL } from './push-config.js';
-import { previewScheduleTimes } from './admin-features.js?v=20261120-simple-v1';
-import { setupRoutinesAdmin } from './routines-admin.js?v=20261122-routine-polish-v1';
+import { previewScheduleTimes, upcomingReminders } from './admin-features.js?v=20261122-daily-v3';
+import { setupRoutinesAdmin } from './routines-admin.js?v=20261122-daily-v3';
 import { setupTimePickers } from './time-picker.js?v=20261122-timepicker-v1';
-import { HOME_COPIES } from './water-notes.js?v=20261120-home-copy-v1';
+import { HOME_COPIES } from './water-notes.js?v=20261122-daily-v3';
 
 const COMPACT_NOTIFICATION = {
   title: 'Water ♡',
@@ -45,6 +45,7 @@ let refreshBusy = false;
 let copyMode = 'auto';
 let fixedDraft = { title: '', body: '' };
 let routinesUI = null;
+let activeRoutines = [];
 const timePickers = setupTimePickers();
 
 
@@ -60,6 +61,8 @@ function lockDashboard() {
   rememberSession('');
   current = null;
   $('dashboard').hidden = true;
+  $('mobile-nav').hidden = true;
+  activeRoutines = [];
   $('logout').hidden = true;
   $('login-panel').hidden = false;
   $('pair-result').hidden = true;
@@ -73,6 +76,8 @@ function lockDashboard() {
   routinesUI?.reset();
   $('send-form').reset();
   $('settings-form').reset();
+  $('routine-overview-text').textContent = 'Chưa tải lịch';
+  $('overview-timeline').replaceChildren();
 }
 function explainError(error) {
   if (error.status === 401) return 'Phiên quản trị đã hết hạn. Đăng nhập lại để tiếp tục.';
@@ -153,9 +158,49 @@ function fillSettings(settings) {
     else field.value = value ?? '';
   }
 }
+function renderAgenda() {
+  if (!current?.settings) return;
+  const settings = current.settings;
+  const active = activeRoutines.filter(item => item.enabled).length + (settings.enabled ? 1 : 0);
+  $('overview-label').textContent = active
+    ? `${active} lịch đang bật · thời gian dự kiến, theo múi giờ đã chọn`
+    : 'Chưa có lịch nào đang bật.';
+  const events = upcomingReminders(settings, activeRoutines, new Date(), 3);
+  const fragment = document.createDocumentFragment();
+  if (!events.length) {
+    const item = document.createElement('li');
+    item.className = 'upcoming-empty';
+    item.textContent = 'Bật một lịch nhắc để xem những lần nhắc tiếp theo.';
+    fragment.append(item);
+  }
+  for (const event of events) {
+    const item = document.createElement('li'); item.className = 'upcoming-item';
+    const dot = document.createElement('span'); dot.className = 'upcoming-dot'; dot.setAttribute?.('aria-hidden','true');
+    const content = document.createElement('div'); content.className = 'upcoming-content';
+    const time = document.createElement('span'); time.className = 'upcoming-time'; time.textContent = event.when;
+    const title = document.createElement('strong'); title.className = 'upcoming-title'; title.textContent = event.title;
+    content.append(time,title); item.append(dot,content); fragment.append(item);
+  }
+  $('overview-timeline').replaceChildren(fragment);
+}
+function renderWaterSummary(settings) {
+  $('water-status').textContent = settings.enabled ? 'Đang bật' : 'Đang tắt';
+  $('water-status').classList.toggle('is-on',!!settings.enabled);
+  $('water-frequency').textContent = `${settings.start}–${settings.end} · mỗi ${settings.interval} phút`;
+}
+function renderHeroDate(settings) {
+  try {
+    $('hero-date').textContent = new Intl.DateTimeFormat('vi-VN',{
+      timeZone:settings.timezone,day:'2-digit',month:'2-digit',year:'numeric'
+    }).format(new Date());
+  } catch { $('hero-date').textContent = ''; }
+}
 function renderState(state) {
   current = state;
   const {settings, device} = state;
+  renderHeroDate(settings);
+  renderWaterSummary(settings);
+  renderAgenda();
   $('heading-name').textContent = settings.recipientName;
   $('device-name').textContent = settings.recipientName;
   $('connection-dot').classList.toggle('connected', !!device.pushEnabled);
@@ -195,6 +240,7 @@ async function refreshState({silent = false} = {}) {
     renderState(result);
     $('login-panel').hidden = true;
     $('dashboard').hidden = false;
+    $('mobile-nav').hidden = false;
     $('logout').hidden = false;
     routinesUI?.ensureLoaded();
     if (!silent) feedback('global-status');
@@ -253,10 +299,10 @@ $('reminder-mode').addEventListener('change', () => {
   feedback('settings-status');
 });
 $('use-home-auto').addEventListener('click', () => {
-  $('home-message').value = 'Nhắc uống nước mỗi ngày.';
+  $('home-message').value = 'Nhắc Beo mỗi ngày.';
   settingsDirty = true;
   $('settings-dirty-indicator').hidden = false;
-  feedback('settings-status','Đã chọn lời chào tự đổi. Nhấn Lưu lịch nhắc để áp dụng.');
+  feedback('settings-status','Đã chọn lời chào tự đổi. Nhấn Lưu lịch lặp để áp dụng.');
 });
 for (const button of (document.querySelectorAll?.('[data-interval]') || [])) {
   button.addEventListener('click', () => {
@@ -366,6 +412,7 @@ $('settings-form').addEventListener('submit', async event => {
     $('settings-dirty-indicator').hidden = true;
     feedback('settings-status', 'Đã lưu thay đổi.', 'success');
     await refreshState({silent:true});
+    renderWaterSummary(data);
   } catch (error) { feedback('settings-status', explainError(error), 'error'); }
   finally { $('save-settings').disabled = false; }
 });
@@ -394,6 +441,7 @@ $('retry-service').addEventListener('click', checkService);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && token) refreshState({silent:true}); });
 setInterval(() => {
   if (!document.hidden && token) refreshState({silent:true});
+  if (current) renderAgenda();
   if (pairingExpiry && Date.now() >= pairingExpiry * 1000) {
     $('pair-expiry').textContent = 'Mã đã hết hạn. Tạo mã mới để kết nối.';
     pairingExpiry = 0;
@@ -401,7 +449,13 @@ setInterval(() => {
     $('pair-code').textContent = '···· ····';
   }
 }, 15000);
-routinesUI = setupRoutinesAdmin({$,api,onFormOpen:() => timePickers.sync('routine-time')});
+routinesUI = setupRoutinesAdmin({$,api,
+  onFormOpen:() => timePickers.sync('routine-time'),
+  onChange:reminders => { activeRoutines = reminders; renderAgenda(); }
+});
+for (const id of ['hero-add','mobile-add']) {
+  $(id).addEventListener('click', () => routinesUI?.openNew());
+}
 updateSchedulePreview();
 renderPreview();
 checkService();

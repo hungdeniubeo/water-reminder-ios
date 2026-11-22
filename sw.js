@@ -1,9 +1,9 @@
-const CACHE_NAME = 'water-reminder-static-v31-bell-reminders';
+const CACHE_NAME = 'water-reminder-static-v32-daily-home';
 const APP_ROOT = new URL('./', self.registration.scope);
 const API_URL = 'https://water-beo-push.hungdeniubeo-water.workers.dev';
 const ASSETS = [
-  './', './index.html', './receiver.css?v=20261120-rotating-greeting', './receiver.js?v=20261120-rotating-greeting', './water-notes.js?v=20261120-home-copy-v1',
-  './classic-pink-button.css?v=20261120-rosy-splash', './classic-pink-button.js?v=20261120-50-notes-final', './push-config.js',
+  './', './index.html', './receiver.css?v=20261122-daily-v3', './receiver.js?v=20261122-daily-v3', './water-notes.js?v=20261122-daily-v3',
+  './classic-pink-button.css?v=20261122-daily-v3', './classic-pink-button.js?v=20261122-daily-v3', './push-config.js',
   './manifest.webmanifest', './assets/icon.svg', './assets/icon-maskable.svg'
 ];
 const assetPaths = new Set(ASSETS.map(path => new URL(path, APP_ROOT).pathname));

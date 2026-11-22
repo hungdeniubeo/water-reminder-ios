@@ -1,12 +1,12 @@
 {
   "name": "water-reminder-ios-pwa",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "private": true,
   "type": "module",
-  "description": "Private one-recipient iPhone push notifications with a separate admin page",
+  "description": "Private daily reminders for one iPhone, with a mobile-first admin",
   "scripts": {
-    "test": "node --test tests/receiver.test.js tests/admin.test.js tests/admin-features.test.js tests/admin-interactions.test.js tests/time-picker.test.js tests/routines-admin.test.js tests/home-copy.test.js tests/service-worker.test.js backend/*.test.js",
-    "check": "node --check receiver.js && node --check water-notes.js && node --check classic-pink-button.js && node --check admin.js && node --check admin-features.js && node --check routines-admin.js && node --check time-picker.js && node --check sw.js && node --check push-config.js && node --check backend/worker.js && node --check backend/lib.js && node --check backend/routines.js && node --check backend/reminder-messages.js"
+    "test": "node --test tests/receiver.test.js tests/admin.test.js tests/admin-features.test.js tests/admin-interactions.test.js tests/time-picker.test.js tests/daily-dashboard.test.js tests/routines-admin.test.js tests/home-copy.test.js tests/service-worker.test.js backend/*.test.js",
+    "check": "node --check receiver.js && node --check water-notes.js && node --check classic-pink-button.js && node --check admin.js && node --check admin-features.js && node --check water-notes.js && node --check routines-admin.js && node --check time-picker.js && node --check sw.js && node --check push-config.js && node --check backend/worker.js && node --check backend/lib.js && node --check backend/routines.js && node --check backend/reminder-messages.js"
   },
   "engines": {
     "node": ">=22.18"

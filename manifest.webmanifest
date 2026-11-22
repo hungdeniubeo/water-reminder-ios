@@ -1,13 +1,13 @@
 {
   "id": "./",
-  "name": "Water — Beo",
-  "short_name": "Water",
-  "description": "Lời nhắc nhẹ nhàng cho Beo: đi làm, ăn trưa, uống nước và những điều nhỏ mỗi ngày.",
+  "name": "Beo Daily — Nhắc mỗi ngày",
+  "short_name": "Beo Daily",
+  "description": "Những lời nhắc nhỏ dành cho Beo mỗi ngày.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#fff3f8",
-  "theme_color": "#fff3f8",
+  "background_color": "#fcf8f8",
+  "theme_color": "#fcf8f8",
   "orientation": "portrait",
   "icons": [
     {

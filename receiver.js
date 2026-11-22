@@ -1,23 +1,24 @@
 import { PUSH_API_URL } from './push-config.js';
-import { attachClassicPinkButton } from './classic-pink-button.js?v=20261120-50-notes-final';
-import { createWaterNotePicker, pickHomeCopy } from './water-notes.js?v=20261120-home-copy-v1';
+import { attachClassicPinkButton } from './classic-pink-button.js?v=20261122-daily-v3';
+import { createWaterNotePicker, pickHomeCopy } from './water-notes.js?v=20261122-daily-v3';
 
 export const SESSION_KEY = 'water-beo-device-session-v1';
 const VIEW_KEY = 'water-beo-view-v2';
 export const DEFAULT_PROFILE = Object.freeze({
-  recipientName: 'Beo', appTitle: 'Water',
-  homeMessage: 'Nhắc uống nước mỗi ngày.'
+  recipientName: 'Beo', appTitle: 'Beo Daily',
+  homeMessage: 'Nhắc Beo mỗi ngày.'
 });
 
 // Update only the exact defaults shipped in earlier versions. Personal text stays as entered.
 const LEGACY_HOME_DEFAULTS = new Set([
   'Một chút nước, một chút thương.\nAnh luôn nhớ em ♡',
   'Một chút nước, một chút thương. Anh luôn nhớ em ♡',
-  'Anh gửi em một chút dịu dàng. Nhớ uống nước đều nhé ♡'
+  'Anh gửi em một chút dịu dàng. Nhớ uống nước đều nhé ♡',
+  'Nhắc uống nước mỗi ngày.'
 ]);
 export function normalizeReceiverProfile(profile = {}) {
   const result = { ...DEFAULT_PROFILE, ...profile };
-  if (result.appTitle === 'Water ♡') result.appTitle = DEFAULT_PROFILE.appTitle;
+  if (result.appTitle === 'Water ♡' || result.appTitle === 'Water') result.appTitle = DEFAULT_PROFILE.appTitle;
   if (LEGACY_HOME_DEFAULTS.has(result.homeMessage)) result.homeMessage = DEFAULT_PROFILE.homeMessage;
   return result;
 }
@@ -140,7 +141,7 @@ export function startReceiver() {
       error: 'Chưa kết nối', pair: 'Chưa kết nối', denied: 'Thông báo đang tắt', enable: 'Chưa bật thông báo' };
     $('app-title').textContent = state.profile.appTitle;
     const automaticCopy = state.profile.homeMessage === DEFAULT_PROFILE.homeMessage;
-    $('home-eyebrow').textContent = automaticCopy ? homeCopy.eyebrow : 'NHẮC UỐNG NƯỚC';
+    $('home-eyebrow').textContent = automaticCopy ? homeCopy.eyebrow : 'DÀNH CHO BEO MỖI NGÀY ♡';
     $('greeting').textContent = automaticCopy ? homeCopy.title : state.profile.recipientName;
     $('greeting').dataset.rotating = String(automaticCopy);
     $('home-message').textContent = automaticCopy ? homeCopy.body : state.profile.homeMessage;
@@ -148,7 +149,15 @@ export function startReceiver() {
     $('connection-label').textContent = labels[screen];
     $('connection-state').dataset.state = screen;
     $('quiet-note').textContent = screen === 'ready'
-      ? currentWaterNote : 'Bật thông báo để nhận lời nhắc.';
+      ? currentWaterNote : 'Bật thông báo để nhận lời nhắc đúng giờ.';
+    const recent = state.session ? state.latestMessage : null;
+    $('latest-card').hidden = !recent;
+    $('latest-title').textContent = recent?.title || '';
+    $('latest-body').textContent = recent?.body || '';
+    const recentDate = recent?.createdAt ? new Date(recent.createdAt * 1000) : null;
+    $('latest-time').textContent = recentDate && Number.isFinite(recentDate.getTime())
+      ? '· ' + new Intl.DateTimeFormat('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(recentDate)
+      : '';
     const showSetup = !['ready', 'loading'].includes(screen);
     $('setup-panel').hidden = !showSetup;
     document.body.dataset.setup = String(showSetup);
@@ -164,7 +173,7 @@ export function startReceiver() {
     const copy = {
       offline: ['Không có kết nối mạng', 'Kết nối mạng để cập nhật lời nhắc. Chạm thông báo từ iPhone để xem nội dung.'],
       install: ['Thêm vào màn hình chính', 'Trong Safari, chọn Chia sẻ → Thêm vào MH chính. Sau đó mở app từ biểu tượng mới để bật thông báo.'],
-      unsupported: ['Trình duyệt chưa hỗ trợ', 'Trên iPhone, cần iOS 16.4 trở lên. Thêm app vào màn hình chính rồi mở lại từ biểu tượng Water.'],
+      unsupported: ['Trình duyệt chưa hỗ trợ', 'Trên iPhone, cần iOS 16.4 trở lên. Thêm app vào màn hình chính rồi mở từ biểu tượng ứng dụng.'],
       'server-pending': ['Hệ thống chưa sẵn sàng', 'Hệ thống thông báo cần được cập nhật. Thử kiểm tra lại sau.'],
       error: ['Chưa kết nối được', 'Không thể kết nối với hệ thống thông báo. Kiểm tra mạng rồi thử lại.'],
       pair: ['Kết nối thiết bị', 'Nhập mã từ trang quản trị để nhận thông báo trên iPhone này.'],
@@ -318,6 +327,7 @@ export function startReceiver() {
     }
   });
   // The droplet changes only this local line, never sends a push or opens a popup.
+  $('latest-card').addEventListener('click', () => { if (state.latestMessage) openLetter(); });
   $('close-letter').addEventListener('click', () => $('letter-dialog').close());
   $('letter-done').addEventListener('click', () => $('letter-dialog').close());
   $('letter-dialog').addEventListener('click', event => {

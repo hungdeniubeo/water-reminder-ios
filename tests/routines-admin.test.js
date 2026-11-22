@@ -8,7 +8,8 @@ test('the slim admin has independently editable daily reminders',()=>{
   const ids=['routine-list','routine-add','routine-form','routine-time','routine-title',
     'routine-body','routine-delete','routine-enabled','routine-cancel','routine-save'];
   for(const id of ids) assert.match(html,new RegExp('id="'+id+'"'),id);
-  assert.equal((html.match(/<section class="card"/g)||[]).length,2);
+  assert.match(html,/id="schedule-section"/);
+  assert.match(html,/id="overview-section"/);
   assert.equal((html.match(/data-routine-day="/g)||[]).length,7);
   assert.match(html,/id="routine-form"[^>]*hidden/);
 });

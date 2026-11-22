@@ -36,7 +36,7 @@ test('custom homepage text remains personal and automatic rotation is wired into
   assert.match(source,/automaticCopy \? homeCopy\.body : state\.profile\.homeMessage/);
   assert.match(source,/automaticCopy \? homeCopy\.title : state\.profile\.recipientName/);
   assert.match(html,/id="home-eyebrow"/);
-  assert.match(sw,/water-reminder-static-v31-bell-reminders/);
-  assert.match(sw,/water-notes\.js\?v=20261120-home-copy-v1/);
+  assert.match(sw,/water-reminder-static-v32-daily-home/);
+  assert.match(sw,/water-notes\.js\?v=20261122-daily-v3/);
   assert.equal(normalizeReceiverProfile({homeMessage:'Lời nhắn riêng ♡'}).homeMessage,'Lời nhắn riêng ♡');
 });

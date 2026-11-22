@@ -2,61 +2,55 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#fff3f8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#fcf8f8">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Water">
-  <meta name="description" content="Lời nhắc đi làm, ăn trưa, uống nước và những điều nhỏ mỗi ngày.">
-  <title>Water — Beo</title>
+  <meta name="apple-mobile-web-app-title" content="Beo Daily">
+  <meta name="description" content="Những lời nhắc nhỏ dành cho Beo mỗi ngày.">
+  <title>Beo Daily ♡</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./assets/icon.svg?v=20261121-bell-heart">
+  <link rel="apple-touch-icon" href="./assets/icon.svg?v=20261122-daily-v3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Fraunces:opsz,wght@9..144,500..700&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./classic-pink-button.css?v=20261120-rosy-splash">
-  <link rel="stylesheet" href="./receiver.css?v=20261120-rotating-greeting">
-  <script type="module" src="./receiver.js?v=20261120-rotating-greeting"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;family=DM+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./classic-pink-button.css?v=20261122-daily-v3">
+  <link rel="stylesheet" href="./receiver.css?v=20261122-daily-v3">
+  <script type="module" src="./receiver.js?v=20261122-daily-v3"></script>
 </head>
 <body>
   <main class="receiver-shell">
     <header class="topbar">
-      <a class="brand" href="./" aria-label="Water — Trang chủ"><span id="app-title">Water</span></a>
+      <a class="brand" href="./" aria-label="Beo Daily, trang chủ"><span class="brand-mark" aria-hidden="true">♡</span><span id="app-title">Beo Daily</span></a>
       <span id="connection-state" class="connection-pill" data-state="loading" role="status"><span class="status-dot" aria-hidden="true"></span><span id="connection-label">Đang kết nối</span></span>
     </header>
     <section class="home" aria-labelledby="greeting">
       <div class="water-card">
-        <svg class="card-ornament" aria-hidden="true" viewBox="0 0 180 180" fill="none">
-          <circle cx="160" cy="18" r="74"/><circle cx="160" cy="18" r="105"/><circle cx="160" cy="18" r="137"/>
-        </svg>
-        <span class="card-glint glint-one" aria-hidden="true"></span>
-        <span class="card-glint glint-two" aria-hidden="true"></span>
+        <div class="card-ornament" aria-hidden="true"><span>✧</span><span>·</span><span>✿</span></div>
         <div class="home-copy">
-        <p class="eyebrow" id="home-eyebrow">NHẮC BEO UỐNG NƯỚC MỖI NGÀY ♡</p>
-        <h1 id="greeting" data-rotating="true">Cục cưng ơi, em uống nước chưa?</h1>
-        <p class="home-message" id="home-message">Nhớ uống nước đầy đủ nha em ♡</p>
+          <p class="eyebrow" id="home-eyebrow">NHẮC BEO MỖI NGÀY ♡</p>
+          <h1 id="greeting" data-rotating="true">Hôm nay Beo thế nào rồi?</h1>
+          <p class="home-message" id="home-message">Anh ghé nhắc em vài việc nhỏ trong ngày nha.</p>
         </div>
         <div class="drop-stage">
           <span class="water-aura" aria-hidden="true"></span>
           <span class="water-halo halo-out" aria-hidden="true"></span>
           <span class="water-halo halo-in" aria-hidden="true"></span>
-          <span class="floating-drop floating-drop-one" aria-hidden="true"></span>
-          <span class="floating-drop floating-drop-two" aria-hidden="true"></span>
-          <span class="floating-drop floating-drop-three" aria-hidden="true"></span>
-          <button id="letter-button" class="drop-btn big" type="button" aria-label="Chạm hoặc giữ để tạo hiệu ứng giọt nước">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z"/><path class="hl" d="M8.5 14.3c-.3 1.9.6 3.5 2 4.3"/></svg>
+          <button id="letter-button" class="drop-btn big" type="button" aria-label="Chạm hoặc giữ để nhận một lời nhắn nhỏ">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.6 4.05 12.95a5.3 5.3 0 0 1 7.95-7.0 5.3 5.3 0 0 1 7.95 7.0L12 20.6Z"/></svg>
           </button>
-          <svg class="water-surface" aria-hidden="true" viewBox="0 0 280 90" fill="none">
-            <ellipse cx="140" cy="54" rx="119" ry="24"/>
-            <ellipse cx="140" cy="54" rx="93" ry="18"/>
-            <path d="M93 54c14-5 28-7 47-7s34 2 47 7" stroke-linecap="round"/>
-          </svg>
+          <span class="drop-caption" aria-hidden="true">gửi Beo ♡</span>
         </div>
-        <p class="quiet-note" id="quiet-note" aria-live="off">Nhớ uống nước ó nha Beo.</p>
-        <div class="card-footmark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <p class="quiet-note" id="quiet-note" aria-live="off">Anh thương Beo nhiều lắm đó ♡</p>
+        <p class="tap-hint">Chạm trái tim để xem một lời nhắn khác</p>
       </div>
     </section>
+    <button id="latest-card" class="latest-card" type="button" hidden aria-label="Đọc lời nhắn gần nhất">
+      <span class="latest-icon" aria-hidden="true">✉</span>
+      <span class="latest-copy"><small>LỜI NHẮN GẦN NHẤT <span id="latest-time"></span></small><strong id="latest-title">Lời nhắn</strong><span id="latest-body">Chạm để đọc lời nhắn</span></span>
+      <span class="latest-arrow" aria-hidden="true">↗</span>
+    </button>
     <section class="setup-card" id="setup-panel" aria-labelledby="setup-title" hidden>
       <div class="setup-heading"><h2 id="setup-title">Kết nối thiết bị</h2></div>
       <p id="setup-copy"></p>
@@ -71,14 +65,15 @@
     </section>
     <details class="sound-help" id="sound-help">
       <summary>Không nghe tiếng thông báo?</summary>
-      <p>Vào <strong>Cài đặt iPhone → Thông báo → Water</strong> và bật <strong>Âm thanh</strong>.</p>
-      <p>Khi thử, tắt chế độ im lặng và Tập trung, rồi kiểm tra âm lượng chuông. App dùng tiếng thông báo mặc định của iPhone.</p>
+      <p>Vào <strong>Cài đặt iPhone → Thông báo</strong>, chọn tên ứng dụng đã thêm vào màn hình chính và bật <strong>Âm thanh</strong>.</p>
+      <p>Nếu vẫn không nghe, kiểm tra chế độ im lặng, Tập trung và âm lượng chuông. App dùng tiếng thông báo mặc định của iPhone.</p>
     </details>
   </main>
   <dialog class="letter-dialog" id="letter-dialog" aria-labelledby="letter-title" aria-describedby="letter-body">
     <button class="close-button" id="close-letter" type="button" aria-label="Đóng thông báo">×</button>
+    <p class="dialog-kicker">MỘT LỜI NHẮN DÀNH CHO BEO ♡</p>
     <h2 id="letter-title">Thông báo</h2>
-    <p id="letter-body">Chưa có thông báo. Thông báo mới nhất sẽ hiện ở đây.</p>
+    <p id="letter-body">Chưa có thông báo. Lời nhắn mới nhất sẽ hiện ở đây.</p>
     <p id="letter-time" class="letter-time" hidden></p>
     <button class="primary-button" id="letter-done" type="button">Đóng</button>
   </dialog>

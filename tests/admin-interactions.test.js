@@ -12,5 +12,6 @@ test('advanced editing and device history remain collapsed initially',()=>{
   const html=readFileSync(new URL('../admin.html',import.meta.url),'utf8');
   assert.match(html,/<details class="extra-settings" id="extra-settings">/);
   assert.match(html,/<details class="manage-details" id="device-card">/);
-  assert.equal((html.match(/<section class="card"/g)||[]).length,2);
+  assert.match(html,/id="routines-section"/);
+  assert.match(html,/id="compose-section"/);
 });
