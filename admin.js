@@ -67,6 +67,7 @@ function lockDashboard() {
   pendingSend = null;
   draftLoaded = false;
   settingsDirty = false;
+  $('settings-dirty-indicator').hidden = true;
   routinesUI?.reset();
   $('send-form').reset();
   $('settings-form').reset();
@@ -246,17 +247,20 @@ $('reminder-mode').addEventListener('change', () => {
   }
   $('custom-copy-fields').hidden = copyMode !== 'fixed';
   settingsDirty = true;
+  $('settings-dirty-indicator').hidden = false;
   feedback('settings-status');
 });
 $('use-home-auto').addEventListener('click', () => {
   $('home-message').value = 'Nhắc uống nước mỗi ngày.';
   settingsDirty = true;
+  $('settings-dirty-indicator').hidden = false;
   feedback('settings-status','Đã chọn lời chào tự đổi. Nhấn Lưu lịch nhắc để áp dụng.');
 });
 for (const button of (document.querySelectorAll?.('[data-interval]') || [])) {
   button.addEventListener('click', () => {
     $('schedule-interval').value = button.dataset.interval;
     settingsDirty = true;
+    $('settings-dirty-indicator').hidden = false;
     updateSchedulePreview();
     feedback('settings-status');
   });
@@ -331,7 +335,7 @@ $('send-form').addEventListener('submit', async event => {
   } catch (error) { feedback('send-status', explainError(error), 'error'); }
   finally { sendBusy = false; syncSendButton(); }
 });
-$('settings-form').addEventListener('input', () => { settingsDirty = true; feedback('settings-status'); });
+$('settings-form').addEventListener('input', () => { settingsDirty = true; $('settings-dirty-indicator').hidden = false; feedback('settings-status'); });
 $('settings-form').addEventListener('submit', async event => {
   event.preventDefault();
   const form = $('settings-form');
@@ -357,6 +361,7 @@ $('settings-form').addEventListener('submit', async event => {
   try {
     await api('/api/admin/settings', {method:'POST',data});
     settingsDirty = false;
+    $('settings-dirty-indicator').hidden = true;
     feedback('settings-status', 'Đã lưu thay đổi.', 'success');
     await refreshState({silent:true});
   } catch (error) { feedback('settings-status', explainError(error), 'error'); }

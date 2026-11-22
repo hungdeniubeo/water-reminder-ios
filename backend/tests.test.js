@@ -16,7 +16,8 @@ test('schedule validates timezone and interval', () => {
   assert.equal(goodSchedule(base), true);
   assert.equal(goodSchedule({ ...base, timezone: 'invalid-timezone' }), false);
   assert.equal(goodSchedule({ ...base, start: '22:00' }), false);
-  assert.equal(goodSchedule({ ...base, interval: 15 }), false);
+  assert.equal(goodSchedule({ ...base, interval: 15 }), true);
+  assert.equal(goodSchedule({ ...base, interval: 4 }), false);
 });
 test('one-device auth secrets have sufficient entropy and compare safely', () => {
   const code = randomSecret();
