@@ -155,6 +155,8 @@ function fillSettings(settings) {
     const field = form.elements.namedItem(name);
     if (!field) continue;
     if (field.type === 'checkbox') field.checked = !!value;
+    else if (name === 'appTitle' && (value === 'Water' || value === 'Water ♡')) field.value = 'Beo Daily';
+    else if (name === 'homeMessage' && value === 'Nhắc uống nước mỗi ngày.') field.value = 'Nhắc Beo mỗi ngày.';
     else field.value = value ?? '';
   }
 }

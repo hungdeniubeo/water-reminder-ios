@@ -70,8 +70,8 @@ self.addEventListener('push', event => {
   event.waitUntil((async () => {
     let payload = {};
     try { payload = event.data?.json() || {}; } catch {}
-    const title = typeof payload.title === 'string' && payload.title.trim() ? payload.title.slice(0,70) : 'Water ♡';
-    const body = typeof payload.body === 'string' && payload.body.trim() ? payload.body.slice(0,150) : 'Beo ơi, nhớ uống nước nha em ♡';
+    const title = typeof payload.title === 'string' && payload.title.trim() ? payload.title.slice(0,70) : 'Beo Daily ♡';
+    const body = typeof payload.body === 'string' && payload.body.trim() ? payload.body.slice(0,150) : 'Beo ơi, anh gửi em một lời nhắc nhỏ ♡';
     const id = validMessageId(payload.id) ? payload.id : null;
     const data = {id, receiptToken:payload.receiptToken};
     // iOS requires visible notifications; network work happens only after this.
