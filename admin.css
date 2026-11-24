@@ -157,3 +157,30 @@ body.editor-open{overflow:hidden}
 #reminder-mode{appearance:none;padding-right:30px;cursor:pointer}.time-picker-panel{z-index:230}.time-picker-backdrop{z-index:225}
 @media(max-width:600px){.time-picker-backdrop{background:rgba(37,22,34,.42);backdrop-filter:blur(3px)}.time-picker-panel{left:12px!important;right:12px!important;top:auto!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;width:auto;max-height:calc(100dvh - 30px);padding:21px 19px;border-radius:21px;animation:mobile-sheet-in .2s ease both}}
 @media(max-width:375px){.header-app-link{font-size:0;padding:8px 9px}.header-app-link span{font-size:17px;padding-left:0}}
+
+/* Hero cleanup: function-first layout, no oversized decorative heart. */
+.dashboard-hero{display:flex;flex-direction:column;min-height:0;border-radius:22px;margin-bottom:16px}
+.dashboard-hero::before,.hero-graphic{display:none!important}
+.hero-copy{padding:24px 28px 22px}
+.dashboard-hero h1{font-size:clamp(27px,3.1vw,35px);line-height:1.2}
+.hero-description{max-width:670px;margin:10px 0 16px}
+.connection-strip{position:static;left:auto;right:auto;bottom:auto;min-height:61px;padding:12px 25px;background:#fcf7f9}
+.connection-link{display:inline-flex;align-items:center;gap:3px;flex:none}
+@media(max-width:760px){
+  main{padding-top:14px}
+  .dashboard-hero{border-radius:18px;margin-bottom:14px}
+  .hero-copy{padding:19px 18px 18px}
+  .dashboard-hero h1{font-size:clamp(26px,8vw,32px);line-height:1.18}
+  .hero-description{font-size:11px;line-height:1.65;margin:9px 0 14px}
+  .hero-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .hero-actions .button{min-width:0;min-height:43px;padding:10px 8px;font-size:11px;white-space:normal}
+  .connection-strip{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:60px;padding:12px 15px}
+  .connection-strip>div{min-width:0}
+  .connection-link{justify-self:end;padding:5px 0}
+}
+@media(max-width:380px){
+  .hero-copy{padding:17px 14px}
+  .dashboard-hero h1{font-size:27px}
+  .connection-strip{grid-template-columns:10px minmax(0,1fr);padding:12px 14px}
+  .connection-link{grid-column:2;justify-self:start;padding:0}
+}
