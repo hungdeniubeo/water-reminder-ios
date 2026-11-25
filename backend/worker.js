@@ -19,7 +19,7 @@ function cors(response, origin) {
   if (origin !== ORIGIN) return response;
   const headers = new Headers(response.headers);
   headers.set('Access-Control-Allow-Origin', ORIGIN);
-  headers.set('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  headers.set('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
   headers.set('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   headers.set('Access-Control-Max-Age', '1800');
   headers.set('Vary', 'Origin');
