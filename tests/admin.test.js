@@ -76,6 +76,7 @@ async function withAdminHarness(run) {
     device: { paired: true, pushEnabled: true }, service: { ready: true }, messages: []
   };
   let failSends = 0;
+  const health={database:'water-couple',sizeBytes:2000000,freeLimitBytes:500000000,totalMessages:42,todayMessages:4,expiredMessages:2,retentionDays:30,retentionEditable:true,cleanupBatch:1000,exportLimit:5000,timezone:'Asia/Ho_Chi_Minh',checkedAt:1795172400,serviceReady:true};
   let nextStateGate = null;
   const gates = [];
   const tickUntil = async predicate => {
@@ -110,6 +111,9 @@ async function withAdminHarness(run) {
         return Response.json(state);
       }
       if (path === '/api/admin/routines') return Response.json({routines: [], advanced: true});
+      if (path === '/api/admin/system') return Response.json(health);
+      if (path === '/api/admin/system/retention') {health.retentionDays=data.days;return Response.json({ok:true,retentionDays:data.days});}
+      if (path === '/api/admin/system/cleanup') {const deleted=health.expiredMessages;health.expiredMessages=0;health.totalMessages-=deleted;return Response.json({ok:true,deleted});}
       if (path === '/api/admin/send') {
         if (failSends > 0) { failSends--; throw new TypeError('Network connection lost after request was sent'); }
         const message = { id: 'sent-message', title: data.title, body: data.body,
@@ -340,5 +344,34 @@ test('a newer confirmed scheduled message is visible even if the earlier manual 
     assert.equal(nodes['phone-live-title'].textContent,'Uống nước');
     assert.equal(nodes['phone-delivery'].dataset.tone,'received');
     assert.match(nodes['send-status'].textContent,/Đang chờ phản hồi từ iPhone/,'the original manual push is not falsely confirmed');
+  });
+});
+
+test('compact system health is lazy, not polled, and requires confirmation for mutations',async()=>{
+  await withAdminHarness(async({nodes,calls,login,emit,app,intervals,tickUntil})=>{
+    await login();
+    assert.equal(calls.filter(c=>c.path==='/api/admin/system').length,0);
+    nodes['system-card'].open=true;await emit('system-card','toggle');
+    assert.equal(nodes['system-data'].hidden,false);
+    assert.equal(nodes['system-size'].textContent,'2 MB');
+    assert.equal(nodes['system-total'].textContent,'42');
+    assert.equal(nodes['system-today'].textContent,'4');
+    assert.equal(nodes['system-retention'].value,'30');
+    const count=calls.filter(c=>c.path==='/api/admin/system').length;
+    await app.refreshState({silent:true});
+    assert.equal(calls.filter(c=>c.path==='/api/admin/system').length,count);
+    nodes['system-retention'].value='60';await emit('system-retention','change');
+    window.confirm=()=>false;await emit('system-save','click');await emit('system-cleanup','click');
+    assert.equal(calls.filter(c=>c.path.startsWith('/api/admin/system/')).length,0);
+    window.confirm=()=>true;await emit('system-save','click');
+    assert.equal(nodes['system-retention'].value,'60');
+    assert.deepEqual(calls.find(c=>c.path==='/api/admin/system/retention').data,{days:60,confirm:true});
+    await emit('system-cleanup','click');
+    assert.equal(nodes['system-total'].textContent,'40');
+    assert.equal(nodes['system-expired'].textContent,'0');
+    assert.equal(nodes['system-cleanup'].disabled,true);
+    await emit('logout','click');
+    assert.equal(nodes['system-card'].open,false);
+    assert.equal(nodes['system-data'].hidden,true);
   });
 });

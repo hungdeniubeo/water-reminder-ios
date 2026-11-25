@@ -651,3 +651,60 @@ test('advanced repeat and date schedules dispatch independently with deduplicati
   await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
   assert.equal(f.sent.length,4);
 });
+
+test('system health is private, shows real query metadata and counts local calendar days',async t=>{
+  const f=await fixture(t,{legacy:true}),admin=await f.login();
+  const now=Math.floor(f.clock.ms/1000);
+  // 09:00 in Vietnam; local midnight is nine hours ago.
+  const insert=async at=>f.DB.prepare('INSERT INTO beo_messages (id,device_id,dedupe_key,title,body,source,receipt_hash,created_at) VALUES (?,?,?,?,?,?,?,?)')
+    .bind(crypto.randomUUID(),'device',crypto.randomUUID(),'Beo','Nhớ uống nước','manual','test-hash',at).run();
+  await insert(now-9*3600-1);await insert(now-9*3600);await insert(now);await insert(now-31*86400);
+  assert.equal((await f.api('/api/admin/system')).status,401);
+  assert.equal((await f.api('/api/admin/system',{token:f.legacyToken})).status,401);
+  const health=await f.api('/api/admin/system',{token:admin});
+  assert.equal(health.status,200,JSON.stringify(health.body));
+  assert.equal(health.body.totalMessages,4);
+  assert.equal(health.body.todayMessages,2);
+  assert.equal(health.body.expiredMessages,1);
+  assert.ok(health.body.sizeBytes>0);
+  assert.equal(health.body.freeLimitBytes,500000000);
+  assert.equal(health.body.retentionDays,30);
+  assert.equal(health.body.retentionEditable,false);
+  assert.equal((await f.api('/api/admin/system/retention',{method:'POST',token:admin,data:{days:60,confirm:true}})).status,503);
+  const result=await f.api('/api/admin/system/export',{token:admin});
+  assert.equal(result.body.messages.length,4);
+  assert.equal(result.body.truncated,false);
+  assert.ok(result.body.messages.every(m=>!Object.hasOwn(m,'receipt_hash')&&!Object.hasOwn(m,'dedupe_key')&&!Object.hasOwn(m,'device_id')));
+  assert.equal((await f.api('/api/admin/system/export')).status,401);
+});
+
+test('retention migration preserves settings and only confirmed cleanup removes expired messages',async t=>{
+  const f=await fixture(t,{legacy:true}),admin=await f.login();
+  const now=Math.floor(f.clock.ms/1000);
+  const insert=async (id,days)=>f.DB.prepare('INSERT INTO beo_messages (id,device_id,dedupe_key,title,body,source,receipt_hash,created_at) VALUES (?,?,?,?,?,?,?,?)')
+    .bind(id,'device',id,'Beo','Lời nhắn','manual','test-hash',now-days*86400).run();
+  await insert('fresh',1);await insert('month',40);await insert('older',80);
+  const before=await f.DB.prepare('SELECT * FROM beo_settings').first();
+  const migration=await readFile(new URL('./migrations/0005-system-health.sql',import.meta.url),'utf8');
+  f.DB.exec(migration);f.DB.exec(migration);
+  const url='/api/admin/system/retention',clean='/api/admin/system/cleanup';
+  assert.equal((await f.api(url,{method:'POST',token:admin,data:{days:7,confirm:true}})).status,400);
+  assert.equal((await f.api(url,{method:'POST',token:admin,data:{days:60}})).status,400);
+  assert.equal((await f.api(url,{method:'POST',token:admin,data:{days:60,confirm:true}})).status,200);
+  f.DB.exec(migration);
+  assert.equal((await f.api('/api/admin/system',{token:admin})).body.retentionDays,60);
+  assert.equal((await f.api(clean,{method:'POST',token:admin,data:{confirm:true,retentionDays:30}})).status,409);
+  assert.equal((await f.api(clean,{method:'POST',token:admin,data:{retentionDays:60}})).status,400);
+  assert.equal((await f.api(clean,{method:'POST',data:{confirm:true,retentionDays:60}})).status,401);
+  assert.equal((await f.DB.prepare('SELECT COUNT(*) AS n FROM beo_messages').first()).n,3);
+  const result=await f.api(clean,{method:'POST',token:admin,data:{confirm:true,retentionDays:60}});
+  assert.equal(result.status,200);assert.equal(result.body.deleted,1);
+  assert.deepEqual((await f.DB.prepare('SELECT id FROM beo_messages ORDER BY id').all()).results.map(x=>x.id),['fresh','month']);
+  assert.deepEqual(await f.DB.prepare('SELECT * FROM beo_settings').first(),before);
+  assert.equal((await f.api('/api/device/me',{token:f.legacyToken})).status,200);
+  await f.api(url,{method:'POST',token:admin,data:{days:30,confirm:true}});
+  assert.equal((await f.DB.prepare('SELECT COUNT(*) AS n FROM beo_messages').first()).n,2,'policy change alone does not delete');
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  assert.equal(await f.DB.prepare("SELECT id FROM beo_messages WHERE id='month'").first(),null);
+  assert.ok(await f.DB.prepare("SELECT id FROM beo_messages WHERE id='fresh'").first());
+});

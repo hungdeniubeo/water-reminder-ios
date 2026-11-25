@@ -9,7 +9,7 @@ export class SQLiteD1 {
     const statement = values => ({
       bind(...bound) { return statement(bound); },
       async first() { return db.prepare(sql).get(...values) || null; },
-      async all() { return { results: db.prepare(sql).all(...values) }; },
+      async all() { const results=db.prepare(sql).all(...values);const pages=db.prepare('PRAGMA page_count').get().page_count;const pageSize=db.prepare('PRAGMA page_size').get().page_size;return { results,meta:{size_after:pages*pageSize} }; },
       runSync() { const result = db.prepare(sql).run(...values); return { meta: { changes: Number(result.changes) } }; },
       async run() { return this.runSync(); }
     });

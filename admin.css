@@ -244,3 +244,37 @@ body.editor-open{overflow:hidden}
 .phone-preview-link{display:flex;justify-content:flex-start;margin:0 0 3px}
 @media(min-width:1260px){main,.topbar{max-width:1530px}.dashboard-grid{grid-template-columns:minmax(0,1.35fr) minmax(270px,.89fr) minmax(250px,.78fr);grid-template-areas:"primary secondary phone";grid-template-rows:auto;gap:18px}.phone-card{position:sticky;top:18px}}
 @media(max-width:760px){.dashboard-grid{grid-template-areas:"primary" "secondary" "phone";grid-template-rows:auto;grid-template-columns:minmax(0,1fr)}.phone-card{padding:20px 17px}.phone-clock{font-size:52px}}
+
+/* Compact, opt-in system panel; outside the main reminder and phone grid. */
+.system-details{margin-top:12px;border-radius:15px}
+.system-details>summary{min-height:62px;padding:11px 20px}
+.system-details>summary strong{font-size:13px;letter-spacing:-.01em}
+.system-details>summary small{font-size:10px;margin-top:2px}
+.system-summary{display:flex;align-items:center;gap:11px;min-width:0}
+.system-icon{display:grid;place-items:center;flex:none;width:31px;height:31px;border-radius:10px;background:#f8edf3;color:var(--rose);font-size:17px}
+.system-inner{padding:0 20px 16px;max-width:780px}
+.system-toolbar,.system-usage-head,.system-policy{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.system-toolbar{border-top:1px solid var(--line);padding:10px 0 4px}
+.system-toolbar .muted{font-size:10px;margin:0}
+.system-usage{padding:12px;background:#fcf8fa;border:1px solid var(--line);border-radius:11px;margin:5px 0 9px}
+.system-usage-head{font-size:11px;color:#776570}
+.system-usage-head strong{color:var(--ink);font-size:12px;font-variant-numeric:tabular-nums}
+.system-usage progress{display:block;width:100%;height:7px;margin:8px 0;border:0;appearance:none;border-radius:8px;background:#eee1e8;overflow:hidden;accent-color:#b8507d}
+.system-usage progress::-webkit-progress-bar{background:#eee1e8;border-radius:8px}
+.system-usage progress::-webkit-progress-value{background:#b8507d;border-radius:8px}
+.system-usage progress::-moz-progress-bar{background:#b8507d;border-radius:8px}
+.system-usage progress[data-warning=true]{accent-color:#b67b43}
+.system-usage progress[data-warning=true]::-webkit-progress-value{background:#b67b43}
+.system-usage progress[data-warning=true]::-moz-progress-bar{background:#b67b43}
+.system-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.system-metrics>div{border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.system-metrics span{display:block;color:var(--muted);font-size:10px}
+.system-metrics strong{display:block;font-size:15px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.system-policy{border-top:1px solid var(--line);padding:12px 0 8px;margin-top:11px}
+.system-policy strong{font-size:11px}
+.system-policy-controls,.system-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.system-policy-controls select{min-height:36px;max-width:120px;border:1px solid var(--line);background:white;color:var(--ink);border-radius:9px;padding:6px 9px;font-size:11px}
+.system-actions .inline-link{font-size:10px;margin-left:4px}
+.system-footnote{margin:8px 0 0}
+.system-sr-only{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
+@media(max-width:600px){.system-details>summary{padding:11px 15px}.system-inner{padding:0 15px 15px}.system-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.system-policy{align-items:flex-start;flex-wrap:wrap}.system-actions .button{white-space:normal}}

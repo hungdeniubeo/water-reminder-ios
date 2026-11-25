@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./admin.css?v=20261125-live-preview-v1">
-  <script type="module" src="./admin.js?v=20261125-live-preview-v1"></script>
+  <link rel="stylesheet" href="./admin.css?v=20261125-system-health-v1">
+  <script type="module" src="./admin.js?v=20261125-system-health-v1"></script>
 </head>
 <body>
   <header class="topbar">
@@ -268,6 +268,32 @@
           <p id="pair-status" class="feedback" role="status" aria-live="polite"></p>
           <div class="history-head"><strong>Thông báo gần đây</strong><span>5 tin gần nhất</span></div>
           <ul id="message-history" class="message-history" aria-live="polite"><li class="empty-history">Chưa có thông báo nào.</li></ul>
+        </div>
+      </details>
+      <details class="manage-details system-details" id="system-card">
+        <summary><span class="system-summary"><span class="system-icon" aria-hidden="true">◉</span><span><strong>Database &amp; hệ thống</strong><small>water-couple · Cloudflare D1</small></span></span><span aria-hidden="true" class="summary-chevron">⌄</span></summary>
+        <div class="manage-inner system-inner">
+          <div class="system-toolbar"><span id="system-checked" class="muted">Mở mục này để kiểm tra dữ liệu.</span><button id="system-refresh" type="button" class="button secondary small">↻ Làm mới</button></div>
+          <p id="system-status" class="feedback" role="status" aria-live="polite"></p>
+          <div id="system-data" hidden>
+            <div class="system-usage">
+              <div class="system-usage-head"><span>Dung lượng database</span><strong id="system-size">—</strong></div>
+              <progress id="system-progress" max="100" value="0" aria-label="Dung lượng so với giới hạn gói Free" hidden></progress>
+              <p id="system-usage-note" class="hint">Mốc tham chiếu D1 Free: 500 MB/database.</p>
+            </div>
+            <div class="system-metrics">
+              <div><span>Tin đang lưu</span><strong id="system-total">—</strong></div>
+              <div><span>Tin hôm nay</span><strong id="system-today">—</strong></div>
+              <div><span>Tin hết hạn</span><strong id="system-expired">—</strong></div>
+              <div><span>Máy chủ</span><strong id="system-ready">—</strong></div>
+            </div>
+            <div class="system-policy">
+              <div><strong>Thời gian lưu lịch sử</strong><p class="hint" id="system-policy-note">Dọn tự động mỗi giờ theo cấu hình.</p></div>
+              <div class="system-policy-controls"><label class="system-sr-only" for="system-retention">Số ngày lưu</label><select id="system-retention" disabled><option value="30">30 ngày</option><option value="60">60 ngày</option><option value="90">90 ngày</option></select><button id="system-save" type="button" class="button secondary small" disabled>Lưu</button></div>
+            </div>
+            <div class="system-actions"><button id="system-export" type="button" class="button secondary small" disabled>Xuất lịch sử JSON</button><button id="system-cleanup" type="button" class="button secondary small" disabled>Dọn tin hết hạn</button><a class="inline-link" href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer">Cloudflare Metrics ↗</a></div>
+            <p class="hint system-footnote">Chỉ xóa tin đã quá hạn, không xóa lịch nhắc hoặc thiết bị. Xuất tối đa 5.000 tin gần nhất. Dung lượng có thể không giảm ngay sau khi dọn; số lượt đọc/ghi xem trong Cloudflare Metrics.</p>
+          </div>
         </div>
       </details>
     </div>

@@ -48,6 +48,7 @@ let copyMode = 'auto';
 let fixedDraft = { title: '', body: '' };
 let routinesUI = null;
 let activeRoutines = [];
+let systemData=null,systemBusy=false,systemGeneration=0;
 const timePickers = setupTimePickers();
 
 
@@ -69,6 +70,7 @@ function lockDashboard() {
   $('login-panel').hidden = false;
   $('pair-result').hidden = true;
   $('message-history').replaceChildren();
+  resetSystem();
   pairingCode = '';
   pairingExpiry = 0;
   pendingSend = null;
@@ -567,6 +569,107 @@ $('copy-code').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(pairingCode); feedback('pair-status', 'Đã sao chép mã kết nối.', 'success'); }
   catch { feedback('pair-status', 'Chọn và sao chép mã phía trên.'); }
 });
+// System metrics are loaded only on demand, never by the live iPhone poll.
+const systemNumber=n=>Number(n).toLocaleString('vi-VN');
+function systemBytes(n) {
+  if(!Number.isSafeInteger(n)||n<0)return 'Chưa có số liệu';
+  if(n<1000000)return (n/1000).toLocaleString('vi-VN',{maximumFractionDigits:1})+' KB';
+  return (n/1000000).toLocaleString('vi-VN',{maximumFractionDigits:2})+' MB';
+}
+function syncSystemControls() {
+  $('system-refresh').disabled=systemBusy;
+  $('system-retention').disabled=systemBusy||!systemData?.retentionEditable;
+  $('system-save').disabled=systemBusy||!systemData?.retentionEditable||Number($('system-retention').value)===systemData?.retentionDays;
+  $('system-export').disabled=systemBusy||!systemData||!systemData.totalMessages;
+  $('system-cleanup').disabled=systemBusy||!systemData||!systemData.expiredMessages;
+}
+function resetSystem() {
+  systemGeneration++;systemData=null;systemBusy=false;$('system-card').open=false;
+  $('system-data').hidden=true;$('system-checked').textContent='Mở mục này để kiểm tra dữ liệu.';
+  feedback('system-status');syncSystemControls();
+}
+function renderSystem(data) {
+  systemData=data;
+  const known=Number.isSafeInteger(data.sizeBytes)&&data.sizeBytes>=0;
+  const percent=known&&data.freeLimitBytes>0?100*data.sizeBytes/data.freeLimitBytes:null;
+  $('system-size').textContent=systemBytes(data.sizeBytes);
+  $('system-progress').hidden=percent===null;
+  $('system-progress').value=percent===null?0:Math.min(100,percent);
+  $('system-progress').dataset.warning=String(percent!==null&&percent>=80);
+  $('system-usage-note').textContent=percent===null?'D1 chưa trả dung lượng. Xem Cloudflare Metrics.':
+    'Mốc D1 Free: '+systemBytes(data.freeLimitBytes)+' · '+percent.toLocaleString('vi-VN',{maximumFractionDigits:2})+'%'+(percent>=80?' · Đã vượt ngưỡng cảnh báo 80%.':'');
+  $('system-total').textContent=systemNumber(data.totalMessages);
+  $('system-today').textContent=systemNumber(data.todayMessages);
+  $('system-expired').textContent=systemNumber(data.expiredMessages);
+  $('system-ready').textContent=data.serviceReady?'Sẵn sàng':'Cần kiểm tra';
+  $('system-retention').value=String(data.retentionDays);
+  $('system-policy-note').textContent='Dọn tự động mỗi giờ, tối đa '+systemNumber(data.cleanupBatch)+' tin/lần.'+(data.retentionEditable?'':' Cần migration để đổi thời gian lưu.');
+  $('system-checked').textContent='Cập nhật '+dateLabel(data.checkedAt)+' · '+data.timezone;
+  $('system-data').hidden=false;
+  syncSystemControls();
+}
+async function systemAction(action) {
+  if(!token||systemBusy)return;
+  const session=token,generation=systemGeneration;
+  const valid=()=>token===session&&generation===systemGeneration;
+  systemBusy=true;syncSystemControls();feedback('system-status','Đang xử lý…');
+  try {
+    await action(valid);
+  }catch(error){
+    if(valid()){
+      const message=error.status===404?'Cần deploy Worker mới để xem mục Database.':explainError(error);
+      feedback('system-status',message,'error');
+      // Refresh before permitting further mutations after an ambiguous result.
+      systemData=null;$('system-data').hidden=true;
+    }
+  }finally{if(valid()){systemBusy=false;syncSystemControls();}}
+}
+async function fetchSystem(valid) {
+  const data=await api('/api/admin/system');
+  if(valid())renderSystem(data);
+}
+function loadSystem() {
+  return systemAction(async valid=>{await fetchSystem(valid);if(valid())feedback('system-status');});
+}
+$('system-card').addEventListener('toggle',()=>{if($('system-card').open) return loadSystem();});
+$('system-refresh').addEventListener('click',loadSystem);
+$('system-retention').addEventListener('change',syncSystemControls);
+$('system-save').addEventListener('click',()=>{
+  const days=Number($('system-retention').value);
+  if(!systemData?.retentionEditable||![30,60,90].includes(days)||days===systemData.retentionDays)return;
+  if(!window.confirm('Đổi thời gian lưu thành '+days+' ngày? Tin quá hạn sẽ bị xóa ở lần dọn tự động tiếp theo.'))return;
+  return systemAction(async valid=>{
+    await api('/api/admin/system/retention',{method:'POST',data:{days,confirm:true}});
+    if(!valid())return;
+    await fetchSystem(valid);if(valid())feedback('system-status','Đã lưu thời gian lưu lịch sử.','success');
+  });
+});
+$('system-cleanup').addEventListener('click',()=>{
+  if(!systemData?.expiredMessages)return;
+  const days=systemData.retentionDays,batch=systemData.cleanupBatch;
+  if(!window.confirm('Xóa tối đa '+systemNumber(batch)+' tin cũ hơn '+days+' ngày? Không thể hoàn tác. Lịch nhắc và iPhone không bị thay đổi.'))return;
+  return systemAction(async valid=>{
+    const result=await api('/api/admin/system/cleanup',{method:'POST',data:{confirm:true,retentionDays:days}});
+    if(!valid())return;
+    await fetchSystem(valid);
+    if(valid())feedback('system-status','Đã dọn '+systemNumber(result.deleted)+' tin hết hạn.','success');
+    if(valid())await refreshState({silent:true});
+  });
+});
+$('system-export').addEventListener('click',()=>{
+  if(!systemData?.totalMessages)return;
+  return systemAction(async valid=>{
+    const result=await api('/api/admin/system/export');
+    if(!valid())return;
+    const blob=new Blob([JSON.stringify(result,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='beo-history-'+new Date(result.exportedAt*1000).toISOString().slice(0,10)+'.json';
+    try {a.click();} finally{URL.revokeObjectURL(url);}
+    if(valid())feedback('system-status',result.truncated?'Đã tạo file 5.000 tin gần nhất (còn tin cũ hơn).':'Đã tạo file lịch sử JSON.','success');
+  });
+});
+syncSystemControls();
 $('refresh').addEventListener('click', () => refreshState());
 $('retry-service').addEventListener('click', checkService);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && token) refreshState({silent:true}); });

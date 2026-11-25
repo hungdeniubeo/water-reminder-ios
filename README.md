@@ -9,6 +9,7 @@
 - **Sắp tới:** xem trước tối đa ba khung giờ theo múi giờ được lưu. Đây chỉ là lịch dự kiến, **không phải xác nhận iPhone đã nhận thông báo**.
 - **Gửi ngay & khung iPhone:** xem trước ngay khi gõ; khi gửi thật, chuyển sang theo dõi đúng tin gửi và cập nhật biên nhận của iPhone mỗi 3 giây khi tab Admin mở ở chế độ theo dõi (15 giây khi soạn). Tin theo lịch cũng xuất hiện theo lịch sử gửi. Màn hình chỉ mô phỏng; dịch vụ push chấp nhận không có nghĩa là iPhone đã nhận. Không cần thay đổi Worker hay database cho riêng tính năng xem trước.
 - **Thiết bị & lịch sử:** kiểm tra kết nối, tạo mã ghép mới, đối chiếu trạng thái tin gửi.
+- **Database & hệ thống:** mục thu gọn cuối Admin, chỉ tải khi mở hoặc làm mới. Hiển thị dung lượng từ metadata D1, số tin đang lưu/hôm nay/hết hạn và mốc cảnh báo 80% của gói Free. Đổi thời gian lưu 30/60/90 ngày, xuất JSON tối đa 5.000 tin gần nhất, hoặc dọn tối đa 1.000 tin hết hạn sau xác nhận. Dọn tự động đầu mỗi giờ; không xóa lịch hay thiết bị. Lượt đọc/ghi theo tài khoản xem trong Cloudflare Metrics.
 
 Admin ưu tiên thao tác trên điện thoại, có thanh điều hướng dưới màn hình, form tạo/sửa là bottom sheet và bộ chọn giờ thống nhất. Desktop dùng giao diện hai cột với form drawer.
 
@@ -23,6 +24,8 @@ Trang nhận chuyển sang lời chào và ghi chú hằng ngày, không chỉ n
 GitHub Pages lấy frontend từ `main`; Worker và D1 cần cập nhật riêng. Từ thư mục `backend`, chạy `npm ci`, `npm run db:reminders` rồi `npm run deploy`. Migration 0004 chỉ thêm bảng cấu hình; không thay đổi lịch cũ, khóa admin hoặc thiết bị. Nếu thiếu migration 0003, chạy `npm run db:routines` trước. Lịch cũ vẫn dùng được nếu chưa nâng cấp; form loại lịch mới chỉ mở khi API báo đã sẵn sàng.
 
 Lịch ngẫu nhiên chọn giờ ổn định theo ID/ngày, cách nhau ít nhất 15 phút; thay đổi cấu hình có thể đổi các giờ còn lại. Lịch ngày 29/2 hoặc 31 bỏ qua tháng/năm không có ngày đó. Khi cron đến muộn chỉ bắt kịp lần gần nhất trong 14 phút; không gửi bù hàng loạt. Nội dung ngẫu nhiên xáo trộn theo ngày và xoay vòng để hạn chế lặp trong cùng ngày. Mọi lịch dùng múi giờ đã lưu.
+
+Để dùng mục Database & hệ thống, từ `backend` chạy `npm run db:system` rồi `npm run deploy`. Migration 0005 chỉ tạo bảng chính sách lưu lịch sử, mặc định 30 ngày và không xóa hay ghi đè dữ liệu hiện có. Worker cũ chưa có API mới; mục thu gọn sẽ báo cần deploy. Nếu chưa chạy migration, số liệu vẫn xem được sau deploy nhưng không đổi được thời gian lưu. Thay đổi chính sách không xóa tin ngay; lần dọn định kỳ hoặc thủ công mới xóa tin quá hạn.
 
 ## Kiểm thử
 
