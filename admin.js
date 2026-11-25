@@ -1,7 +1,7 @@
 import { PUSH_API_URL } from './push-config.js';
-import { previewScheduleTimes, upcomingReminders } from './admin-features.js?v=20261122-daily-v3';
-import { setupRoutinesAdmin } from './routines-admin.js?v=20261122-daily-v3';
-import { setupTimePickers } from './time-picker.js?v=20261122-timepicker-v1';
+import { previewScheduleTimes, upcomingReminders } from './admin-features.js?v=20261125-flexible-v1';
+import { setupRoutinesAdmin } from './routines-admin.js?v=20261125-flexible-v1';
+import { setupTimePickers } from './time-picker.js?v=20261125-flexible-v1';
 import { HOME_COPIES } from './water-notes.js?v=20261122-daily-v3';
 
 const COMPACT_NOTIFICATION = {
@@ -202,6 +202,7 @@ function renderState(state) {
   const {settings, device} = state;
   renderHeroDate(settings);
   renderWaterSummary(settings);
+  routinesUI?.setLegacySettings(settings);
   renderAgenda();
   $('heading-name').textContent = settings.recipientName;
   $('device-name').textContent = settings.recipientName;
@@ -244,8 +245,8 @@ async function refreshState({silent = false} = {}) {
     $('dashboard').hidden = false;
     $('mobile-nav').hidden = false;
     $('logout').hidden = false;
-    routinesUI?.ensureLoaded();
-    if (!silent) feedback('global-status');
+    await routinesUI?.ensureLoaded();
+    if (token===refreshingToken && !silent) feedback('global-status');
   } catch (error) {
     if (!silent) feedback(token ? 'global-status' : 'login-status', explainError(error), 'error');
     if (!current && token) feedback('login-status', explainError(error), 'error');
@@ -452,7 +453,20 @@ setInterval(() => {
   }
 }, 15000);
 routinesUI = setupRoutinesAdmin({$,api,
-  onFormOpen:() => timePickers.sync('routine-time'),
+  onFormOpen:() => timePickers.sync(),
+  today:()=>new Intl.DateTimeFormat('en-CA',{timeZone:current?.settings?.timezone||'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()),
+  onLegacyEdit:()=>{const section=$('schedule-section');section.open=true;section.scrollIntoView?.({behavior:'smooth',block:'start'});},
+  onLegacyToggle:async enabled=>{
+    if(settingsDirty||$('save-settings').disabled) throw new Error('Lưu cài đặt lịch lặp đang chỉnh trước khi bật/tắt.');
+    if(!current?.settings) throw new Error('Chưa tải cài đặt lịch lặp.');
+    const savingToken=token;$('save-settings').disabled=true;
+    try{
+      const state=await api('/api/admin/state');
+      if(!token||token!==savingToken)return;
+      const result=await api('/api/admin/settings',{method:'POST',data:{...state.settings,enabled}});
+      if(current&&token===savingToken) renderState({...current,settings:result.settings});
+    }finally{$('save-settings').disabled=false;}
+  },
   onChange:reminders => { activeRoutines = reminders; renderAgenda(); }
 });
 for (const id of ['hero-add','mobile-add']) {

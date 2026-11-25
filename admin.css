@@ -184,3 +184,20 @@ body.editor-open{overflow:hidden}
   .connection-strip{grid-template-columns:10px minmax(0,1fr);padding:12px 14px}
   .connection-link{grid-column:2;justify-self:start;padding:0}
 }
+
+/* Flexible reminder editor */
+#routine-form select{width:100%;min-height:46px;border:1px solid #e6d8df;border-radius:12px;padding:10px 12px;background:#fff;color:#44333e;font-size:13px}
+#routine-form .flexible-fields{min-width:0;margin:14px 0 0;padding:12px 14px 14px;border:1px solid var(--line);border-radius:14px}
+#routine-form .flexible-fields legend{font-size:11px;font-weight:800;color:#80596d;padding:0 5px}
+#routine-form .flexible-fields .field-grid label{margin-top:2px}
+#routine-form .routine-schedule-summary{margin:14px 0;padding:11px 13px;border-radius:10px;background:#f8edf3;color:#9b4c73;font-size:11px;font-weight:700}
+.routine-time-bubble.flexible{font-size:12px;letter-spacing:-.01em;min-width:68px;max-width:88px;text-align:center}
+.routine-variants{display:grid;gap:12px;margin:10px 0}
+.routine-variant{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fcf8fa}
+.routine-variant .variant-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:800;color:#8e5470}
+.routine-variant label{margin-top:9px!important}
+#routine-variants-panel .button.full{min-height:42px}
+#routine-upgrade-note{margin:8px 0;color:#94673c}
+
+#routine-form #routine-kind-fields + .field-grid:has(#routine-time-fields[hidden]){grid-template-columns:1fr}
+#routine-form .routine-enable{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fcf8fa}

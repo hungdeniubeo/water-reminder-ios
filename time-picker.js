@@ -35,7 +35,9 @@ export function setupTimePickers(doc = globalThis.document) {
   const fields = [
     {id:'schedule-start', label:'Chọn giờ bắt đầu'},
     {id:'schedule-end', label:'Chọn giờ kết thúc'},
-    {id:'routine-time', label:'Chọn giờ gửi'}
+    {id:'routine-time', label:'Chọn giờ gửi'},
+    {id:'routine-start', label:'Chọn giờ bắt đầu lời nhắc'},
+    {id:'routine-end', label:'Chọn giờ kết thúc lời nhắc'}
   ];
   const entries = new Map();
   let active = null;

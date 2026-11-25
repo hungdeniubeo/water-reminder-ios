@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {setupRoutinesAdmin} from '../routines-admin.js';
+import {setupRoutinesAdmin,describeRoutine} from '../routines-admin.js';
 
 test('the slim admin has independently editable daily reminders',()=>{
   const html=readFileSync(new URL('../admin.html',import.meta.url),'utf8');
@@ -144,4 +144,13 @@ test('new effects and day filters are confined to reminder form markup',()=>{
   const css=readFileSync(new URL('../admin.css',import.meta.url),'utf8');
   assert.match(css,/#routine-form\.routine-editor/);
   assert.match(css,/@media \(prefers-reduced-motion: reduce\)/);
+});
+
+test('flexible schedule list labels and advanced fields are available',()=>{
+ const base={time:'08:00',days:127};
+ assert.match(describeRoutine({...base,schedule:{kind:'repeat',start:'08:00',end:'20:00',interval:60}}).meta,/60 phút/);
+ assert.match(describeRoutine({...base,schedule:{kind:'random',start:'09:00',end:'21:00',count:3}}).meta,/Ngẫu nhiên/);
+ assert.match(describeRoutine({...base,schedule:{kind:'date',date:'2026-12-25',cycle:'yearly'}}).meta,/25\/12\/2026.*Hằng năm/);
+ const html=readFileSync(new URL('../admin.html',import.meta.url),'utf8');
+ for(const id of ['routine-kind','routine-window-fields','routine-random-count','routine-date','routine-cycle','routine-copy-mode','routine-variants']) assert.match(html,new RegExp('id="'+id+'"'));
 });

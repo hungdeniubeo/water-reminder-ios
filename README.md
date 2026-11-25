@@ -4,8 +4,8 @@
 
 ## Admin
 
-- **Lịch nhắc hằng ngày:** tạo/sửa/xóa, bật/tắt độc lập, chọn giờ (24h) và ngày trong tuần. Có mẫu nhập nhanh đi làm, ăn trưa, nghỉ ngơi, đi ngủ; các mẫu này chỉ điền form, không tự lưu.
-- **Nhắc nhiều lần trong ngày:** lịch lặp theo phút hiện có được giữ lại trong một mục thu gọn. Các giá trị từ 5 đến 720 phút và nội dung tùy chỉnh vẫn hoạt động.
+- **Lịch nhắc:** tạo/sửa/xóa, bật/tắt độc lập; giờ cố định, lặp theo phút, ngẫu nhiên theo ngày, hoặc ngày cụ thể (một lần, hằng tháng/hằng năm). Mỗi lịch có tiêu đề/nội dung cố định hoặc tối đa 10 biến thể. Có mẫu nhập nhanh đi làm, ăn trưa, nghỉ ngơi, đi ngủ; các mẫu này chỉ điền form, không tự lưu.
+- **Nhắc nhiều lần trong ngày:** lịch lặp có sẵn hiện cùng danh sách, bật/tắt và sửa từ đó. Cài đặt gốc và nội dung tự đổi vẫn giữ nguyên; có thể tắt, không xóa lịch gốc. Mỗi lịch mới có cấu hình riêng.
 - **Sắp tới:** xem trước tối đa ba khung giờ theo múi giờ được lưu. Đây chỉ là lịch dự kiến, **không phải xác nhận iPhone đã nhận thông báo**.
 - **Gửi ngay:** soạn nội dung, xem trước và gửi thông báo khi iPhone đã kết nối.
 - **Thiết bị & lịch sử:** kiểm tra kết nối, tạo mã ghép mới, đối chiếu trạng thái tin gửi.
@@ -20,7 +20,9 @@ Trang nhận chuyển sang lời chào và ghi chú hằng ngày, không chỉ n
 
 ## Triển khai
 
-Đây là nâng cấp frontend; không sửa `backend/worker.js`, cơ sở dữ liệu hay API. GitHub Pages sẽ lấy bản mới trên `main`. Hệ thống Cloudflare Worker và D1 hiện tại vẫn được dùng như cũ. Nếu lần triển khai lịch hàng ngày trước đó chưa chạy migration `0003-extra-reminders.sql`, cần hoàn tất theo hướng dẫn cũ mới dùng được lịch riêng.
+GitHub Pages lấy frontend từ `main`; Worker và D1 cần cập nhật riêng. Từ thư mục `backend`, chạy `npm ci`, `npm run db:reminders` rồi `npm run deploy`. Migration 0004 chỉ thêm bảng cấu hình; không thay đổi lịch cũ, khóa admin hoặc thiết bị. Nếu thiếu migration 0003, chạy `npm run db:routines` trước. Lịch cũ vẫn dùng được nếu chưa nâng cấp; form loại lịch mới chỉ mở khi API báo đã sẵn sàng.
+
+Lịch ngẫu nhiên chọn giờ ổn định theo ID/ngày, cách nhau ít nhất 15 phút; thay đổi cấu hình có thể đổi các giờ còn lại. Lịch ngày 29/2 hoặc 31 bỏ qua tháng/năm không có ngày đó. Khi cron đến muộn chỉ bắt kịp lần gần nhất trong 14 phút; không gửi bù hàng loạt. Nội dung ngẫu nhiên xáo trộn theo ngày và xoay vòng để hạn chế lặp trong cùng ngày. Mọi lịch dùng múi giờ đã lưu.
 
 ## Kiểm thử
 
