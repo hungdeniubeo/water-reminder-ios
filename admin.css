@@ -228,7 +228,7 @@ body.editor-open{overflow:hidden}
 .phone-notification[data-tone=pending],.phone-notification[data-tone=accepted],.phone-notification[data-tone=unknown],.phone-notification[data-tone=failed]{background:#fbf3f3dd;border:1px dashed #936d82}
 .phone-notification-head{display:flex;align-items:center;gap:5px;margin-bottom:7px;min-width:0}
 .phone-notification-head img{width:20px;height:20px;border-radius:6px;flex:none}.phone-notification-head strong{font-size:8px;color:#63505e;font-weight:800;letter-spacing:.22px;flex:1;min-width:0}.phone-notification-head small{font-size:8px;color:#806d7b;white-space:nowrap}
-.phone-notification-copy strong{display:block;font-size:11px;font-weight:800;line-height:1.45;overflow-wrap:anywhere}.phone-notification-copy p{white-space:pre-wrap;font-size:11px;color:#574450;line-height:1.5;margin-top:3px;overflow-wrap:anywhere}
+.phone-notification-copy strong{display:block;font-size:12px;font-weight:800;line-height:1.45;overflow-wrap:anywhere}.phone-notification-copy p{white-space:pre-wrap;font-size:12px;color:#574450;line-height:1.5;margin-top:3px;overflow-wrap:anywhere}
 .phone-notification-state{font-size:9px;font-weight:750;border-top:1px solid #a9899a44;color:#806071;padding-top:6px;margin-top:8px;line-height:1.45}
 .phone-notification[data-tone=received] .phone-notification-state,.phone-notification[data-tone=opened] .phone-notification-state{color:#427456}
 .phone-empty{padding:14px 8px;border:1px dashed #ffffff80;border-radius:13px;background:#ffffff12;color:#fff;font-size:11px;text-align:center;line-height:1.6}

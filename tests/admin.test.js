@@ -328,3 +328,17 @@ test('unknown send outcome never appears as a confirmed iPhone receipt',async()=
     assert.equal(nodes['phone-delivery'].dataset.tone,'accepted');
   });
 });
+
+test('a newer confirmed scheduled message is visible even if the earlier manual push has no receipt',async()=>{
+  await withAdminHarness(async({nodes,state,login,emit,app})=>{
+    await login();
+    nodes['send-title'].value='Lời nhắn trước';nodes['send-body'].value='Chờ iPhone';
+    await emit('send-body','input');await emit('send-form','submit');
+    assert.equal(nodes['phone-delivery'].dataset.tone,'accepted');
+    state.messages.unshift({id:'newer-scheduled',title:'Uống nước',body:'Nhớ uống nước nhé',source:'scheduled',status:'received',createdAt:1795172500,receivedAt:1795172501});
+    await app.refreshState({silent:true});
+    assert.equal(nodes['phone-live-title'].textContent,'Uống nước');
+    assert.equal(nodes['phone-delivery'].dataset.tone,'received');
+    assert.match(nodes['send-status'].textContent,/Đang chờ phản hồi từ iPhone/,'the original manual push is not falsely confirmed');
+  });
+});

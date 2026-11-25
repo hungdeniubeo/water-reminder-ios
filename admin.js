@@ -266,6 +266,7 @@ function phoneStatus(message) {
   if(!message) return {tone:'pending',label:'Chưa có thông báo',detail:'Tin gửi trực tiếp và theo lịch sẽ hiện ở đây.'};
   if(message.localPhase==='sending') return {tone:'pending',label:'Đang gửi',detail:'Đang gửi yêu cầu tới máy chủ. Chưa xác nhận iPhone nhận.'};
   if(message.localPhase==='unknown') return {tone:'unknown',label:'Chưa rõ kết quả gửi',detail:'Mất phản hồi từ máy chủ. Có thể thử gửi lại cùng nội dung mà không tạo tin trùng.'};
+  if(message.localPhase==='rejected') return {tone:'failed',label:'Chưa gửi được',detail:message.error||'Máy chủ từ chối yêu cầu gửi.'};
   const state=messageState(message);
   if(state.tone==='opened') return {...state,detail:'iPhone đã báo mở thông báo.'};
   if(state.tone==='received') return {...state,detail:'iPhone đã gửi biên nhận hiển thị thông báo.'};
@@ -290,13 +291,16 @@ function sendFeedback(message) {
 }
 function syncPhoneHistory(messages) {
   const newest=messages[0]||null;
-  if(newest) phoneLatest=phoneLatest?.id===newest.id?mergePhoneReceipt(phoneLatest,newest):newest;
-  else if(!phoneTracked?.id) phoneLatest=null;
+  if(newest) {
+    if(phoneLatest?.id===newest.id) phoneLatest=mergePhoneReceipt(phoneLatest,newest);
+    else if(!phoneLatest||newest.createdAt>=phoneLatest.createdAt) phoneLatest=newest;
+  } else if(!phoneTracked?.id) phoneLatest=null;
   if(phoneTracked?.id) {
     phoneTracked=mergePhoneReceipt(phoneTracked,messages.find(m=>m.id===phoneTracked.id));
     const state=messageState(phoneTracked);
-    if(newest&&newest.id!==phoneTracked.id&&newest.createdAt>phoneTracked.createdAt&&
-       (['received','opened'].includes(state.tone)||(state.tone==='failed'&&!phoneTracked.retryAt))) phoneTracked=null;
+    if(newest&&newest.id!==phoneTracked.id&&newest.createdAt>=phoneTracked.createdAt&&
+       (['received','opened'].includes(messageState(newest).tone)||
+        ['received','opened'].includes(state.tone)||(state.tone==='failed'&&!phoneTracked.retryAt))) phoneTracked=null;
   }
   if(lastManualId) {
     const message=messages.find(m=>m.id===lastManualId);
@@ -502,7 +506,8 @@ $('send-form').addEventListener('submit', async event => {
     await refreshState({silent:true});
   } catch (error) {
     if(token===sendingToken){
-      phoneTracked={title,body,source:'manual',localPhase:'unknown'};renderPhone();
+      const rejected=error.status>=400&&error.status<500;
+      phoneTracked={title,body,source:'manual',localPhase:rejected?'rejected':'unknown',error:explainError(error)};renderPhone();
       if(pendingSend===submitted)feedback('send-status',explainError(error),'error');
     }
   } finally {
