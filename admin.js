@@ -1,6 +1,6 @@
 import { PUSH_API_URL } from './push-config.js';
-import { previewScheduleTimes, upcomingReminders } from './admin-features.js?v=20261125-flexible-v1';
-import { setupRoutinesAdmin } from './routines-admin.js?v=20261125-flexible-v1';
+import { previewScheduleTimes, upcomingReminders, reminderType } from './admin-features.js?v=20261125-schedule-colors-v1';
+import { setupRoutinesAdmin } from './routines-admin.js?v=20261125-schedule-colors-v1';
 import { setupTimePickers } from './time-picker.js?v=20261125-flexible-v1';
 import { HOME_COPIES } from './water-notes.js?v=20261122-daily-v3';
 
@@ -184,9 +184,10 @@ function renderAgenda() {
   }
   for (const event of events) {
     const item = document.createElement('li'); item.className = 'upcoming-item';
+    const type=reminderType(event.scheduleKind); item.dataset.scheduleKind=type.kind;
     const dot = document.createElement('span'); dot.className = 'upcoming-dot'; dot.setAttribute?.('aria-hidden','true');
     const content = document.createElement('div'); content.className = 'upcoming-content';
-    const time = document.createElement('span'); time.className = 'upcoming-time'; time.textContent = event.when;
+    const time = document.createElement('span'); time.className = 'upcoming-time'; time.textContent = event.when+' · '+type.label;
     const title = document.createElement('strong'); title.className = 'upcoming-title'; title.textContent = event.title;
     content.append(time,title); item.append(dot,content); fragment.append(item);
   }

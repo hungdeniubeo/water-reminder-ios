@@ -41,7 +41,7 @@ function mockElement() {
     scrollIntoView(){this.scrolled=true;},focus(){this.focused=true;}
   };
 }
-async function fixture(t) {
+async function fixture(t, extraReminders = []) {
   const ids=['routines-status','routine-form-status','routine-list','routine-form','routine-form-title',
     'routine-label','routine-title','routine-body','routine-time','routine-enabled','routine-delete',
     'routine-add','routine-cancel','routine-refresh','routine-save','routine-schedule-summary'];
@@ -56,7 +56,8 @@ async function fixture(t) {
   t.after(()=>{globalThis.document=original;});
   let reminders=[
     {id:'lunch',label:'Ăn trưa',title:'BEO ĂN TRƯA ♡',body:'Ăn trưa nha',time:'11:50',days:127,enabled:false},
-    {id:'sleep',label:'Đi ngủ',title:'ĐI NGỦ THÔI ♡',body:'Ngủ ngon nha',time:'21:34',days:127,enabled:true}
+    {id:'sleep',label:'Đi ngủ',title:'ĐI NGỦ THÔI ♡',body:'Ngủ ngon nha',time:'21:34',days:127,enabled:true},
+    ...extraReminders
   ];
   const patches=[];
   const api=async(path,{method,data}={})=>{
@@ -69,9 +70,10 @@ async function fixture(t) {
     }
     throw new Error('Unexpected '+path);
   };
-  setupRoutinesAdmin({$:id=>nodes[id],api}).ensureLoaded();
+  const app=setupRoutinesAdmin({$:id=>nodes[id],api});
+  await app.ensureLoaded();
   await new Promise(resolve=>setImmediate(resolve));
-  return {nodes,days,presets,patches};
+  return {nodes,days,presets,patches,app};
 }
 test('Edit and enable buttons are active after initial list load',async t=>{
   const {nodes}=await fixture(t);
@@ -153,4 +155,27 @@ test('flexible schedule list labels and advanced fields are available',()=>{
  assert.match(describeRoutine({...base,schedule:{kind:'date',date:'2026-12-25',cycle:'yearly'}}).meta,/25\/12\/2026.*Hằng năm/);
  const html=readFileSync(new URL('../admin.html',import.meta.url),'utf8');
  for(const id of ['routine-kind','routine-window-fields','routine-random-count','routine-date','routine-cycle','routine-copy-mode','routine-variants']) assert.match(html,new RegExp('id="'+id+'"'));
+});
+
+
+test('schedule colors and labels follow all four schedule types, including disabled and legacy repeat',async t=>{
+  const base={time:'10:00',days:127,enabled:true,title:'Beo',body:'Nhắc Beo'};
+  const extra=[
+    {...base,id:'repeat',label:'Uống nước',schedule:{kind:'repeat',start:'10:00',end:'20:00',interval:60}},
+    {...base,id:'random',label:'Bất ngờ',schedule:{kind:'random',start:'10:00',end:'20:00',count:2}},
+    {...base,id:'date',label:'Kỷ niệm',schedule:{kind:'date',date:'2026-12-25',cycle:'yearly'}},
+    {...base,id:'fixed-copy',label:'Giờ cố định đổi nội dung',schedule:{kind:'fixed',messages:[{title:'Khác',body:'Nội dung khác'}]}}
+  ];
+  const {nodes,app}=await fixture(t,extra);
+  app.setLegacySettings({enabled:false,start:'08:00',end:'21:00',interval:120,notificationTitle:'Beo',reminderMessage:'Nhắc Beo'});
+  const rows=Object.fromEntries(nodes['routine-list'].children.map(item=>[item.children[0].children[1].children[0].textContent,item]));
+  for(const [name,kind,label] of [['Ăn trưa','fixed','Giờ cố định'],['Đi ngủ','fixed','Giờ cố định'],['Uống nước','repeat','Lặp lại'],['Bất ngờ','random','Ngẫu nhiên'],['Kỷ niệm','date','Ngày đặc biệt'],['Nhắc lặp có sẵn','repeat','Lặp lại'],['Giờ cố định đổi nội dung','fixed','Giờ cố định']]){
+    assert.equal(rows[name].dataset.scheduleKind,kind,name);
+    assert.ok(rows[name].children[0].children[1].children[1].textContent.startsWith(label+' · '),name);
+  }
+  assert.match(rows['Ăn trưa'].className,/is-disabled/);
+  assert.equal(rows['Ăn trưa'].children[1].children[0].textContent,'Đã tắt');
+  assert.equal(rows['Uống nước'].children[1].children[0].textContent,'Đang bật');
+  const css=readFileSync(new URL('../admin.css',import.meta.url),'utf8');
+  for(const kind of ['fixed','repeat','random','date']) assert.ok(css.includes('[data-schedule-kind="'+kind+'"]{--schedule-accent:'));
 });

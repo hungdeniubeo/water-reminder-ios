@@ -35,3 +35,20 @@ test('agenda uses the same slot calculation for repeated, random and calendar da
   const random={id:'random',label:'Bất ngờ',time:'09:00',days:127,enabled:true,schedule:{kind:'random',start:'12:00',end:'18:00',count:3}};
   assert.deepEqual(upcomingReminders(settings,[random],now,1),upcomingReminders(settings,[random],now,1));
 });
+
+
+test('upcoming events carry their schedule category without changing time or legacy kind',()=>{
+  const now=new Date('2026-11-23T01:00:00Z');
+  const base={time:'09:00',days:127,enabled:true};
+  const routines=[
+    {...base,id:'fixed',label:'Cố định'},
+    {...base,id:'repeat',label:'Lặp lại',schedule:{kind:'repeat',start:'10:00',end:'12:00',interval:60}},
+    {...base,id:'random',label:'Ngẫu nhiên',schedule:{kind:'random',start:'13:00',end:'15:00',count:2}},
+    {...base,id:'date',label:'Ngày đặc biệt',schedule:{kind:'date',date:'2026-11-23',cycle:'once'}}
+  ];
+  const result=upcomingReminders({...settings,enabled:true},routines,now,20);
+  const types=Object.fromEntries(result.map(x=>[x.title,x.scheduleKind]));
+  assert.deepEqual(types,{'Cố định':'fixed','Lặp lại':'repeat','Ngẫu nhiên':'random','Ngày đặc biệt':'date','Nhắc lặp trong ngày':'repeat'});
+  assert.equal(result.find(x=>x.title==='Nhắc lặp trong ngày').kind,'repeated');
+  assert.equal(result.find(x=>x.title==='Cố định').when,'Hôm nay · 09:00');
+});

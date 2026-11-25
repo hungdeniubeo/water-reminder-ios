@@ -2,6 +2,16 @@ import { slotsForDay, toTime } from './routine-schedule.js?v=20261125-flexible-v
 export const MIN_INTERVAL = 5;
 export const MAX_INTERVAL = 720;
 
+// Display categories follow the schedule, not the content-selection mode or enabled state.
+export function reminderType(kind) {
+  switch (kind) {
+    case 'repeat': return {kind:'repeat',label:'Lặp lại'};
+    case 'random': return {kind:'random',label:'Ngẫu nhiên'};
+    case 'date': return {kind:'date',label:'Ngày đặc biệt'};
+    default: return {kind:'fixed',label:'Giờ cố định'};
+  }
+}
+
 /** Preview exactly the daily start + interval schedule used by the Worker. */
 export function previewScheduleTimes(start, end, interval) {
   const time = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -48,11 +58,11 @@ export function upcomingReminders(settings, routines = [], now = new Date(), lim
       const minute=slotsForDay(routine,iso).find(m=>offset>0||m>local.minute);
       if(minute===undefined) continue;
       const time=toTime(minute);
-      candidates.push({title:routine.label,time,when:`${prefix} · ${time}`,offset,minute,kind:'routine'});
+      candidates.push({title:routine.label,time,when:`${prefix} · ${time}`,offset,minute,kind:'routine',scheduleKind:reminderType(routine.schedule?.kind).kind});
     }
     // One upcoming slot represents the repeated series without hiding all daily tasks.
     const firstWater = water.find(time => offset > 0 || asMinutes(time) > local.minute);
-    if (firstWater) candidates.push({title:'Nhắc lặp trong ngày', time:firstWater, when:`${prefix} · ${firstWater}`, offset, minute:asMinutes(firstWater),kind:'repeated'});
+    if (firstWater) candidates.push({title:'Nhắc lặp trong ngày', time:firstWater, when:`${prefix} · ${firstWater}`, offset, minute:asMinutes(firstWater),kind:'repeated',scheduleKind:'repeat'});
     // No need to generate hundreds of scheduled slots after enough candidates exist.
     if (candidates.length >= limit && offset >= 1) break;
   }

@@ -278,3 +278,15 @@ body.editor-open{overflow:hidden}
 .system-footnote{margin:8px 0 0}
 .system-sr-only{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
 @media(max-width:600px){.system-details>summary{padding:11px 15px}.system-inner{padding:0 15px 15px}.system-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.system-policy{align-items:flex-start;flex-wrap:wrap}.system-actions .button{white-space:normal}}
+
+/* Schedule categories: blue / amber / violet / rose. Status controls remain independent. */
+[data-schedule-kind="fixed"]{--schedule-accent:#3964a0;--schedule-soft:#eaf2ff;--schedule-edge:#8eafe1}
+[data-schedule-kind="repeat"]{--schedule-accent:#94551d;--schedule-soft:#fff0de;--schedule-edge:#e4ad6a}
+[data-schedule-kind="random"]{--schedule-accent:#73519e;--schedule-soft:#f1e9fd;--schedule-edge:#b69add}
+[data-schedule-kind="date"]{--schedule-accent:#a14472;--schedule-soft:#fbe8f0;--schedule-edge:#df9cbf}
+.routine-item[data-schedule-kind]{border-inline-start:3px solid var(--schedule-edge)}
+.routine-item[data-schedule-kind] .routine-time-bubble,.water-details[data-schedule-kind] .water-icon{background:var(--schedule-soft);color:var(--schedule-accent)}
+.routine-item[data-schedule-kind].is-disabled{border-inline-start-color:var(--schedule-edge)}
+.routine-item[data-schedule-kind].is-disabled .routine-copy{opacity:.85}
+.upcoming-item[data-schedule-kind] .upcoming-dot{background:var(--schedule-accent);box-shadow:0 0 0 4px var(--schedule-soft)}
+.upcoming-item[data-schedule-kind] .upcoming-time{color:var(--schedule-accent)}

@@ -1,5 +1,6 @@
 /** Fixed, repeated, random and date reminder editor. */
 import { validSchedule, MAX_MESSAGE_VARIANTS } from './routine-schedule.js?v=20261125-flexible-v1';
+import { reminderType } from './admin-features.js?v=20261125-schedule-colors-v1';
 const DAYS = [
   {day:1,label:'T2'}, {day:2,label:'T3'}, {day:3,label:'T4'},
   {day:4,label:'T5'}, {day:5,label:'T6'}, {day:6,label:'T7'}, {day:0,label:'CN'}
@@ -140,11 +141,12 @@ export function setupRoutinesAdmin({ $, api, onFormOpen = () => {}, onChange = (
     for (const routine of all.slice().sort((a,b) => a.time.localeCompare(b.time))) {
       const item = document.createElement('li'); item.className = 'routine-item' + (routine.enabled?'':' is-disabled');
       const copy = document.createElement('div'); copy.className = 'routine-copy';
-      const description=describeRoutine(routine);
+      const description=describeRoutine(routine), type=reminderType(routine.schedule?.kind);
+      item.dataset.scheduleKind=type.kind;
       const time = document.createElement('span'); time.className = 'routine-time-bubble'+(['repeat','random'].includes(routine.schedule?.kind)?' flexible':''); time.textContent = description.badge;
       const contents = document.createElement('div'); contents.className = 'routine-text';
       const name = document.createElement('strong'); name.textContent = routine.label;
-      const meta = document.createElement('small'); meta.textContent = description.meta+(routine.schedule?.messages?.length?' · '+(routine.schedule.messages.length+1)+' nội dung':'');
+      const meta = document.createElement('small'); meta.textContent = (description.meta.startsWith(type.label+' · ')?description.meta:type.label+' · '+description.meta)+(routine.schedule?.messages?.length?' · '+(routine.schedule.messages.length+1)+' nội dung':'');
       const preview = document.createElement('small'); preview.className = 'routine-preview-line'; preview.textContent = routine.body;
       contents.append(name,meta,preview); copy.append(time,contents);
       const actions = document.createElement('div'); actions.className = 'routine-actions';
