@@ -87,3 +87,14 @@ test('worker caches only receiver assets and leaves admin and API data outside i
   assert.ok(sw.calls.some(call => call[0] === 'delete' && call[1] === 'water-reminder-static-v18-loving-push'));
   assert.equal(sw.calls.some(call => call[0] === 'delete' && call[1] === 'unrelated-cache'),false);
 });
+
+test('receiver cache precaches the exact updated shell assets',async()=>{
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const sw=worker();await sw.fire('install');
+  const assets=sw.calls.find(call=>call[0]==='assets')[1];
+  for(const name of ['receiver.js','receiver.css']){
+    const url=html.match(new RegExp('(?:src|href)="(\\./'+name.replace('.','\\.')+'\\?v=[^"]+)"'))?.[1];
+    assert.ok(url,name);assert.ok(assets.includes(url),url);
+    assert.match(url,/touch-fix-v1/);
+  }
+});

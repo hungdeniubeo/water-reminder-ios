@@ -26,3 +26,9 @@ body[data-setup=true] .home{padding:0 0 8px}body[data-setup=true] .water-card{mi
 @media(max-height:760px){.receiver-shell{padding-top:calc(12px + env(safe-area-inset-top,0px))}.water-card{min-height:445px;padding-top:30px;padding-bottom:22px}.home{padding-top:0}.drop-stage{height:163px}.home h1[data-rotating=true]{font-size:28px}}
 @media(max-width:360px){.receiver-shell{padding-left:13px;padding-right:13px}.brand{font-size:19px}.connection-pill{font-size:9px;padding:6px 8px}.water-card{border-radius:25px;padding:34px 15px 24px}.home h1[data-rotating=true]{font-size:25px}.home-message{font-size:12px}.quiet-note{font-size:11px}.latest-card{padding:12px}.pair-fields .soft-button{padding:10px}}
 @media(prefers-reduced-motion:reduce){.drop-stage .drop-btn.big,.latest-card{transition:none!important}.water-aura,.water-halo{animation:none!important}}
+
+/* Native-feeling taps: block double-tap zoom and accidental text selection.
+   Keep ordinary scrolling, intentional pinch zoom and pairing-code editing. */
+html,body,.receiver-shell,.letter-dialog,button,a,summary{touch-action:manipulation}
+body,body *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body input,body textarea,body [contenteditable="true"],body [contenteditable="true"] *,body [contenteditable=""],body [contenteditable=""] *,body [contenteditable="plaintext-only"],body [contenteditable="plaintext-only"] *{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}

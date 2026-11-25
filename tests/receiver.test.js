@@ -261,3 +261,28 @@ test('touching the drop invokes note change once, holding does not flood the tex
     }
   }
 });
+
+test('receiver prevents accidental selection, copy and context menus but preserves editable input',async()=>{
+  const {setupReceiverTouchGuards}=await import('../receiver.js');
+  const listeners={};
+  setupReceiverTouchGuards({addEventListener(type,handler){listeners[type]=handler;}});
+  assert.deepEqual(Object.keys(listeners),['contextmenu','selectstart','copy']);
+  for(const type of Object.keys(listeners)) {
+    for(const target of [{closest:()=>null},{parentElement:{closest:()=>null}}]) {
+      let prevented=false;listeners[type]({target,preventDefault(){prevented=true;}});
+      assert.ok(prevented,type+' must not open or copy noneditable content');
+    }
+    for(const target of [{closest:selector=>selector.includes('input')?{}:null},{parentElement:{closest:()=>({})}}]) {
+      listeners[type]({target,preventDefault(){assert.fail(type+' must stay available when editing');}});
+    }
+  }
+});
+test('receiver touch CSS removes double tap zoom without disabling pinch or form editing',async()=>{
+  const {readFile}=await import('node:fs/promises');
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const css=await readFile(new URL('../receiver.css',import.meta.url),'utf8');
+  assert.match(css,/html,body,\.receiver-shell,\.letter-dialog,button,a,summary\{touch-action:manipulation\}/);
+  assert.match(css,/body,body \*\{[^}]*-webkit-user-select:none;user-select:none;-webkit-touch-callout:none/);
+  assert.match(css,/body input,body textarea,[^{]+\{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default\}/);
+  assert.doesNotMatch(html,/user-scalable=no|maximum-scale=1(?:[,"])/);
+});
