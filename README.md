@@ -5,7 +5,7 @@
 ## Admin
 
 - **Lịch nhắc:** tạo/sửa/xóa, bật/tắt độc lập; giờ cố định, lặp theo phút, ngẫu nhiên theo ngày, hoặc ngày cụ thể (một lần, hằng tháng/hằng năm). Mỗi lịch có tiêu đề/nội dung cố định hoặc tối đa 10 biến thể. Có mẫu nhập nhanh đi làm, ăn trưa, nghỉ ngơi, đi ngủ; các mẫu này chỉ điền form, không tự lưu.
-- **Nhắc nhiều lần trong ngày:** lịch lặp theo phút hiện có được giữ lại trong một mục thu gọn. Các giá trị từ 5 đến 720 phút và nội dung tùy chỉnh vẫn hoạt động.
+- **Nhắc nhiều lần trong ngày:** lịch lặp có sẵn hiện cùng danh sách, bật/tắt và sửa từ đó. Cài đặt gốc và nội dung tự đổi vẫn giữ nguyên; có thể tắt, không xóa lịch gốc. Mỗi lịch mới có cấu hình riêng.
 - **Sắp tới:** xem trước tối đa ba khung giờ theo múi giờ được lưu. Đây chỉ là lịch dự kiến, **không phải xác nhận iPhone đã nhận thông báo**.
 - **Gửi ngay:** soạn nội dung, xem trước và gửi thông báo khi iPhone đã kết nối.
 - **Thiết bị & lịch sử:** kiểm tra kết nối, tạo mã ghép mới, đối chiếu trạng thái tin gửi.

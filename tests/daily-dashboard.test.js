@@ -26,3 +26,12 @@ test('empty, invalid timezone, or disabled reminders give no false future delive
   assert.deepEqual(upcomingReminders(settings,[],new Date('2026-11-23T01:00:00Z')),[]);
   assert.deepEqual(upcomingReminders({...settings,timezone:'Invalid/TZ'},reminders),[]);
 });
+
+test('agenda uses the same slot calculation for repeated, random and calendar dates',()=>{
+  const now=new Date('2026-11-23T03:30:00Z');
+  const more=[{id:'repeat',label:'Nghỉ mắt',time:'09:00',days:127,enabled:true,schedule:{kind:'repeat',start:'09:00',end:'12:00',interval:60}},{id:'anniversary',label:'Kỷ niệm',time:'08:00',days:127,enabled:true,schedule:{kind:'date',date:'2026-12-25',cycle:'once'}}];
+  assert.equal(upcomingReminders(settings,more,now,1)[0].when,'Hôm nay · 11:00');
+  assert.equal(upcomingReminders(settings,more.slice(1),now,1)[0].when,'25/12/2026 · 08:00');
+  const random={id:'random',label:'Bất ngờ',time:'09:00',days:127,enabled:true,schedule:{kind:'random',start:'12:00',end:'18:00',count:3}};
+  assert.deepEqual(upcomingReminders(settings,[random],now,1),upcomingReminders(settings,[random],now,1));
+});

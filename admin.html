@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./admin.css?v=20261124-compact-v1">
-  <script type="module" src="./admin.js?v=20261122-daily-v3"></script>
+  <link rel="stylesheet" href="./admin.css?v=20261125-flexible-v1">
+  <script type="module" src="./admin.js?v=20261125-flexible-v1"></script>
 </head>
 <body>
   <header class="topbar">
@@ -71,7 +71,7 @@
         <div class="dashboard-primary">
           <section class="card routines-card" id="routines-section" aria-labelledby="routines-title">
             <div class="section-heading">
-              <div><p class="section-kicker">LỊCH CỦA BEO</p><h2 id="routines-title">Lịch nhắc hằng ngày</h2><p class="muted">Tạo, sửa và bật/tắt từng lời nhắc.</p></div>
+              <div><p class="section-kicker">LỊCH CỦA BEO</p><h2 id="routines-title">Lịch nhắc của Beo</h2><p class="muted">Theo giờ, lặp lại, ngẫu nhiên hoặc ngày đặc biệt.</p></div>
               <button id="routine-add" type="button" class="button secondary add-reminder-button"><span aria-hidden="true">+</span> Thêm</button>
             </div>
 
@@ -82,6 +82,7 @@
             <ul id="routine-list" class="routine-list" aria-live="polite"><li class="routine-empty">Đang tải lời nhắc…</li></ul>
             <div class="routine-subfoot"><button id="routine-refresh" class="inline-link" type="button">↻ Tải lại danh sách</button></div>
             <p id="routines-status" class="feedback" role="status" aria-live="polite"></p>
+            <p id="routine-upgrade-note" class="hint" hidden>Lịch mới sẽ mở sau khi cập nhật Worker và database. Các lịch hiện có vẫn dùng được.</p>
 
             <div class="templates-block">
               <p class="templates-caption">TẠO NHANH MỘT LỜI NHẮC</p>
@@ -90,17 +91,20 @@
                 <button class="template-chip" type="button" data-reminder-template="lunch"><span aria-hidden="true">◷</span> Ăn trưa</button>
                 <button class="template-chip" type="button" data-reminder-template="rest"><span aria-hidden="true">✿</span> Nghỉ ngơi</button>
                 <button class="template-chip" type="button" data-reminder-template="sleep"><span aria-hidden="true">☾</span> Đi ngủ</button>
+                <button class="template-chip" type="button" data-reminder-template="water" data-advanced-template hidden><span aria-hidden="true">↻</span> Uống nước</button>
+                <button class="template-chip" type="button" data-reminder-template="surprise" data-advanced-template hidden><span aria-hidden="true">♡</span> Nhắn bất ngờ</button>
+                <button class="template-chip" type="button" data-reminder-template="eyes" data-advanced-template hidden><span aria-hidden="true">✿</span> Nghỉ mắt</button>
               </div>
             </div>
 
             <details class="water-details" id="schedule-section">
               <summary class="water-summary">
                 <span class="water-icon" aria-hidden="true">↻</span>
-                <span class="water-description"><strong id="schedule-title">Nhắc nhiều lần trong ngày</strong><small id="water-frequency">Ví dụ: uống nước, nghỉ mắt…</small></span>
+                <span class="water-description"><strong id="schedule-title">Cài đặt lịch lặp có sẵn</strong><small id="water-frequency">Ví dụ: uống nước, nghỉ mắt…</small></span>
                 <span id="water-status" class="water-state">Lịch lặp</span><span class="chevron" aria-hidden="true">⌄</span>
               </summary>
               <div class="water-settings">
-                <p class="water-explain">Dùng khi muốn nhắc lặp lại theo số phút. Lịch này đang có nội dung uống nước; mày có thể đổi nội dung trong phần tùy chỉnh.</p>
+                <p class="water-explain">Lịch lặp đã có từ trước, giữ nguyên giờ và nội dung. Muốn tạo thêm lịch độc lập, chọn Thêm ở danh sách phía trên.</p>
                 <form id="settings-form">
                   <label class="toggle-row" for="schedule-enabled"><span>Bật lịch nhắc lặp</span><input id="schedule-enabled" name="enabled" type="checkbox" role="switch"></label>
                   <div class="field-grid">
@@ -145,8 +149,23 @@
               <div class="editor-header"><div><p class="section-kicker">LỜI NHẮC CỦA BEO</p><h3 id="routine-form-title">Thêm lời nhắc</h3></div><button id="routine-close" type="button" class="editor-close" aria-label="Đóng form">×</button></div>
               <div class="editor-content">
                 <label for="routine-label">Tên lời nhắc</label><input id="routine-label" maxlength="40" placeholder="Ví dụ: Ăn trưa" required>
-                <div class="field-grid"><div><label for="routine-time">Giờ gửi</label><input id="routine-time" type="time" required></div><label class="routine-enable" for="routine-enabled"><span>Bật lịch</span><input id="routine-enabled" type="checkbox" checked><span class="routine-switch" aria-hidden="true"></span></label></div>
-                <fieldset class="routine-days"><legend>Nhắc vào ngày nào?</legend>
+                <div id="routine-kind-fields" hidden>
+                  <label for="routine-kind">Loại lịch nhắc</label>
+                  <select id="routine-kind"><option value="fixed">Theo giờ cố định</option><option value="repeat">Lặp lại trong ngày</option><option value="random">Giờ ngẫu nhiên</option><option value="date">Ngày đặc biệt</option></select>
+                  <p id="routine-kind-hint" class="hint"></p>
+                </div>
+                <div class="field-grid"><div id="routine-time-fields"><label for="routine-time">Giờ gửi</label><input id="routine-time" type="time" required></div><label class="routine-enable" for="routine-enabled"><span>Bật lịch</span><input id="routine-enabled" type="checkbox" checked><span class="routine-switch" aria-hidden="true"></span></label></div>
+                <fieldset id="routine-window-fields" class="flexible-fields" hidden disabled>
+                  <legend>Khung giờ gửi</legend><div class="field-grid"><div><label for="routine-start">Từ giờ</label><input id="routine-start" type="time" value="09:00" required></div><div><label for="routine-end">Đến giờ</label><input id="routine-end" type="time" value="21:00" required></div></div>
+                  <div id="routine-repeat-fields"><label for="routine-interval">Lặp lại mỗi (phút)</label><input id="routine-interval" type="number" min="5" max="720" step="1" inputmode="numeric" value="60" required><p class="hint">Từ 5 đến 720 phút.</p></div>
+                  <div id="routine-random-fields" hidden><label for="routine-random-count">Số lần mỗi ngày</label><input id="routine-random-count" type="number" min="1" max="10" step="1" inputmode="numeric" value="3" required><p class="hint">Các lần nhắc trong cùng lịch cách nhau ít nhất 15 phút.</p></div>
+                </fieldset>
+                <fieldset id="routine-date-fields" class="flexible-fields" hidden disabled>
+                  <legend>Ngày đặc biệt</legend><label for="routine-date">Ngày bắt đầu</label><input id="routine-date" type="date" required>
+                  <label for="routine-cycle">Lặp lại</label><select id="routine-cycle"><option value="once">Chỉ một lần</option><option value="monthly">Hằng tháng</option><option value="yearly">Hằng năm</option></select>
+                  <p class="hint">Nếu tháng hoặc năm không có ngày đã chọn, lịch sẽ bỏ qua kỳ đó.</p>
+                </fieldset>
+                <fieldset id="routine-days-fields" class="routine-days"><legend>Nhắc vào ngày nào?</legend>
                   <div class="routine-quick-days" role="group" aria-label="Chọn nhanh ngày nhắc">
                     <button type="button" class="routine-quick-day" data-routine-preset="127" aria-pressed="true">Hằng ngày</button>
                     <button type="button" class="routine-quick-day" data-routine-preset="62" aria-pressed="false">Thứ 2–6</button>
@@ -158,10 +177,19 @@
                     <label><input type="checkbox" data-routine-day="5" checked><span>T6</span></label><label><input type="checkbox" data-routine-day="6" checked><span>T7</span></label>
                     <label><input type="checkbox" data-routine-day="0" checked><span>CN</span></label>
                   </div>
-                  <p class="routine-schedule-summary" id="routine-schedule-summary" aria-live="polite">Nhắc lúc 12:00 · Hằng ngày</p>
                 </fieldset>
+                <p class="routine-schedule-summary" id="routine-schedule-summary" aria-live="polite">Nhắc lúc 12:00 · Hằng ngày</p>
                 <label for="routine-title">Tiêu đề thông báo</label><input id="routine-title" maxlength="70" placeholder="BEO ƠI, NGHỈ MỘT CHÚT NHA ♡" required>
                 <label for="routine-body">Lời nhắn</label><textarea id="routine-body" maxlength="150" rows="3" placeholder="Em nhớ nghỉ tay một chút nhé ♡" required></textarea>
+                <div id="routine-copy-fields" hidden>
+                  <label for="routine-copy-mode">Cách chọn nội dung</label>
+                  <select id="routine-copy-mode"><option value="fixed">Nội dung cố định</option><option value="random">Đổi ngẫu nhiên từ danh sách</option></select>
+                  <div id="routine-variants-panel" hidden>
+                    <p class="hint">Thêm tối đa 9 nội dung khác. Mỗi lần gửi sẽ chọn một cặp tiêu đề và lời nhắn.</p>
+                    <div id="routine-variants" class="routine-variants"></div>
+                    <button id="routine-variant-add" class="button secondary full" type="button">+ Thêm nội dung</button>
+                  </div>
+                </div>
               </div>
               <div class="routine-form-actions"><button id="routine-save" type="submit" class="button primary">Lưu lời nhắc</button><button id="routine-cancel" type="button" class="button secondary">Hủy</button><button id="routine-delete" class="inline-link danger-link" type="button" hidden>Xóa</button></div>
               <p id="routine-form-status" class="feedback" role="status" aria-live="polite"></p>
