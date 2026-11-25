@@ -44,7 +44,7 @@ async function withAdminHarness(run) {
   const createNode = () => {
     const node = {
       hidden: false, disabled: false, value: '', checked: false, type: 'text', textContent: '',
-      dataset: {}, children: [], listeners: {}, classList: { toggle() {} },
+      dataset: {}, children: [], listeners: {}, classList: { toggle() {}, add() {}, remove() {} },
       addEventListener(type, listener) { (this.listeners[type] ||= []).push(listener); },
       setAttribute(name, value) { (this.attributes ||= {})[name] = value; },
       append(...items) { this.children.push(...items); },
