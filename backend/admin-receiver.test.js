@@ -708,3 +708,16 @@ test('retention migration preserves settings and only confirmed cleanup removes 
   assert.equal(await f.DB.prepare("SELECT id FROM beo_messages WHERE id='month'").first(),null);
   assert.ok(await f.DB.prepare("SELECT id FROM beo_messages WHERE id='fresh'").first());
 });
+
+test('history export and cleanup are bounded even with a larger database',async t=>{
+  const f=await fixture(t),admin=await f.login();
+  const old=Math.floor(f.clock.ms/1000)-31*86400;
+  f.DB.exec(`WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i+1 FROM n WHERE i<5002)
+    INSERT INTO beo_messages (id,device_id,dedupe_key,title,body,source,receipt_hash,created_at)
+    SELECT 'old-'||i,'device','key-'||i,'Beo','Lời nhắn','manual','hash',${old} FROM n;`);
+  const exp=await f.api('/api/admin/system/export',{token:admin});
+  assert.equal(exp.status,200);assert.equal(exp.body.messages.length,5000);assert.equal(exp.body.truncated,true);
+  const clean=await f.api('/api/admin/system/cleanup',{method:'POST',token:admin,data:{confirm:true,retentionDays:30}});
+  assert.equal(clean.body.deleted,1000);
+  assert.equal((await f.api('/api/admin/system',{token:admin})).body.expiredMessages,4002);
+});

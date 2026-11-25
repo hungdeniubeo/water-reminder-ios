@@ -586,6 +586,8 @@ function syncSystemControls() {
 function resetSystem() {
   systemGeneration++;systemData=null;systemBusy=false;$('system-card').open=false;
   $('system-data').hidden=true;$('system-checked').textContent='Mở mục này để kiểm tra dữ liệu.';
+  for(const id of ['system-size','system-total','system-today','system-expired','system-ready'])$(id).textContent='—';
+  $('system-progress').hidden=true;$('system-progress').value=0;$('system-retention').value='30';
   feedback('system-status');syncSystemControls();
 }
 function renderSystem(data) {
@@ -665,7 +667,8 @@ $('system-export').addEventListener('click',()=>{
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
     a.href=url;a.download='beo-history-'+new Date(result.exportedAt*1000).toISOString().slice(0,10)+'.json';
-    try {a.click();} finally{URL.revokeObjectURL(url);}
+    document.body.append(a);
+    try {a.click();} finally{a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
     if(valid())feedback('system-status',result.truncated?'Đã tạo file 5.000 tin gần nhất (còn tin cũ hơn).':'Đã tạo file lịch sử JSON.','success');
   });
 });
