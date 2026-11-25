@@ -39,6 +39,8 @@ let settingsDirty = false;
 let draftLoaded = false;
 let sendBusy = false;
 let pendingSend = null;
+let phoneMode='live', phoneTracked=null, phoneLatest=null, phoneSyncFailed=false;
+let lastManualId=null,lastManualRequestId=null,pollTick=0;
 let pairingCode = '';
 let pairingExpiry = 0;
 let refreshBusy = false;
@@ -70,11 +72,14 @@ function lockDashboard() {
   pairingCode = '';
   pairingExpiry = 0;
   pendingSend = null;
+  sendBusy=false;phoneTracked=null;phoneLatest=null;phoneSyncFailed=false;lastManualId=null;lastManualRequestId=null;pollTick=0;
+  phoneMode='live';
   draftLoaded = false;
   settingsDirty = false;
   $('settings-dirty-indicator').hidden = true;
   routinesUI?.reset();
   $('send-form').reset();
+  renderPreview();renderPhone();feedback('send-status');
   $('settings-form').reset();
   $('routine-overview-text').textContent = 'Chưa tải lịch';
   $('overview-timeline').replaceChildren();
@@ -224,6 +229,8 @@ function renderState(state) {
     renderPreview();
   }
   renderHistory(state.messages || []);
+  syncPhoneHistory(state.messages || []);
+  renderPhone();
   if (!settingsDirty) {
     copyMode = isAutomaticCopy(settings) ? 'auto' : 'fixed';
     $('reminder-mode').value = copyMode;
@@ -240,6 +247,7 @@ async function refreshState({silent = false} = {}) {
   try {
     const result = await api('/api/admin/state');
     if (!token || token !== refreshingToken) return;
+    phoneSyncFailed=false;
     renderState(result);
     $('login-panel').hidden = true;
     $('dashboard').hidden = false;
@@ -248,9 +256,98 @@ async function refreshState({silent = false} = {}) {
     await routinesUI?.ensureLoaded();
     if (token===refreshingToken && !silent) feedback('global-status');
   } catch (error) {
+    if(token===refreshingToken){phoneSyncFailed=true;renderPhone();}
     if (!silent) feedback(token ? 'global-status' : 'login-status', explainError(error), 'error');
     if (!current && token) feedback('login-status', explainError(error), 'error');
   } finally { refreshBusy = false; }
+}
+// Keep the mock screen separate from the typed draft and use actual delivery receipts.
+function phoneStatus(message) {
+  if(!message) return {tone:'pending',label:'Chưa có thông báo',detail:'Tin gửi trực tiếp và theo lịch sẽ hiện ở đây.'};
+  if(message.localPhase==='sending') return {tone:'pending',label:'Đang gửi',detail:'Đang gửi yêu cầu tới máy chủ. Chưa xác nhận iPhone nhận.'};
+  if(message.localPhase==='unknown') return {tone:'unknown',label:'Chưa rõ kết quả gửi',detail:'Mất phản hồi từ máy chủ. Có thể thử gửi lại cùng nội dung mà không tạo tin trùng.'};
+  const state=messageState(message);
+  if(state.tone==='opened') return {...state,detail:'iPhone đã báo mở thông báo.'};
+  if(state.tone==='received') return {...state,detail:'iPhone đã gửi biên nhận hiển thị thông báo.'};
+  if(state.tone==='accepted') return {...state,label:'Đã chuyển đi · chờ iPhone',detail:'Dịch vụ push đã chấp nhận; chưa có biên nhận từ iPhone.'};
+  if(state.tone==='failed') return {...state,detail:message.error||'Máy chủ chưa xác nhận gửi thành công.'};
+  return {...state,detail:'Máy chủ đang xử lý yêu cầu gửi.'};
+}
+function mergePhoneReceipt(previous,next) {
+  if(!next || next.id!==previous?.id) return previous;
+  // A late snapshot may be older than the receipt we already observed.
+  const receivedAt=next.receivedAt||previous.receivedAt;
+  const openedAt=next.openedAt||previous.openedAt;
+  if(openedAt||previous.status==='opened'||next.status==='opened') return {...next,receivedAt,openedAt,status:'opened'};
+  if(receivedAt||previous.status==='received'||next.status==='received') return {...next,receivedAt,status:'received'};
+  return next;
+}
+function sendFeedback(message) {
+  const state=messageState(message||{});
+  if(state.tone==='failed') feedback('send-status',message?.error||'Thông báo chưa gửi được. Xem trạng thái bên dưới.','error');
+  else if(state.tone==='pending') feedback('send-status','Thông báo đang chờ gửi. Theo dõi trạng thái trên khung iPhone.');
+  else feedback('send-status',state.tone==='received'||state.tone==='opened'?state.label:'Đã chuyển tới dịch vụ thông báo. Đang chờ phản hồi từ iPhone.','success');
+}
+function syncPhoneHistory(messages) {
+  const newest=messages[0]||null;
+  if(newest) phoneLatest=phoneLatest?.id===newest.id?mergePhoneReceipt(phoneLatest,newest):newest;
+  else if(!phoneTracked?.id) phoneLatest=null;
+  if(phoneTracked?.id) {
+    phoneTracked=mergePhoneReceipt(phoneTracked,messages.find(m=>m.id===phoneTracked.id));
+    const state=messageState(phoneTracked);
+    if(newest&&newest.id!==phoneTracked.id&&newest.createdAt>phoneTracked.createdAt&&
+       (['received','opened'].includes(state.tone)||(state.tone==='failed'&&!phoneTracked.retryAt))) phoneTracked=null;
+  }
+  if(lastManualId) {
+    const message=messages.find(m=>m.id===lastManualId);
+    if(message&&!sendBusy){
+      const state=messageState(message);
+      sendFeedback(message);
+      if(state.tone!=='pending'&&!message.retryAt&&pendingSend?.requestId===lastManualRequestId) pendingSend=null;
+    }
+  }
+}
+function setPhoneMode(mode) {
+  phoneMode=mode;renderPhone();
+}
+function phoneText(id,value) {
+  const node=$(id);if(node.textContent!==value)node.textContent=value;
+}
+function renderPhoneClock() {
+  try {
+    const now=new Date(),timeZone=current?.settings?.timezone||'Asia/Ho_Chi_Minh';
+    phoneText('phone-clock',new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone}).format(now));
+    phoneText('phone-date',new Intl.DateTimeFormat('vi-VN',{weekday:'long',day:'numeric',month:'long',timeZone}).format(now));
+  } catch {}
+}
+function renderPhone() {
+  const draft=phoneMode==='draft';
+  $('phone-draft-tab').setAttribute('aria-pressed',String(draft));
+  $('phone-live-tab').setAttribute('aria-pressed',String(!draft));
+  $('phone-draft-panel').hidden=!draft;$('phone-live-panel').hidden=draft;
+  const connected=!!current?.device?.pushEnabled;
+  $('phone-connection').dataset.connected=String(connected);
+  phoneText('phone-connection',connected?'Đã bật push':current?.device?.paired?'Chưa bật push':'Chưa kết nối');
+  const message=phoneTracked||phoneLatest;
+  const state=phoneStatus(message);
+  $('phone-live-notification').hidden=!message;
+  $('phone-live-empty').hidden=!!message;
+  $('phone-live-notification').dataset.tone=state.tone;
+  if(message) {
+    phoneText('phone-live-title',message.title);
+    phoneText('phone-live-body',message.body);
+    phoneText('phone-live-time',message.receivedAt?dateLabel(message.receivedAt):state.tone==='opened'||state.tone==='received'?'Đã nhận':'Chờ xác nhận');
+    phoneText('phone-live-card-state',state.label);
+    phoneText('phone-screen-caption',(message.source==='scheduled'?'THEO LỊCH':'GỬI TRỰC TIẾP')+' · '+(['received','opened'].includes(state.tone)?'ĐÃ XÁC NHẬN':'CHƯA XÁC NHẬN'));
+  }else{
+    phoneText('phone-live-title','');phoneText('phone-live-body','');phoneText('phone-live-card-state','');
+    phoneText('phone-screen-caption','THÔNG BÁO GẦN NHẤT');
+  }
+  $('phone-delivery').dataset.tone=draft?'draft':state.tone;
+  phoneText('phone-delivery-title',draft?'Đang xem trước · chưa gửi':state.label);
+  phoneText('phone-delivery-detail',draft?'Nội dung đổi ngay khi mày gõ. Bấm Gửi thông báo để gửi thật.':state.detail);
+  phoneText('phone-sync-note',phoneSyncFailed?'Mất kết nối máy chủ · đang hiển thị dữ liệu gần nhất.':draft?'Bản nháp không gửi tới iPhone.':current?'Kiểm tra biên nhận mỗi 3 giây khi mở trang.':'Đang kết nối máy chủ…');
+  renderPhoneClock();
 }
 function renderPreview() {
   $('preview-title').textContent = $('send-title').value.trim() || COMPACT_NOTIFICATION.title;
@@ -258,10 +355,18 @@ function renderPreview() {
   $('send-count').textContent = $('send-body').value.length + ' / 150';
 }
 function draftChanged() {
-  pendingSend = null;
-  renderPreview();
+  pendingSend = null;lastManualId=null;lastManualRequestId=null;
+  renderPreview();setPhoneMode('draft');
   feedback('send-status');
 }
+$('phone-draft-tab').addEventListener('click',()=>{renderPreview();setPhoneMode('draft');});
+$('phone-preview-link').addEventListener('click',()=>{renderPreview();setPhoneMode('draft');});
+$('phone-live-tab').addEventListener('click',()=>{
+  // Explicitly returning to live shows the latest stored message, not an unknown local attempt.
+  if(!sendBusy) phoneTracked=null;
+  setPhoneMode('live');
+  if(token)refreshState({silent:true});
+});
 $('use-send-template')?.addEventListener('click', () => {
   const draft = randomManualTemplate();
   $('send-title').value = draft.title;
@@ -373,18 +478,36 @@ $('send-form').addEventListener('submit', async event => {
   const body = $('send-body').value.trim();
   if (!title || !body) { feedback('send-status', 'Nhập tiêu đề và nội dung thông báo.', 'error'); return; }
   if (!pendingSend || pendingSend.title !== title || pendingSend.body !== body) pendingSend = {title, body, requestId:crypto.randomUUID()};
+  const submitted=pendingSend,sendingToken=token;
   sendBusy = true; syncSendButton(); feedback('send-status');
+  phoneTracked={title,body,source:'manual',localPhase:'sending'};
+  lastManualId=null;lastManualRequestId=null;
+  setPhoneMode('live');
   try {
-    const result = await api('/api/admin/send', {method:'POST', data:pendingSend});
-    const state = messageState(result.message || {});
-    if (state.tone === 'failed') feedback('send-status', result.message?.error || 'Thông báo chưa gửi được. Xem trạng thái bên dưới.', 'error');
-    else if (state.tone === 'pending') feedback('send-status', 'Thông báo đang chờ gửi. Theo dõi trạng thái trong Lịch sử gửi.');
-    else feedback('send-status', state.tone === 'received' || state.tone === 'opened' ? state.label : 'Đã chuyển tới dịch vụ thông báo. Đang chờ phản hồi từ iPhone.', 'success');
-    // Keep the same request ID while the server is retrying or still sending.
-    if (state.tone !== 'pending' && !result.message?.retryAt) pendingSend = null;
+    const result = await api('/api/admin/send', {method:'POST', data:submitted});
+    if(!token||token!==sendingToken)return;
+    if(!result.message?.id)throw new Error('Máy chủ chưa trả về mã thông báo.');
+    const message=result.message;
+    phoneTracked=message;
+    if(!phoneLatest||message.createdAt>=phoneLatest.createdAt)phoneLatest=message;
+    syncPhoneHistory(current?.messages||[]);
+    renderPhone();
+    const state=messageState(message);
+    if(pendingSend===submitted){
+      lastManualId=message.id;lastManualRequestId=submitted.requestId;
+      sendFeedback(message);
+      // Keep the same request ID while the server is retrying or still sending.
+      if(state.tone!=='pending'&&!message.retryAt) pendingSend=null;
+    }
     await refreshState({silent:true});
-  } catch (error) { feedback('send-status', explainError(error), 'error'); }
-  finally { sendBusy = false; syncSendButton(); }
+  } catch (error) {
+    if(token===sendingToken){
+      phoneTracked={title,body,source:'manual',localPhase:'unknown'};renderPhone();
+      if(pendingSend===submitted)feedback('send-status',explainError(error),'error');
+    }
+  } finally {
+    if(token===sendingToken){sendBusy=false;syncSendButton();if(lastManualId)syncPhoneHistory(current?.messages||[]);renderPhone();}
+  }
 });
 $('settings-form').addEventListener('input', () => { settingsDirty = true; $('settings-dirty-indicator').hidden = false; feedback('settings-status'); });
 $('settings-form').addEventListener('submit', async event => {
@@ -443,15 +566,18 @@ $('refresh').addEventListener('click', () => refreshState());
 $('retry-service').addEventListener('click', checkService);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && token) refreshState({silent:true}); });
 setInterval(() => {
-  if (!document.hidden && token) refreshState({silent:true});
-  if (current) renderAgenda();
+  // Faster receipt checks only in live mode, normal polling while writing a draft.
+  const regular=(pollTick++%5)===0;
+  if(!document.hidden&&token&&(phoneMode==='live'||regular||sendBusy))refreshState({silent:true});
+  if(regular&&current)renderAgenda();
+  renderPhoneClock();
   if (pairingExpiry && Date.now() >= pairingExpiry * 1000) {
     $('pair-expiry').textContent = 'Mã đã hết hạn. Tạo mã mới để kết nối.';
     pairingExpiry = 0;
     pairingCode = '';
     $('pair-code').textContent = '···· ····';
   }
-}, 15000);
+}, 3000);
 routinesUI = setupRoutinesAdmin({$,api,
   onFormOpen:() => timePickers.sync(),
   today:()=>new Intl.DateTimeFormat('en-CA',{timeZone:current?.settings?.timezone||'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()),
@@ -473,7 +599,7 @@ for (const id of ['hero-add','mobile-add']) {
   $(id).addEventListener('click', () => routinesUI?.openNew());
 }
 updateSchedulePreview();
-renderPreview();
+renderPreview();renderPhone();
 checkService();
 
 return { refreshState, checkService };

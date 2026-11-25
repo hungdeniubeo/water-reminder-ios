@@ -7,7 +7,7 @@
 - **Lịch nhắc:** tạo/sửa/xóa, bật/tắt độc lập; giờ cố định, lặp theo phút, ngẫu nhiên theo ngày, hoặc ngày cụ thể (một lần, hằng tháng/hằng năm). Mỗi lịch có tiêu đề/nội dung cố định hoặc tối đa 10 biến thể. Có mẫu nhập nhanh đi làm, ăn trưa, nghỉ ngơi, đi ngủ; các mẫu này chỉ điền form, không tự lưu.
 - **Nhắc nhiều lần trong ngày:** lịch lặp có sẵn hiện cùng danh sách, bật/tắt và sửa từ đó. Cài đặt gốc và nội dung tự đổi vẫn giữ nguyên; có thể tắt, không xóa lịch gốc. Mỗi lịch mới có cấu hình riêng.
 - **Sắp tới:** xem trước tối đa ba khung giờ theo múi giờ được lưu. Đây chỉ là lịch dự kiến, **không phải xác nhận iPhone đã nhận thông báo**.
-- **Gửi ngay:** soạn nội dung, xem trước và gửi thông báo khi iPhone đã kết nối.
+- **Gửi ngay & khung iPhone:** xem trước ngay khi gõ; khi gửi thật, chuyển sang theo dõi đúng tin gửi và cập nhật biên nhận của iPhone mỗi 3 giây khi tab Admin mở ở chế độ theo dõi (15 giây khi soạn). Tin theo lịch cũng xuất hiện theo lịch sử gửi. Màn hình chỉ mô phỏng; dịch vụ push chấp nhận không có nghĩa là iPhone đã nhận. Không cần thay đổi Worker hay database cho riêng tính năng xem trước.
 - **Thiết bị & lịch sử:** kiểm tra kết nối, tạo mã ghép mới, đối chiếu trạng thái tin gửi.
 
 Admin ưu tiên thao tác trên điện thoại, có thanh điều hướng dưới màn hình, form tạo/sửa là bottom sheet và bộ chọn giờ thống nhất. Desktop dùng giao diện hai cột với form drawer.

@@ -277,3 +277,54 @@ test('a state response arriving after logout cannot reopen the dashboard or rest
     assert.equal(nodes['send-body'].value, '');
   });
 });
+
+test('phone draft follows typing and live preview follows only real receipt states', async()=>{
+  await withAdminHarness(async({nodes,state,login,emit,app,intervals,tickUntil})=>{
+    await login();
+    assert.equal(nodes['phone-live-tab'].attributes['aria-pressed'],'true');
+    assert.equal(nodes['phone-live-notification'].hidden,true);
+    nodes['send-title'].value='Nhắc Beo ♡';nodes['send-body'].value='Nội dung mới';
+    await emit('send-title','input');await emit('send-body','input');
+    assert.equal(nodes['phone-draft-panel'].hidden,false);
+    assert.equal(nodes['phone-delivery'].dataset.tone,'draft');
+    assert.equal(nodes['preview-body'].textContent,'Nội dung mới');
+    await emit('send-form','submit');
+    assert.equal(nodes['phone-live-panel'].hidden,false);
+    assert.equal(nodes['phone-live-title'].textContent,'Nhắc Beo ♡');
+    assert.equal(nodes['phone-live-body'].textContent,'Nội dung mới');
+    assert.equal(nodes['phone-delivery'].dataset.tone,'accepted');
+    assert.match(nodes['phone-delivery-title'].textContent,/chờ iPhone/);
+    assert.doesNotMatch(nodes['phone-delivery-title'].textContent,/iPhone đã nhận/);
+    Object.assign(state.messages[0],{status:'received',receivedAt:1795172403});
+    intervals[0]();
+    await tickUntil(()=>nodes['phone-delivery'].dataset.tone==='received');
+    assert.equal(nodes['phone-delivery-title'].textContent,'iPhone đã nhận');
+    assert.equal(nodes['send-status'].textContent,'iPhone đã nhận');
+    // The draft does not change when a receipt or new scheduled notification arrives.
+    Object.assign(state.messages[0],{status:'opened',openedAt:1795172404});
+    await app.refreshState({silent:true});
+    assert.equal(nodes['phone-delivery-title'].textContent,'Đã mở');
+    state.messages.unshift({id:'scheduled-message',title:'Nghỉ mắt',body:'Nghỉ tay nha',source:'scheduled',status:'received',createdAt:1795172500,receivedAt:1795172501});
+    await app.refreshState({silent:true});
+    assert.equal(nodes['phone-live-title'].textContent,'Nghỉ mắt');
+    assert.match(nodes['phone-screen-caption'].textContent,/THEO LỊCH/);
+    assert.equal(nodes['send-title'].value,'Nhắc Beo ♡');
+    await emit('logout','click');
+    assert.equal(nodes['phone-live-notification'].hidden,true);
+    assert.equal(nodes['phone-live-body'].textContent,'');
+  });
+});
+
+test('unknown send outcome never appears as a confirmed iPhone receipt',async()=>{
+  await withAdminHarness(async({nodes,login,emit,failNextSend})=>{
+    await login();
+    nodes['send-title'].value='BEO ♡';nodes['send-body'].value='Nghỉ tay nha';
+    await emit('send-body','input');failNextSend();
+    await emit('send-form','submit');
+    assert.equal(nodes['phone-delivery'].dataset.tone,'unknown');
+    assert.equal(nodes['phone-live-body'].textContent,'Nghỉ tay nha');
+    assert.match(nodes['phone-delivery-title'].textContent,/Chưa rõ/);
+    await emit('send-form','submit');
+    assert.equal(nodes['phone-delivery'].dataset.tone,'accepted');
+  });
+});

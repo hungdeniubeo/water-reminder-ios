@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./admin.css?v=20261125-flexible-v1">
-  <script type="module" src="./admin.js?v=20261125-flexible-v1"></script>
+  <link rel="stylesheet" href="./admin.css?v=20261125-live-preview-v1">
+  <script type="module" src="./admin.js?v=20261125-live-preview-v1"></script>
 </head>
 <body>
   <header class="topbar">
@@ -210,13 +210,54 @@
               <div class="label-split"><label for="send-body">Lời nhắn</label><span id="send-count">0 / 150</span></div>
               <textarea id="send-body" rows="3" maxlength="150" required placeholder="Em nhớ nghỉ ngơi một chút nha ♡"></textarea>
               <button id="use-send-template" class="inline-link shuffle-link" type="button">✳ Gợi ý một lời nhắn khác</button>
-              <p class="preview-caption">BEO SẼ NHẬN ĐƯỢC</p>
-              <div class="notification-preview" aria-label="Xem trước thông báo"><div class="preview-logo">♡</div><div><div class="preview-line"><strong id="preview-title">Beo Daily ♡</strong><small>bây giờ</small></div><p id="preview-body">Một lời nhắn nhỏ dành cho Beo ♡</p></div></div>
+              <a class="inline-link phone-preview-link" href="#phone-preview-section" id="phone-preview-link">Xem trên iPhone mô phỏng <span aria-hidden="true">↗</span></a>
               <button id="send-button" class="button primary full" type="submit" disabled>Gửi tới iPhone <span aria-hidden="true">↗</span></button>
               <p id="send-status" class="feedback" role="status" aria-live="polite"></p>
             </form>
           </section>
         </aside>
+        <section class="card phone-card" id="phone-preview-section" aria-labelledby="phone-preview-heading">
+          <div class="section-heading phone-heading">
+            <div><p class="section-kicker">IPHONE CỦA BEO</p><h2 id="phone-preview-heading">Xem thông báo</h2></div>
+            <span class="phone-connection" id="phone-connection" data-connected="false">Chưa kết nối</span>
+          </div>
+          <div class="phone-tabs" role="group" aria-label="Chế độ xem thông báo">
+            <button type="button" id="phone-draft-tab" aria-pressed="false">Xem trước</button>
+            <button type="button" id="phone-live-tab" aria-pressed="true">Theo dõi gửi</button>
+          </div>
+          <div class="phone-device" aria-label="Màn hình iPhone mô phỏng">
+            <div class="phone-side-button phone-side-button-a" aria-hidden="true"></div><div class="phone-side-button phone-side-button-b" aria-hidden="true"></div>
+            <div class="phone-screen">
+              <div class="phone-top" aria-hidden="true"><span>♡</span><span class="phone-island"></span><span class="phone-system-icons"><i></i><b></b></span></div>
+              <div class="phone-lock" aria-hidden="true">⌑</div>
+              <p id="phone-date" class="phone-date">Hôm nay</p>
+              <p id="phone-clock" class="phone-clock">--:--</p>
+              <div id="phone-draft-panel" class="phone-alert-area" hidden>
+                <p class="phone-screen-caption">BẢN NHÁP · CHƯA GỬI</p>
+                <div class="phone-notification" aria-label="Xem trước nội dung chưa gửi" data-tone="draft">
+                  <div class="phone-notification-head"><img src="./assets/icon.svg" alt="" width="23" height="23"><strong>BEO DAILY</strong><small>Xem trước</small></div>
+                  <div class="phone-notification-copy"><strong id="preview-title">Beo Daily ♡</strong><p id="preview-body">Một lời nhắn nhỏ dành cho Beo ♡</p></div>
+                </div>
+              </div>
+              <div id="phone-live-panel" class="phone-alert-area">
+                <p id="phone-screen-caption" class="phone-screen-caption">THÔNG BÁO GẦN NHẤT</p>
+                <div id="phone-live-notification" class="phone-notification" data-tone="pending" hidden>
+                  <div class="phone-notification-head"><img src="./assets/icon.svg" alt="" width="23" height="23"><strong>BEO DAILY</strong><small id="phone-live-time">Chờ gửi</small></div>
+                  <div class="phone-notification-copy"><strong id="phone-live-title"></strong><p id="phone-live-body"></p></div>
+                  <p class="phone-notification-state" id="phone-live-card-state"></p>
+                </div>
+                <p id="phone-live-empty" class="phone-empty">Chưa có thông báo nào.</p>
+              </div>
+              <div class="phone-bottom" aria-hidden="true"><span>✧</span><span>♡</span></div><div class="phone-home-bar" aria-hidden="true"></div>
+            </div>
+          </div>
+          <div class="phone-delivery" id="phone-delivery" data-tone="pending" role="status" aria-live="polite">
+            <span class="phone-delivery-dot" aria-hidden="true"></span>
+            <div><strong id="phone-delivery-title">Chưa có thông báo</strong><p id="phone-delivery-detail">Lịch sử gửi sẽ hiện ở đây.</p></div>
+          </div>
+          <p class="phone-sync-note" id="phone-sync-note">Đang kết nối máy chủ…</p>
+          <p class="phone-disclaimer">Màn hình mô phỏng, giờ theo múi giờ Admin. Cách hiển thị và thời điểm hiện trên iPhone phụ thuộc iOS và kết nối mạng.</p>
+        </section>
       </div>
 
       <details class="manage-details" id="device-card">
