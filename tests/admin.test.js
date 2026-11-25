@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { HOME_COPIES } from '../water-notes.js';
 import {messageState} from '../admin.js';
 import {readFile} from 'node:fs/promises';
+import {resolveObjectURL} from 'node:buffer';
 
 test('admin never turns provider acceptance into a claim of phone receipt', () => {
   assert.deepEqual(messageState({status:'accepted',acceptedAt:100}),{label:'Đã chuyển đi',tone:'accepted'});
@@ -43,7 +44,7 @@ async function withAdminHarness(run) {
   const createNode = () => {
     const node = {
       hidden: false, disabled: false, value: '', checked: false, type: 'text', textContent: '',
-      dataset: {}, children: [], listeners: {}, classList: { toggle() {} },
+      dataset: {}, children: [], listeners: {}, classList: { toggle() {}, add() {}, remove() {} },
       addEventListener(type, listener) { (this.listeners[type] ||= []).push(listener); },
       setAttribute(name, value) { (this.attributes ||= {})[name] = value; },
       append(...items) { this.children.push(...items); },
@@ -66,7 +67,7 @@ async function withAdminHarness(run) {
   nodes['send-form'].reset = () => { nodes['send-title'].value = ''; nodes['send-body'].value = ''; };
   nodes.dashboard.hidden = true;
   nodes.logout.hidden = true;
-  const storage = new Map(), storageWrites = [], calls = [], intervals = [];
+  const storage = new Map(), storageWrites = [], calls = [], intervals = [], downloads=[];
   const password = 'test-owner-code-never-persist-this';
   const bearer = 'admin.test-session.test-session-secret';
   const state = {
@@ -75,7 +76,8 @@ async function withAdminHarness(run) {
       enabled: true, start: '09:00', end: '21:00', interval: 120, timezone: 'Asia/Ho_Chi_Minh' },
     device: { paired: true, pushEnabled: true }, service: { ready: true }, messages: []
   };
-  let failSends = 0;
+  let failSends = 0,systemAvailable=true;
+  const health={database:'water-couple',sizeBytes:2000000,freeLimitBytes:500000000,totalMessages:42,todayMessages:4,expiredMessages:2,retentionDays:30,retentionEditable:true,cleanupBatch:1000,exportLimit:5000,timezone:'Asia/Ho_Chi_Minh',checkedAt:1795172400,serviceReady:true};
   let nextStateGate = null;
   const gates = [];
   const tickUntil = async predicate => {
@@ -90,8 +92,8 @@ async function withAdminHarness(run) {
       removeItem: name => storage.delete(name)
     });
     install('localStorage', { setItem() { throw new Error('Admin credentials must not enter localStorage'); }, getItem() { return null; } });
-    install('document', { getElementById: id => nodes[id], hidden: false, addEventListener() {},
-      createElement: createNode, createDocumentFragment: createNode });
+    install('document', { getElementById: id => nodes[id], hidden: false, addEventListener() {}, body:createNode(),
+      createElement: tag=>{const node=createNode();if(tag==='a'){node.remove=()=>{};node.click=()=>downloads.push({filename:node.download,url:node.href});}return node;},createDocumentFragment: createNode });
     install('window', { confirm: () => true });
     install('setInterval', callback => { intervals.push(callback); return intervals.length; });
     install('fetch', async (url, options) => {
@@ -110,6 +112,10 @@ async function withAdminHarness(run) {
         return Response.json(state);
       }
       if (path === '/api/admin/routines') return Response.json({routines: [], advanced: true});
+      if (path === '/api/admin/system') return systemAvailable?Response.json(health):Response.json({error:'missing'},{status:404});
+      if (path === '/api/admin/system/export') return Response.json({exportedAt:1795172400,limit:5000,truncated:false,messages:[{title:'Beo',body:'Lời nhắn'}]});
+      if (path === '/api/admin/system/retention') {health.retentionDays=data.days;return Response.json({ok:true,retentionDays:data.days});}
+      if (path === '/api/admin/system/cleanup') {const deleted=health.expiredMessages;health.expiredMessages=0;health.totalMessages-=deleted;return Response.json({ok:true,deleted});}
       if (path === '/api/admin/send') {
         if (failSends > 0) { failSends--; throw new TypeError('Network connection lost after request was sent'); }
         const message = { id: 'sent-message', title: data.title, body: data.body,
@@ -127,7 +133,7 @@ async function withAdminHarness(run) {
       await emit('login-form', 'submit');
       assert.equal(nodes.dashboard.hidden, false);
     };
-    await run({ nodes, storage, storageWrites, calls, state, password, bearer, app, login, emit, tickUntil, intervals,
+    await run({ nodes, storage, storageWrites, calls, state, password, bearer, app, login, emit, tickUntil, intervals,downloads,health,setSystemAvailable(value){systemAvailable=value;},
       failNextSend() { failSends++; },
       deferNextState() {
         const gate = { started: false };
@@ -340,5 +346,58 @@ test('a newer confirmed scheduled message is visible even if the earlier manual 
     assert.equal(nodes['phone-live-title'].textContent,'Uống nước');
     assert.equal(nodes['phone-delivery'].dataset.tone,'received');
     assert.match(nodes['send-status'].textContent,/Đang chờ phản hồi từ iPhone/,'the original manual push is not falsely confirmed');
+  });
+});
+
+test('compact system health is lazy, not polled, and requires confirmation for mutations',async()=>{
+  await withAdminHarness(async({nodes,calls,login,emit,app,intervals,tickUntil})=>{
+    await login();
+    assert.equal(calls.filter(c=>c.path==='/api/admin/system').length,0);
+    nodes['system-card'].open=true;await emit('system-card','toggle');
+    assert.equal(nodes['system-data'].hidden,false);
+    assert.equal(nodes['system-size'].textContent,'2 MB');
+    assert.equal(nodes['system-total'].textContent,'42');
+    assert.equal(nodes['system-today'].textContent,'4');
+    assert.equal(nodes['system-retention'].value,'30');
+    const count=calls.filter(c=>c.path==='/api/admin/system').length;
+    await app.refreshState({silent:true});
+    assert.equal(calls.filter(c=>c.path==='/api/admin/system').length,count);
+    nodes['system-retention'].value='60';await emit('system-retention','change');
+    window.confirm=()=>false;await emit('system-save','click');await emit('system-cleanup','click');
+    assert.equal(calls.filter(c=>c.path.startsWith('/api/admin/system/')).length,0);
+    window.confirm=()=>true;await emit('system-save','click');
+    assert.equal(nodes['system-retention'].value,'60');
+    assert.deepEqual(calls.find(c=>c.path==='/api/admin/system/retention').data,{days:60,confirm:true});
+    await emit('system-cleanup','click');
+    assert.equal(nodes['system-total'].textContent,'40');
+    assert.equal(nodes['system-expired'].textContent,'0');
+    assert.equal(nodes['system-cleanup'].disabled,true);
+    await emit('logout','click');
+    assert.equal(nodes['system-card'].open,false);
+    assert.equal(nodes['system-data'].hidden,true);
+  });
+});
+
+test('system panel handles old Worker and unavailable size without inventing metrics, exports JSON',async()=>{
+  await withAdminHarness(async({nodes,login,emit,health,downloads,setSystemAvailable})=>{
+    await login();
+    setSystemAvailable(false);
+    nodes['system-card'].open=true;await emit('system-card','toggle');
+    assert.equal(nodes['system-data'].hidden,true);
+    assert.match(nodes['system-status'].textContent,/deploy Worker/);
+    assert.equal(nodes['system-cleanup'].disabled,true);
+    setSystemAvailable(true);health.sizeBytes=null;
+    await emit('system-refresh','click');
+    assert.equal(nodes['system-progress'].hidden,true);
+    assert.equal(nodes['system-size'].textContent,'Chưa có số liệu');
+    health.sizeBytes=410000000;
+    await emit('system-refresh','click');
+    assert.equal(nodes['system-progress'].dataset.warning,'true');
+    assert.equal(nodes['system-progress'].value,82);
+    await emit('system-export','click');
+    assert.equal(downloads.length,1);
+    assert.match(downloads[0].filename,/^beo-history-\d{4}-\d{2}-\d{2}\.json$/);
+    const payload=await resolveObjectURL(downloads[0].url).text();
+    assert.deepEqual(JSON.parse(payload).messages,[{title:'Beo',body:'Lời nhắn'}]);
   });
 });

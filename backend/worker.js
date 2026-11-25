@@ -9,6 +9,11 @@ const SESSION_SECONDS = 12 * 60 * 60;
 const PAIR_SECONDS = 10 * 60;
 const RETRY_SECONDS = 15 * 60;
 const MAX_ATTEMPTS = 3;
+const RETENTION_DAYS = [30,60,90];
+const DEFAULT_RETENTION = 30;
+const FREE_DB_BYTES = 500 * 1000 * 1000;
+const CLEANUP_BATCH = 1000;
+const EXPORT_LIMIT = 5000;
 class HttpError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
@@ -76,6 +81,46 @@ const exposeMessage = row => row ? ({
   error: row.error || '', retryAt: row.next_attempt_at || null
 }) : null;
 const getSettings = env => env.DB.prepare('SELECT * FROM beo_settings WHERE id=1').first();
+async function historyPolicy(env) {
+  const table=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='beo_system_settings'").first();
+  if(!table) return {days:DEFAULT_RETENTION,editable:false};
+  const row=await env.DB.prepare('SELECT retention_days FROM beo_system_settings WHERE id=1').first();
+  return {days:RETENTION_DAYS.includes(row?.retention_days)?row.retention_days:DEFAULT_RETENTION,editable:!!row};
+}
+// Find the actual local date boundary (including DST), without assuming a fixed UTC offset.
+function localDayStart(timestamp,timezone) {
+  const f=new Intl.DateTimeFormat('en-CA',{timeZone:timezone,year:'numeric',month:'2-digit',day:'2-digit'});
+  const today=f.format(new Date(timestamp*1000));
+  let low=timestamp-36*3600,high=timestamp;
+  while(low<high) {
+    const middle=Math.floor((low+high)/2);
+    if(f.format(new Date(middle*1000))===today) high=middle;
+    else low=middle+1;
+  }
+  return low;
+}
+const historyCutoff=(timestamp,days)=>timestamp-days*86400;
+// Bounded deletes avoid oversized transactions after a retention policy change.
+function cleanupHistory(env,timestamp,days) {
+  return env.DB.prepare('DELETE FROM beo_messages WHERE id IN (SELECT id FROM beo_messages WHERE created_at<? ORDER BY created_at,id LIMIT ?)')
+    .bind(historyCutoff(timestamp,days),CLEANUP_BATCH);
+}
+async function systemHealth(env,timestamp) {
+  const [settings,policy]=await Promise.all([getSettings(env),historyPolicy(env)]);
+  const start=localDayStart(timestamp,settings.timezone);
+  const result=await env.DB.prepare(`SELECT COUNT(*) AS total,
+    COALESCE(SUM(CASE WHEN created_at>=? AND created_at<=? THEN 1 ELSE 0 END),0) AS today,
+    COALESCE(SUM(CASE WHEN created_at<? THEN 1 ELSE 0 END),0) AS expired
+    FROM beo_messages`).bind(start,timestamp,historyCutoff(timestamp,policy.days)).all();
+  const counts=result.results[0],size=result.meta?.size_after;
+  return {
+    database:'water-couple',sizeBytes:Number.isSafeInteger(size)&&size>=0?size:null,freeLimitBytes:FREE_DB_BYTES,
+    totalMessages:counts.total,todayMessages:counts.today,expiredMessages:counts.expired,
+    retentionDays:policy.days,retentionEditable:policy.editable,cleanupBatch:CLEANUP_BATCH,
+    exportLimit:EXPORT_LIMIT,timezone:settings.timezone,checkedAt:timestamp,
+    serviceReady:configured(env)
+  };
+}
 async function routinesReady(env) {
   const row = await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='beo_routines'").first();
   return Boolean(row);
@@ -303,6 +348,30 @@ export function createWorker({ now = () => Date.now(), sendPush = sendWebPush } 
           device: { paired: Boolean(device), pushEnabled: Boolean(device?.push_json), createdAt: device?.created_at || null,
             lastSeenAt: device?.last_seen_at || null },
           service: { ready: configured(env) }, messages: messages.results.map(exposeMessage) });
+      }
+      if (path === '/api/admin/system' && method === 'GET') {
+        return json(await systemHealth(env,timestamp));
+      }
+      if (path === '/api/admin/system/retention' && method === 'POST') {
+        const data=await readJson(request);
+        if(data.confirm!==true||!RETENTION_DAYS.includes(data.days)) fail(400,'Chọn 30, 60 hoặc 90 ngày và xác nhận.');
+        const policy=await historyPolicy(env);
+        if(!policy.editable) fail(503,'Cần cập nhật database để đổi thời gian lưu.');
+        await env.DB.prepare('UPDATE beo_system_settings SET retention_days=? WHERE id=1').bind(data.days).run();
+        return json({ok:true,retentionDays:data.days});
+      }
+      if (path === '/api/admin/system/cleanup' && method === 'POST') {
+        const data=await readJson(request);
+        if(data.confirm!==true) fail(400,'Cần xác nhận dọn lịch sử hết hạn.');
+        const policy=await historyPolicy(env);
+        if(data.retentionDays!==policy.days) fail(409,'Thời gian lưu đã thay đổi. Làm mới số liệu trước khi dọn.');
+        const result=await cleanupHistory(env,timestamp,policy.days).run();
+        return json({ok:true,deleted:result.meta.changes});
+      }
+      if (path === '/api/admin/system/export' && method === 'GET') {
+        const rows=await env.DB.prepare('SELECT * FROM beo_messages ORDER BY created_at DESC,id DESC LIMIT ?').bind(EXPORT_LIMIT+1).all();
+        return json({exportedAt:timestamp,limit:EXPORT_LIMIT,truncated:rows.results.length>EXPORT_LIMIT,
+          messages:rows.results.slice(0,EXPORT_LIMIT).map(exposeMessage)});
       }
       if (path === '/api/admin/routines' && method === 'GET') {
         await requireRoutines(env);
@@ -532,10 +601,11 @@ export function createWorker({ now = () => Date.now(), sendPush = sendWebPush } 
       for (const message of retries.results) await deliver(env, device, message, timestamp);
     }
     if (date.getUTCMinutes() === 0) {
+      const policy=await historyPolicy(env);
       await env.DB.batch([
         env.DB.prepare('DELETE FROM beo_admin_sessions WHERE expires_at<=?').bind(timestamp),
         env.DB.prepare('DELETE FROM beo_rate_limits WHERE expires_at<=?').bind(timestamp),
-        env.DB.prepare('DELETE FROM beo_messages WHERE created_at<?').bind(timestamp - 30 * 86400)
+        cleanupHistory(env,timestamp,policy.days)
       ]);
     }
   }
