@@ -45,6 +45,7 @@ async function withAdminHarness(run) {
       hidden: false, disabled: false, value: '', checked: false, type: 'text', textContent: '',
       dataset: {}, children: [], listeners: {}, classList: { toggle() {} },
       addEventListener(type, listener) { (this.listeners[type] ||= []).push(listener); },
+      setAttribute(name, value) { (this.attributes ||= {})[name] = value; },
       append(...items) { this.children.push(...items); },
       replaceChildren(...items) { this.children = items; },
       reportValidity() { return true; }, reset() {}
@@ -108,6 +109,7 @@ async function withAdminHarness(run) {
         if (gate) { gate.started = true; await gate.promise; }
         return Response.json(state);
       }
+      if (path === '/api/admin/routines') return Response.json({routines: [], advanced: true});
       if (path === '/api/admin/send') {
         if (failSends > 0) { failSends--; throw new TypeError('Network connection lost after request was sent'); }
         const message = { id: 'sent-message', title: data.title, body: data.body,

@@ -198,3 +198,6 @@ body.editor-open{overflow:hidden}
 .routine-variant label{margin-top:9px!important}
 #routine-variants-panel .button.full{min-height:42px}
 #routine-upgrade-note{margin:8px 0;color:#94673c}
+
+#routine-form #routine-kind-fields + .field-grid:has(#routine-time-fields[hidden]){grid-template-columns:1fr}
+#routine-form .routine-enable{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fcf8fa}

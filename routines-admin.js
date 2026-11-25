@@ -35,7 +35,7 @@ export function setupRoutinesAdmin({ $, api, onFormOpen = () => {}, onChange = (
   let busy = false;
   let editing = null;
   let lastFocus = null;
-  let advanced = false, legacy = null, variantSerial=0, variantRows=[];
+  let advanced = false, legacy = null, variantSerial=0, variantRows=[], generation=0;
   const status = (value='',tone='') => { $('routines-status').textContent = value; $('routines-status').dataset.tone = tone; };
   const formStatus = (value='',tone='') => { $('routine-form-status').textContent = value; $('routine-form-status').dataset.tone = tone; };
   const weekdays = () => [...(document.querySelectorAll?.('[data-routine-day]') || [])];
@@ -157,10 +157,10 @@ export function setupRoutinesAdmin({ $, api, onFormOpen = () => {}, onChange = (
       toggle.addEventListener('click', async () => {
         if (busy) return;
         if(routine.legacy) {
-          busy=true;render();
-          try{await onLegacyToggle(!routine.enabled);status('Đã lưu lịch lặp.','success');}
-          catch(error){status(error.message||'Không lưu được lịch lặp.','error');}
-          finally{busy=false;render();}
+          const session=generation;busy=true;render();
+          try{await onLegacyToggle(!routine.enabled);if(session===generation)status('Đã lưu lịch lặp.','success');}
+          catch(error){if(session===generation)status(error.message||'Không lưu được lịch lặp.','error');}
+          finally{if(session===generation){busy=false;render();}}
         } else await saveRoutine(routine.id,{...routine,enabled:!routine.enabled},false);
       });
       const edit = document.createElement('button'); edit.type='button'; edit.className='inline-link';
@@ -207,36 +207,40 @@ export function setupRoutinesAdmin({ $, api, onFormOpen = () => {}, onChange = (
   }
   async function load() {
     if (busy) return;
-    busy=true; status('Đang tải lịch…');
+    const session=generation;busy=true; status('Đang tải lịch…');
     try {
       const result = await api('/api/admin/routines');
+      if(session!==generation)return;
       reminders = Array.isArray(result.routines) ? result.routines : [];
       advanced=result.advanced===true;syncAvailability();
       status();
     } catch(error) {
+      if(session!==generation)return;
       status(error.status===404||error.status===503
         ? 'Lịch hằng ngày chưa có trên máy chủ. Cần kiểm tra Worker để sử dụng.'
         : error.message||'Không tải được lịch. Kiểm tra mạng rồi thử lại.','error');
-    } finally {busy=false;render();}
+    } finally {if(session===generation){busy=false;render();}}
   }
   async function saveRoutine(id,data,close=true) {
     if (busy) return;
-    busy = true; formStatus('Đang lưu…');
+    const session=generation;busy = true; formStatus('Đang lưu…');
     if($('routine-save')) $('routine-save').disabled=true;
     render();
     try {
       const result=await api(id?'/api/admin/routines/'+encodeURIComponent(id):'/api/admin/routines',{
         method:id?'PATCH':'POST',data
       });
+      if(session!==generation)return;
       if(result.routine) reminders=id?reminders.map(r=>r.id===id?result.routine:r):[...reminders,result.routine];
       if (close) closeForm();
       busy=false;
       await load();
-      status('Đã lưu lời nhắc.','success');
+      if(session===generation)status('Đã lưu lời nhắc.','success');
     } catch(error) {
+      if(session!==generation)return;
       formStatus(error.message||'Không lưu được. Thử lại nhé.','error');
       status(error.message||'Không lưu được lịch.','error');
-    } finally { busy=false;if($('routine-save')) $('routine-save').disabled=false;render(); }
+    } finally { if(session===generation){busy=false;if($('routine-save')) $('routine-save').disabled=false;render();} }
   }
 
   $('routine-kind')?.addEventListener('change',syncFields);
@@ -286,20 +290,21 @@ export function setupRoutinesAdmin({ $, api, onFormOpen = () => {}, onChange = (
   });
   $('routine-delete').addEventListener('click',async()=>{
     if (!editing||busy||!window.confirm('Xóa lời nhắc này? Các lịch khác vẫn được giữ.')) return;
-    busy=true;formStatus('Đang xóa…');
+    const session=generation;busy=true;formStatus('Đang xóa…');
     try {
       await api('/api/admin/routines/'+encodeURIComponent(editing),{method:'DELETE',data:{}});
-      reminders=reminders.filter(r=>r.id!==editing);closeForm();busy=false;await load();status('Đã xóa lời nhắc.','success');
-    } catch(error){formStatus(error.message||'Chưa xóa được.','error');}
-    finally{busy=false;}
+      if(session!==generation)return;
+      reminders=reminders.filter(r=>r.id!==editing);closeForm();busy=false;await load();if(session===generation)status('Đã xóa lời nhắc.','success');
+    } catch(error){if(session===generation)formStatus(error.message||'Chưa xóa được.','error');}
+    finally{if(session===generation){busy=false;render();}}
   });
   return {
-    ensureLoaded(){if(initialized)return;initialized=true;void load();},
+    ensureLoaded(){if(initialized)return;initialized=true;return load();},
     openNew(template){openForm(null,template);},
     setLegacySettings(settings) {
       const next=settings?{id:'legacy-water',legacy:true,label:'Nhắc lặp có sẵn',title:settings.notificationTitle,body:settings.reminderMessage,time:settings.start,days:127,enabled:!!settings.enabled,schedule:{kind:'repeat',start:settings.start,end:settings.end,interval:settings.interval}}:null;
       if(JSON.stringify(next)!==JSON.stringify(legacy)){legacy=next;render();}
     },
-    reset(){initialized=false;reminders=[];legacy=null;advanced=false;editing=null;closeForm();syncAvailability();$('routine-list').replaceChildren();status();onChange([]);}
+    reset(){generation++;busy=false;initialized=false;reminders=[];legacy=null;advanced=false;editing=null;variantRows=[];closeForm();syncAvailability();if($('routine-save'))$('routine-save').disabled=false;$('routine-list').replaceChildren();status();onChange([]);}
   };
 }

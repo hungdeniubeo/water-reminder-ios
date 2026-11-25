@@ -245,8 +245,8 @@ async function refreshState({silent = false} = {}) {
     $('dashboard').hidden = false;
     $('mobile-nav').hidden = false;
     $('logout').hidden = false;
-    routinesUI?.ensureLoaded();
-    if (!silent) feedback('global-status');
+    await routinesUI?.ensureLoaded();
+    if (token===refreshingToken && !silent) feedback('global-status');
   } catch (error) {
     if (!silent) feedback(token ? 'global-status' : 'login-status', explainError(error), 'error');
     if (!current && token) feedback('login-status', explainError(error), 'error');
@@ -459,11 +459,12 @@ routinesUI = setupRoutinesAdmin({$,api,
   onLegacyToggle:async enabled=>{
     if(settingsDirty||$('save-settings').disabled) throw new Error('Lưu cài đặt lịch lặp đang chỉnh trước khi bật/tắt.');
     if(!current?.settings) throw new Error('Chưa tải cài đặt lịch lặp.');
-    $('save-settings').disabled=true;
+    const savingToken=token;$('save-settings').disabled=true;
     try{
       const state=await api('/api/admin/state');
+      if(!token||token!==savingToken)return;
       const result=await api('/api/admin/settings',{method:'POST',data:{...state.settings,enabled}});
-      if(current) renderState({...current,settings:result.settings});
+      if(current&&token===savingToken) renderState({...current,settings:result.settings});
     }finally{$('save-settings').disabled=false;}
   },
   onChange:reminders => { activeRoutines = reminders; renderAgenda(); }
