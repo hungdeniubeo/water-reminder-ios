@@ -1,8 +1,8 @@
-const CACHE_NAME = 'water-reminder-static-v32-daily-home';
+const CACHE_NAME = 'water-reminder-static-v33-touch-fix';
 const APP_ROOT = new URL('./', self.registration.scope);
 const API_URL = 'https://water-beo-push.hungdeniubeo-water.workers.dev';
 const ASSETS = [
-  './', './index.html', './receiver.css?v=20261122-daily-v3', './receiver.js?v=20261122-daily-v3', './water-notes.js?v=20261122-daily-v3',
+  './', './index.html', './receiver.css?v=20261125-touch-fix-v1', './receiver.js?v=20261125-touch-fix-v1', './water-notes.js?v=20261122-daily-v3',
   './classic-pink-button.css?v=20261122-daily-v3', './classic-pink-button.js?v=20261122-daily-v3', './push-config.js',
   './manifest.webmanifest', './assets/icon.svg', './assets/icon-maskable.svg'
 ];

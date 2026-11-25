@@ -78,7 +78,19 @@ export function createReceiverClient({ baseUrl = PUSH_API_URL, fetchImpl = globa
   };
 }
 
+// WebKit can still emit selection/context-menu events on a long press.
+export function setupReceiverTouchGuards(doc = document) {
+  const editable = 'input, textarea, [contenteditable="true"], [contenteditable=""], [contenteditable="plaintext-only"]';
+  function guard(event) {
+    const target = event.target;
+    const element = typeof target?.closest === 'function' ? target : target?.parentElement;
+    if (!element?.closest?.(editable)) event.preventDefault();
+  }
+  for (const type of ['contextmenu','selectstart','copy']) doc.addEventListener(type, guard);
+}
+
 export function startReceiver() {
+  setupReceiverTouchGuards(document);
   const $ = id => document.getElementById(id);
   const client = createReceiverClient();
   const pickWaterNote = createWaterNotePicker();
