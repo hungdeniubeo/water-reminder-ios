@@ -605,3 +605,49 @@ test('weekday morning and daily lunch have independent cron slots without duplic
   await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
   assert.equal(f.sent.length,2);
 });
+
+test('advanced migration is additive; legacy routines remain intact and advanced CRUD persists',async t=>{
+  const f=await fixture(t,{legacy:true}),admin=await f.login();
+  const before=(await f.api('/api/admin/routines',{token:admin})).body;
+  assert.equal(before.advanced,false);
+  const migration=await readFile(new URL('./migrations/0004-flexible-reminders.sql',import.meta.url),'utf8');
+  const draft={label:'Uống nước',title:'Uống nước nhé',body:'Một ngụm nước',time:'08:00',days:127,enabled:true,
+    schedule:{kind:'repeat',start:'08:00',end:'20:00',interval:60,messages:[{title:'Beo ơi',body:'Uống nước nè'}]}};
+  assert.equal((await f.api('/api/admin/routines',{method:'POST',token:admin,data:draft})).status,503);
+  f.DB.exec(migration); f.DB.exec(migration);
+  const after=(await f.api('/api/admin/routines',{token:admin})).body;
+  assert.equal(after.advanced,true);
+  assert.deepEqual(after.routines,before.routines);
+  const created=await f.api('/api/admin/routines',{method:'POST',token:admin,data:draft});
+  assert.equal(created.status,201,JSON.stringify(created.body));
+  const r=created.body.routine;
+  assert.deepEqual(r.schedule,draft.schedule);
+  const bad=await f.api('/api/admin/routines/'+r.id,{method:'PATCH',token:admin,data:{...r,schedule:{kind:'random',start:'08:00',end:'08:05',count:3}}});
+  assert.equal(bad.status,400);
+  const toggled=await f.api('/api/admin/routines/'+r.id,{method:'PATCH',token:admin,data:{...r,enabled:false}});
+  assert.equal(toggled.body.routine.enabled,false);
+  assert.deepEqual(toggled.body.routine.schedule,draft.schedule);
+  assert.equal((await f.api('/api/admin/routines/'+r.id,{method:'DELETE',token:admin})).status,200);
+  assert.equal((await f.DB.prepare('SELECT COUNT(*) AS n FROM beo_routine_options').first()).n,0);
+  assert.equal((await f.api('/api/device/me',{token:f.legacyToken})).status,200);
+});
+
+test('advanced repeat and date schedules dispatch independently with deduplication',async t=>{
+  const f=await fixture(t),{admin}=await f.connect();
+  f.DB.exec(await readFile(new URL('./migrations/0004-flexible-reminders.sql',import.meta.url),'utf8'));
+  const base={label:'Nghỉ tay',title:'Nhắc Beo',body:'Nghỉ chút nhé',time:'09:00',days:127,enabled:true};
+  for(const schedule of [{kind:'repeat',start:'09:00',end:'10:00',interval:30},{kind:'date',date:'2026-11-20',cycle:'once'}]){
+    const result=await f.api('/api/admin/routines',{method:'POST',token:admin,data:{...base,schedule}});
+    assert.equal(result.status,201,JSON.stringify(result.body));
+  }
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  assert.equal(f.sent.length,2);
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  assert.equal(f.sent.length,2);
+  f.clock.ms+=30*60000;
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  assert.equal(f.sent.length,3);
+  f.clock.ms+=86400000-30*60000;
+  await f.worker.scheduled({scheduledTime:f.clock.ms},f.env);
+  assert.equal(f.sent.length,4);
+});

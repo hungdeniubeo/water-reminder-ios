@@ -119,3 +119,9 @@ CREATE INDEX IF NOT EXISTS beo_routines_enabled_time ON beo_routines(enabled,tim
 INSERT OR IGNORE INTO beo_routines (id,label,title,body,time_local,days_mask,enabled) VALUES
 ('go-work','Đi làm','BEO ƠI, CHUẨN BỊ ĐI LÀM NHA ♡','Chúc em một ngày làm việc thật suôn sẻ nha.','08:00',62,0),
 ('lunch','Ăn trưa','BEO ƠI, NHỚ ĂN TRƯA NHA ♡','Gần 12 giờ rồi đó, em nghỉ tay đi ăn trưa nha.','11:50',127,0);
+
+-- Additional scheduling options; existing routines and device credentials are unchanged.
+CREATE TABLE IF NOT EXISTS beo_routine_options (
+  routine_id TEXT PRIMARY KEY REFERENCES beo_routines(id) ON DELETE CASCADE,
+  schedule_json TEXT NOT NULL CHECK(json_valid(schedule_json))
+);
